@@ -71,9 +71,9 @@
         
         <label>🔴 المبلغ المتبقي:</label><input type="number" id="rem" readonly style="color:#ef4444; font-weight:bold; background:#111827;">
         
-        <button type="button" class="btn" style="background:#22c55e; margin-top:15px;" onclick="save('client')">📱 1. إرسال للعميل</button>
-        <button type="button" class="btn" style="background:#3b82f6;" onclick="save('owner')">📋 2. إرسال للمحل</button>
-        <button type="button" class="btn" style="background:#dc2626;" onclick="resetFormForNextInvoice()">➕ فاتورة جديدة</button>
+        <button type="button" class="btn" style="background:#22c55e; margin-top:15px;" onclick="sendTo('client')">📱 1. إرسال للعميل</button>
+        <button type="button" class="btn" style="background:#3b82f6;" onclick="sendTo('owner')">📋 2. إرسال للمحل</button>
+        <button type="button" class="btn" style="background:#dc2626;" onclick="resetFormForNextInvoice()">➕ فاتورة جديدة (تصفير ورقم جديد)</button>
         <button type="button" class="btn" style="background:#f59e0b; color:#000;" onclick="rep()">📊 تحميل التقرير اليومي</button>
         
         <a href="https://www.facebook.com/61560847583033" target="_blank" rel="noopener noreferrer" class="btn" style="background:#1877f2;">
@@ -142,8 +142,9 @@
     }
 
     async function uploadImageIfSelected() {
-        if (!selectedFile) return uploadedImageUrl;
+        // لو الصورة اترفعت قبل كده، رجع الرابط القديم فوراً من غير رفع تالت
         if (uploadedImageUrl !== "") return uploadedImageUrl;
+        if (!selectedFile) return "";
         
         document.getElementById('uploadStatus').style.display = 'block';
         const fileName = `item_${Date.now()}.jpg`;
@@ -185,7 +186,7 @@
         return items.join(' | ') || 'صيانة متنوعة';
     }
 
-    async function save(m) {
+    async function sendTo(m) {
         var n = document.getElementById('name').value.trim();
         var t = document.getElementById('tot').value.trim();
         var ph = document.getElementById('phone').value.trim();
@@ -222,34 +223,25 @@
 
         var baseTxt = `👤 *اسم العميل:* ${n}\n📅 *تاريخ الاستلام:* ${r}\n📦 *تاريخ التسليم:* ${d}\n\n👟 *كوتشيات:* ${sk} | 🥾 *جزم:* ${ss} | 🩴 *شبشب:* ${sl}\n👡 *صندل:* ${sn} | 👞 *فردة:* ${sg} | 💼 *شنط:* ${bg}\n🛠️ *الخدمة:* ${sv}\n\n💰 *الحساب الكلي:* ${t} جنيه\n💵 *المدفوع مقدمًا:* ${p} جنيه\n🔴 *المبلغ المتبقي:* ${rm} جنيه\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n🙏 *شكراً لزيارتكم الجميلة* ❤️`;
         
-        // تجهيز ونقل رقم الفاتورة للرقم التالي تلقائياً بعد الإرسال الناجح
-        var activeNumToWhatsApp = c;
-        resetFormFieldsOnly();
-        await fetchNextInvoiceNum();
-
         if (m === 'client') {
             if (ph.startsWith("0")) ph = "2" + ph;
-            var msg = `✨ *ALESKAFY SHOES* ✨\n🧾 *طلب صيانة جديد رقم (#${activeNumToWhatsApp})*\n\n` + baseTxt + `\n\n━━━━━━━━━━━━━━━\n🌐 تابع صفحة المحل على فيسبوك:\nhttps://www.facebook.com/61560847583033\n\n❤️ شكراً لزيارتكم ونتشرف بخدمتكم دائماً.`;
+            var msg = `✨ *ALESKAFY SHOES* ✨\n🧾 *طلب صيانة جديد رقم (#${c})*\n\n` + baseTxt + `\n\n━━━━━━━━━━━━━━━\n🌐 تابع صفحة المحل على فيسبوك:\nhttps://www.facebook.com/61560847583033\n\n❤️ شكراً لزيارتكم ونتشرف بخدمتكم دائماً.`;
             window.location.href = "whatsapp://send?phone="+ph+"&text="+encodeURIComponent(msg);
         } else {
             var imgTxt = imgUrl ? `\n\n🖼️ *صورة القطعة قبل الصيانة:* ${imgUrl}` : '';
-            var oMsg = `📥 *[ALESKAFY SHOES - نسخة المحل]*\n🧾 *أرشيف فاتورة اليوم رقم (#${activeNumToWhatsApp})*\n\n` + baseTxt + imgTxt;
+            var oMsg = `📥 *[ALESKAFY SHOES - نسخة المحل]*\n🧾 *أرشيف فاتورة اليوم رقم (#${c})*\n\n` + baseTxt + imgTxt;
             window.location.href = "whatsapp://send?phone="+OWNER_PHONE+"&text="+encodeURIComponent(oMsg);
         }
     }
 
-    function resetFormFieldsOnly() {
+    async function resetFormForNextInvoice() {
         document.getElementById('invoiceForm').reset();
         document.getElementById('imagePreview').style.display = 'none';
         uploadedImageUrl = "";
         selectedFile = null;
         isCurrentInvoiceSaved = false;
-    }
-
-    async function resetFormForNextInvoice() {
-        resetFormFieldsOnly();
         await fetchNextInvoiceNum();
-        alert("جاهز لكتابة الفاتورة الجديدة 👍");
+        alert("جاهز لكتابة الفاتورة الجديدة وبرقم جديد 👍");
     }
 
     async function rep() {
