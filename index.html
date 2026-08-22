@@ -59,7 +59,7 @@
         <label>🛠️ الخدمة المطلوبة:</label><input type="text" id="srv" placeholder="غسيل، خياطة">
         
         <label>📷 تصوير القطعة قبل الصيانة:</label>
-        <input type="file" id="itemImage" accept="image/*" capture="environment" style="display:none;" onchange="handleImageSelection(event)">
+        <input type="file" id="itemImage" accept="image/*" capture="environment" style="display:none;" onchange="previewImage(event)">
         <button type="button" class="btn camera-btn" onclick="document.getElementById('itemImage').click();">📷 تصوير / اختيار صورة</button>
         <img id="imagePreview" alt="معاينة الصورة">
         <div id="uploadStatus" class="loading-text">⏳ جاري رفع الصورة للسيرفر، انتظر لحظة...</div>
@@ -132,21 +132,21 @@
         document.getElementById('badge').innerText = "فاتورة اليوم رقم: #" + currentInvoiceNum;
     }
 
-    // دالة جديدة محسنة لالتقاط وحفظ الصورة فوراً للآيفون والأجهزة كلها
-    async function handleImageSelection(event) {
+    async function previewImage(event) {
         const fileInput = document.getElementById('itemImage');
         if (fileInput.files && fileInput.files[0]) {
             selectedFile = fileInput.files[0];
             const img = document.getElementById('imagePreview');
             img.src = URL.createObjectURL(selectedFile);
             img.style.display = 'block';
+            uploadedImageUrl = ""; 
             
-            // رفع الصورة تلقائياً وبشكل فوري بمجرد اختيارها لتجنب مشاكل المتاهة
-            await uploadImageNow();
+            // رفع الصورة تلقائياً وبشكل فوري بمجرد اختيارها لضمان وجود الرابط جاهز
+            await uploadForIPhone();
         }
     }
 
-    async function uploadImageNow() {
+    async function uploadForIPhone() {
         const fileInput = document.getElementById('itemImage');
         if (!selectedFile && fileInput.files && fileInput.files[0]) {
             selectedFile = fileInput.files[0];
@@ -160,7 +160,7 @@
         statusEl.style.display = 'block';
         
         try {
-            const fileName = `item_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
+            const fileName = `iphone_item_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
             
             const { data, error } = await supabaseClient.storage
                 .from('invoice_images')
@@ -172,7 +172,6 @@
             if (error) {
                 console.error("Supabase upload error:", error);
                 statusEl.style.display = 'none';
-                alert("فشل رفع الصورة على السيرفر: " + error.message);
                 return "";
             }
 
@@ -182,13 +181,12 @@
 
             uploadedImageUrl = publicUrlData.publicUrl;
             statusEl.innerText = "✅ تم رفع الصورة بنجاح وجاهزة للإرسال!";
-            setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+            setTimeout(() => { statusEl.style.display = 'none'; }, 2500);
             return uploadedImageUrl;
 
-        } (err) {
+        } catch (err) {
             console.error("Upload exception:", err);
             statusEl.style.display = 'none';
-            alert("حدث خطأ غير متوقع أثناء رفع الصورة!");
             return "";
         }
     }
@@ -222,10 +220,10 @@
             return; 
         }
 
-        // لو المستخدم اختار صورة وما استناش الرفع التلقائي، نأكد رفعه هنا إجباري
+        // تأكيد رفع الصورة إجبارياً قبل إرسال الواتساب لو لسه مرفعش
         let imgUrl = uploadedImageUrl;
         if (!imgUrl && selectedFile) {
-            imgUrl = await uploadImageNow();
+            imgUrl = await uploadForIPhone();
         }
 
         var r = document.getElementById('rDate').value, d = document.getElementById('dDate').value, sk = document.getElementById('snk').value, ss = document.getElementById('shs').value, sl = document.getElementById('slp').value, sn = document.getElementById('snd').value, sg = document.getElementById('sng').value, bg = document.getElementById('bags').value, sv = document.getElementById('srv').value, p = document.getElementById('paid').value, rm = document.getElementById('rem').value;
