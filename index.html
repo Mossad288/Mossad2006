@@ -34,7 +34,7 @@
 
         .container { 
             width: 100%; 
-            max-width: 450px; /* الافتراضي للموبايل والشاشات الصغيرة */
+            max-width: 450px; 
             background: #0c0c0c; 
             padding: 22px; 
             border-radius: 16px; 
@@ -45,7 +45,6 @@
             transition: max-width 0.3s ease;
         }
 
-        /* تكبير العرض تلقائياً على اللاب توب والشاشات الواسعة */
         @media (min-width: 768px) {
             .container {
                 max-width: 900px; 
@@ -189,10 +188,20 @@
         <div class="manage-section">
             <h3 style="color:#bf953f; text-align:center; margin-top:0;">🔍 البحث وإدارة حالة الفواتير</h3>
             
-            <label>🔢 البحث برقم الأوردر (مثلاً اكتب 1 أو 2):</label>
-            <div style="display:flex; gap:5px; margin-bottom: 10px;">
-                <input type="number" id="dailySearchInput" placeholder="رقم الأوردر اليومي..." style="margin-top:0;">
-                <button type="button" class="btn track-btn" style="width: auto; margin-top:0; padding: 0 15px;" onclick="searchByDailyNumber()">بحث بالرقم</button>
+            <label>🔢 البحث برقم الأوردر (بسط ومقام):</label>
+            <div style="background: #141414; padding: 12px; border: 1px solid #33270a; border-radius: 8px; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <span style="font-size: 12px; color: #d4af37;">رقم الأوردر (فوق):</span>
+                        <input type="number" id="searchNumerator" placeholder="مثلاً: 1" style="margin-top: 3px;">
+                    </div>
+                    <div style="font-size: 24px; color: #bf953f; font-weight: bold; padding-top: 15px;">/</div>
+                    <div style="flex: 1;">
+                        <span style="font-size: 12px; color: #d4af37;">تاريخ اليوم (تحت):</span>
+                        <input type="number" id="searchDenominator" placeholder="مثلاً: 23" style="margin-top: 3px;">
+                    </div>
+                </div>
+                <button type="button" class="btn track-btn" style="width: 100%; margin-top: 0;" onclick="searchByFractionNumber()">بحث برقم الأوردر</button>
             </div>
 
             <label>👤 أو البحث باسم العميل أو رقم الموبايل:</label>
@@ -452,7 +461,7 @@
                 `https://www.facebook.com/61560847583033\n\n` +
                 `❤️ شكراً لزيارتكم ونتشرف بخدمتكم دائماً.`;
 
-            window.location.href = "whatsapp://send?phone=" + ph + "&text=" + encodeURIComponent(msg);
+            window.open("https://wa.me/" + ph + "?text=" + encodeURIComponent(msg), "_blank");
 
         } else {
             let imagesText = "";
@@ -473,7 +482,7 @@
                 `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n` +
                 `🙏 *شكراً لزيارتكم الجميلة* ❤️`;
 
-            window.location.href = "whatsapp://send?phone=" + OWNER_PHONE + "&text=" + encodeURIComponent(oMsg);
+            window.open("https://wa.me/" + OWNER_PHONE + "?text=" + encodeURIComponent(oMsg), "_blank");
         }
     }
 
@@ -531,25 +540,32 @@
         URL.revokeObjectURL(lnk.href);
     }
 
-    async function searchByDailyNumber() {
-        const query = document.getElementById('dailySearchInput').value.trim();
+    async function searchByFractionNumber() {
+        const numVal = parseInt(document.getElementById('searchNumerator').value.trim());
+        const dayVal = parseInt(document.getElementById('searchDenominator').value.trim());
         const resBox = document.getElementById('searchResults');
 
-        if (!query) {
-            alert('أدخل رقم الأوردر للبحث (مثل 1 أو 2)');
+        if (isNaN(numVal) || isNaN(dayVal)) {
+            alert('الرجاء إدخال رقم الأوردر (فوق) وتاريخ اليوم (تحت)');
             return;
         }
 
         resBox.style.display = 'block';
         resBox.innerHTML = 'جاري البحث... ⏳';
 
-        const todayStart = new Date();
-        todayStart.setHours(0,0,0,0);
+        // حساب بداية اليوم المطلوب بناءً على التاريخ المدخل
+        const targetDateStart = new Date();
+        targetDateStart.setDate(dayVal);
+        targetDateStart.setHours(0, 0, 0, 0);
+
+        const targetDateEnd = new Date(targetDateStart);
+        targetDateEnd.setHours(23, 59, 59, 999);
 
         const { data, error } = await supabaseClient
             .from('invoices')
             .select('*')
-            .gte('created_at', todayStart.toISOString())
+            .gte('created_at', targetDateStart.toISOString())
+            .lte('created_at', targetDateEnd.toISOString())
             .order('created_at', { ascending: true });
 
         if (error || !data) {
@@ -557,7 +573,7 @@
             return;
         }
 
-        const targetIndex = parseInt(query) - 1;
+        const targetIndex = numVal - 1;
         const matchedList = data[targetIndex] ? [data[targetIndex]] : [];
         renderSearchResults(matchedList, null, resBox);
     }
@@ -585,7 +601,7 @@
 
     function renderSearchResults(data, error, resBox) {
         if (error || !data || data.length === 0) {
-            resBox.innerHTML = '<div style="color: #ef4444; text-align: center;">لا توجد فواتير مطابقة!</div>';
+            resBox.innerHTML = '<div style="color: #ef4444; text-align: center;">لا توجد فواتير مطابقة بهذا الرقم!</div>';
             return;
         }
 
