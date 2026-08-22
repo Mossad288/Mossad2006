@@ -34,7 +34,7 @@
 
         .container { 
             width: 100%; 
-            max-width: 430px; 
+            max-width: 450px; /* الافتراضي للموبايل والشاشات الصغيرة */
             background: #0c0c0c; 
             padding: 22px; 
             border-radius: 16px; 
@@ -42,12 +42,21 @@
             animation: goldGlow 4s infinite ease-in-out;
             display: block; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            transition: max-width 0.3s ease;
+        }
+
+        /* تكبير العرض تلقائياً على اللاب توب والشاشات الواسعة */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 900px; 
+                padding: 30px;
+            }
         }
 
         h1 { 
             text-align: center; 
             margin: 0 0 5px 0; 
-            font-size: 26px; 
+            font-size: 28px; 
             font-weight: 900;
             background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
             -webkit-background-clip: text;
@@ -61,7 +70,7 @@
             background: linear-gradient(135deg, #bf953f, #aa771c); 
             color: #000; 
             font-weight: bold; 
-            padding: 9px 14px; 
+            padding: 10px 14px; 
             border-radius: 20px; 
             display: flex; 
             align-items: center; 
@@ -79,12 +88,12 @@
         .fraction .denominator { padding-top: 1px; }
 
         label { display: block; margin-top: 12px; font-size: 13px; color: #d4af37; font-weight: 600; }
-        input, select { width: 100%; padding: 11px; margin-top: 5px; border: 1px solid #33270a; border-radius: 8px; background: #141414; color: #fff; box-sizing: border-box; transition: all 0.3s ease; }
+        input, select { width: 100%; padding: 11px; margin-top: 5px; border: 1px solid #33270a; border-radius: 8px; background: #141414; color: #fff; box-sizing: border-box; transition: all 0.3s ease; font-size: 14px; }
         input:focus, select:focus { border-color: #f3e5ab; outline: none; box-shadow: 0 0 8px rgba(243, 229, 171, 0.4); }
 
         .row { display: flex; gap: 10px; flex-wrap: wrap; } .row div { flex: 1; min-width: 30%; }
         
-        .btn { width: 100%; color: #fff; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; box-sizing: border-box; transition: transform 0.2s, opacity 0.2s; }
+        .btn { width: 100%; color: #fff; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; box-sizing: border-box; transition: transform 0.2s, opacity 0.2s; font-size: 14px; }
         .btn:active { transform: scale(0.98); }
 
         .notice-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 12px; margin-top: 20px; text-align: center; font-size: 13px; color: #fca5a5; }
@@ -217,10 +226,8 @@
     var isCurrentInvoiceSaved = false;
 
     function initApp() {
-        // حقول التواريخ هتبقي فاضية عشان تدخلها بايدك
         document.getElementById('rDate').value = '';
         document.getElementById('dDate').value = '';
-
         fetchNextInvoiceNum();
     }
 
@@ -478,12 +485,11 @@
         selectedFilesList = [];
         isCurrentInvoiceSaved = false;
 
-        // تفريغ خانات التاريخ للفاتورة الجديدة
         document.getElementById('rDate').value = '';
         document.getElementById('dDate').value = '';
 
         await fetchNextInvoiceNum();
-        alert("جاهز للفاتورة الجديدة، ورقم اليوم اترقم تلقائي والتاريخ فاضي عشان تكتبه 👍");
+        alert("جاهز للفاتورة الجديدة 👍");
     }
 
     async function rep() {
