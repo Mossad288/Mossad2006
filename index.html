@@ -74,7 +74,6 @@
             box-shadow: 0 4px 15px rgba(191, 149, 63, 0.4);
         }
         
-        /* تصميم البسط والمقام الحقيقي */
         .fraction { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; font-weight: bold; line-height: 1.1; }
         .fraction .numerator { border-bottom: 2px solid currentColor; padding-bottom: 1px; }
         .fraction .denominator { padding-top: 1px; }
@@ -104,7 +103,6 @@
         .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; margin-top: 8px; }
         .loading-text { color: #f3e5ab; font-size: 13px; text-align: center; margin-top: 8px; font-weight: bold; display: none; }
         
-        /* تصميم حقوق الملكية الفاخرة */
         .footer-credits { text-align: center; margin-top: 22px; padding-top: 14px; border-top: 1px solid #221a05; font-size: 12px; color: #94a3b8; font-weight: 500; letter-spacing: 0.5px; }
         .footer-credits span { 
             background: linear-gradient(135deg, #bf953f, #fcf6ba);
@@ -199,7 +197,6 @@
         
         <div class="notice-box">⚠️ تنبيه: المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد الإستلام .</div>
 
-        <!-- حقوق الملكية الفخمة -->
         <div class="footer-credits">
             جميع الحقوق محفوظه لي <span>المهندس مسعد سالم _ وسالم سعد</span>
         </div>
@@ -221,7 +218,13 @@
 
     function initApp() {
         const today = new Date();
-        document.getElementById('rDate').valueAsDate = today;
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const formattedToday = `${year}-${month}-${day}`;
+
+        document.getElementById('rDate').value = formattedToday;
+        document.getElementById('dDate').value = formattedToday;
         fetchNextInvoiceNum();
     }
 
@@ -478,9 +481,18 @@
         uploadedImageUrls = [];
         selectedFilesList = [];
         isCurrentInvoiceSaved = false;
-        document.getElementById('rDate').valueAsDate = new Date();
+
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const formattedToday = `${year}-${month}-${day}`;
+
+        document.getElementById('rDate').value = formattedToday;
+        document.getElementById('dDate').value = formattedToday;
+
         await fetchNextInvoiceNum();
-        alert("جاهز للفاتورة الجديدة، ورقم اليوم اترقم تلقائي 👍");
+        alert("جاهز للفاتورة الجديدة، ورقم اليوم اترقم تلقائي والتاريخ اتحدث 👍");
     }
 
     async function rep() {
