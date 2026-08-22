@@ -62,7 +62,7 @@
         
         <label>🛠️ الخدمة المطلوبة:</label><input type="text" id="srv" placeholder="غسيل، خياطة">
         
-        <label>📷 تصوير القطع قبل الصيانة (يمكنك اختيار أكثر من صورة):</label>
+        <label>📷 تصوير القطع قبل الصيانة (حدد أكثر من صورة دفعة واحدة):</label>
         <input type="file" id="itemImages" accept="image/*" multiple style="display:none;" onchange="handleImagesSelection(event)">
         <button type="button" class="btn camera-btn" onclick="document.getElementById('itemImages').click();">📷 تصوير / اختيار عدة صور</button>
         
@@ -139,14 +139,17 @@
 
     function handleImagesSelection(event) {
         const files = event.target.files;
-
         if (files && files.length > 0) {
             const previewContainer = document.getElementById('previewsContainer');
             previewContainer.innerHTML = '';
-            selectedFilesList = Array.from(files);
+            
+            for (let i = 0; i < files.length; i++) {
+                selectedFilesList.push(files[i]);
+            }
+            
             uploadedImageUrls = [];
 
-            selectedFilesList.forEach(file => {
+            selectedFilesList.forEach((file, index) => {
                 const img = document.createElement('img');
                 img.className = 'preview-thumb';
                 img.src = URL.createObjectURL(file);
@@ -156,7 +159,7 @@
     }
 
     async function uploadAllImages() {
-        if (uploadedImageUrls.length > 0) {
+        if (uploadedImageUrls.length > 0 && uploadedImageUrls.length === selectedFilesList.length) {
             return uploadedImageUrls;
         }
 
@@ -165,7 +168,7 @@
         }
 
         const statusEl = document.getElementById('uploadStatus');
-        statusEl.innerText = "⏳ جاري رفع الصور، انتظر لحظة...";
+        statusEl.innerText = `⏳ جاري رفع الصور (${selectedFilesList.length} صور)، انتظر لحظة...`;
         statusEl.style.display = 'block';
 
         let urls = [];
@@ -173,7 +176,7 @@
         try {
             for (let i = 0; i < selectedFilesList.length; i++) {
                 const file = selectedFilesList[i];
-                const extension = file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : 'jpg';
+                const extension = file.name && file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : 'jpg';
                 const safeExtension = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension) ? extension : 'jpg';
                 const fileName = `invoice_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 8)}.${safeExtension}`;
 
@@ -201,7 +204,7 @@
             }
 
             uploadedImageUrls = urls;
-            statusEl.innerText = "✅ تم رفع " + urls.length + " صورة بنجاح";
+            statusEl.innerText = "✅ تم رفع " + urls.length + " صورة بنجاح!";
             setTimeout(() => { statusEl.style.display = 'none'; }, 2500);
             return uploadedImageUrls;
 
@@ -245,7 +248,7 @@
         var imgUrls = await uploadAllImages();
 
         if (selectedFilesList.length > 0 && imgUrls.length !== selectedFilesList.length) {
-            alert("❌ لم يتم حفظ الفاتورة لأن رفع الصور لم يكتمل.");
+            alert("❌ لم يتم حفظ الفاتورة لأن رفع الصور لم يكتمل بالكامل.");
             return;
         }
 
@@ -298,27 +301,16 @@
             `💵 *المدفوع مقدمًا:* ${p} جنيه\n` +
             `🔴 *المبلغ المتبقي:* ${rm} جنيه`;
 
-        // بناء روابط كل الصور المرفوعة لإرسالها للواتساب
-        let imagesText = "";
-        if (imgUrls.length > 0) {
-            imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:*";
-            imgUrls.forEach((url, index) => {
-                imagesText += `\n📷 *الصورة ${index + 1}:*\n${url}`;
-            });
-        } else {
-            imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:* لا توجد صور.";
-        }
-
         if (m === 'client') {
             if (ph.startsWith("0")) {
                 ph = "2" + ph;
             }
 
+            // رسالة العميل (بدون صور نهائياً)
             var msg =
                 `✨ *ALESKAFY SHOES* ✨\n` +
                 `🧾 *طلب صيانة جديد رقم (#${c})*\n\n` +
                 baseTxt +
-                imagesText +
                 `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.` +
                 `\n\n━━━━━━━━━━━━━━━\n` +
                 `🌐 تابع صفحة المحل على فيسبوك:\n` +
@@ -328,6 +320,17 @@
             window.location.href = "whatsapp://send?phone=" + ph + "&text=" + encodeURIComponent(msg);
 
         } else {
+            // رسالة المحل (بتتضمن كل الصور المرفوعة للأرشيف والمتابعة)
+            let imagesText = "";
+            if (imgUrls.length > 0) {
+                imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:*";
+                imgUrls.forEach((url, index) => {
+                    imagesText += `\n📷 *الصورة ${index + 1}:*\n${url}`;
+                });
+            } else {
+                imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:* لا توجد صور.";
+            }
+
             var oMsg =
                 `📥 *[ALESKAFY SHOES - نسخة المحل]*\n` +
                 `🧾 *أرشيف فاتورة اليوم رقم (#${c})*\n\n` +
