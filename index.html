@@ -3,298 +3,329 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الإسكافي ALESKAFY SHOES - نظام الفواتير والصيانة</title>
+    <title>نظام الفواتير - الإسكافي ALESKAFY SHOES</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #1e3a8a; --secondary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --success: #16a34a; --warning: #d97706; --danger: #dc2626; --whatsapp: #25d366; }
-        body { font-family: system-ui, -apple-system, Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; direction: rtl; }
-        .container { max-width: 750px; margin: 0 auto; }
-        .header { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; padding: 20px; border-radius: 16px; text-align: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); margin-bottom: 20px; }
-        .header h1 { margin: 0 0 5px 0; font-size: 24px; }
-        .social-links { display: flex; justify-content: center; gap: 15px; margin-top: 12px; }
-        .social-btn { color: white; background: rgba(255, 255, 255, 0.15); padding: 8px 14px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
-        .social-btn:hover { background: rgba(255, 255, 255, 0.3); }
-        .card { background: var(--card); padding: 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); margin-bottom: 20px; border: 1px solid #e2e8f0; }
-        .card h2 { margin-top: 0; color: var(--primary); font-size: 18px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
-        label { display: block; margin: 10px 0 4px; font-weight: 600; font-size: 14px; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; font-size: 15px; outline: none; }
-        .row { display: flex; gap: 10px; }
-        .row > div { flex: 1; }
-        button { width: 100%; background: var(--secondary); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        button:disabled { background: #94a3b8; }
-        .invoice-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 15px; border-right: 6px solid var(--secondary); }
-        .invoice-header { display: flex; justify-content: space-between; align-items: center; }
-        .invoice-header h3 { margin: 0; font-size: 16px; color: var(--primary); }
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; color: white; }
-        .badge-pending { background-color: var(--warning); }
-        .badge-done { background-color: var(--success); }
-        .img-preview { width: 100%; max-height: 220px; object-fit: cover; border-radius: 10px; margin-top: 10px; border: 1px solid #e2e8f0; }
-        .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-        .btn-action { padding: 9px 12px; font-size: 13px; margin-top: 0; flex: 1; min-width: 110px; border-radius: 8px; text-decoration: none; text-align: center; display: inline-flex; justify-content: center; align-items: center; gap: 5px; }
-        .btn-done { background: var(--success); color: white; }
-        .btn-delete { background: var(--danger); color: white; }
-        .btn-wa { background: var(--whatsapp); color: white; }
-        .financials { background: #f1f5f9; padding: 10px 12px; border-radius: 8px; margin-top: 10px; font-size: 14px; display: flex; justify-content: space-between; }
-        footer { text-align: center; margin-top: 20px; padding: 15px; font-size: 13px; color: #64748b; }
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --input-bg: #0f172a;
+            --border-color: #334155;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-gold: #f59e0b;
+            --btn-green: #22c55e;
+            --btn-blue: #3b82f6;
+            --btn-yellow: #eab308;
+            --btn-sky: #06b6d4;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            border: 2px solid var(--accent-gold);
+            border-radius: 12px;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .field-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            text-align: center;
+        }
+
+        input[type="text"], input[type="tel"] {
+            text-align: right;
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-green { background-color: var(--btn-green); }
+        .btn-blue { background-color: var(--btn-blue); }
+        .btn-yellow { background-color: var(--btn-yellow); color: #000; }
+        .btn-sky { background-color: var(--btn-sky); }
+
+        .notice-box {
+            background-color: #450a0a;
+            border: 1px solid #7f1d1d;
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .remaining-field {
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            color: #ef4444;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="header">
-            <h1>👞 الإسكافي - ALESKAFY SHOES 👠</h1>
-            <p>نظام إدارة الفواتير وحالات الصيانة</p>
-            <div class="social-links">
-                <a href="https://wa.me/201090333333" target="_blank" class="social-btn"><i class="fab fa-whatsapp"></i> واتساب المحل</a>
-                <a href="https://facebook.com" target="_blank" class="social-btn"><i class="fab fa-facebook"></i> فيسبوك</a>
-                <a href="https://instagram.com" target="_blank" class="social-btn"><i class="fab fa-instagram"></i> انستجرام</a>
+<div class="container">
+    <form id="invoiceForm">
+        <!-- اسم العميل -->
+        <div class="field-group">
+            <label>👤 اسم العميل:</label>
+            <input type="text" id="customer_name" placeholder="اسم العميل" required>
+        </div>
+
+        <!-- واتساب العميل -->
+        <div class="field-group">
+            <label>📱 واتساب العميل:</label>
+            <input type="tel" id="phone" placeholder="01012345678" required>
+        </div>
+
+        <!-- تاريخ الاستلام وتاريخ التسليم -->
+        <div class="row-2 field-group">
+            <div>
+                <label>📅 تاريخ الاستلام:</label>
+                <input type="date" id="receive_date">
+            </div>
+            <div>
+                <label>📦 تاريخ التسليم:</label>
+                <input type="date" id="deliver_date">
             </div>
         </div>
 
-        <div class="card">
-            <h2>➕ إضافة فاتورة صيانة جديدة</h2>
-            <form id="invoiceForm">
-                <label>اسم العميل</label>
-                <input type="text" id="customer_name" placeholder="أدخل اسم العميل بالكامل" required>
-
-                <label>رقم هاتف العميل (واتساب)</label>
-                <input type="tel" id="phone" placeholder="01xxxxxxxxx" required>
-
-                <label>نوع المنتج (النوع الخمسة + الشنط)</label>
-                <select id="item_type" required>
-                    <option value="حذاء 👟">حذاء 👟</option>
-                    <option value="حذاء حريمي 👠">حذاء حريمي 👠</option>
-                    <option value="كوتشي 👟">كوتشي 👟</option>
-                    <option value="صندل 👡">صندل 👡</option>
-                    <option value="شبشب 🩴">شبشب 🩴</option>
-                    <option value="شنطة 👜">شنطة 👜</option>
-                </select>
-
-                <label>حالة الطلب</label>
-                <select id="status">
-                    <option value="قيد الانتظار">قيد الانتظار ⏳</option>
-                    <option value="تم التسليم">تم التسليم 🟢</option>
-                </select>
-
-                <label>تفاصيل الصيانة المطلوبة</label>
-                <textarea id="details" rows="2" placeholder="أدخل مواصفات الخدمة المطلوبة..." required></textarea>
-
-                <div class="row">
-                    <div>
-                        <label>السعر الإجمالي (ج.م)</label>
-                        <input type="number" id="price" placeholder="0" oninput="calculateRemaining()" required>
-                    </div>
-                    <div>
-                        <label>المبلغ المدفوع (ج.م)</label>
-                        <input type="number" id="paid" placeholder="0" oninput="calculateRemaining()" value="0">
-                    </div>
-                </div>
-
-                <div style="margin-top: 8px; font-weight: bold; color: var(--danger);" id="remainingDisplay">
-                    المتبقي: 0 ج.م
-                </div>
-
-                <label>صورة المنتج (اختياري)</label>
-                <input type="file" id="imageInput" accept="image/*">
-
-                <button type="submit" id="submitBtn">حفظ الفاتورة ومزامنتها 🚀</button>
-            </form>
+        <!-- خانات الأعداد (السطر الأول) -->
+        <div class="row-3 field-group">
+            <div>
+                <label>👟 كوتشيات:</label>
+                <input type="number" id="count_sneakers" value="0" min="0" oninput="calculateCounts()">
+            </div>
+            <div>
+                <label>🥾 جزم:</label>
+                <input type="number" id="count_shoes" value="0" min="0" oninput="calculateCounts()">
+            </div>
+            <div>
+                <label>🩴 شبشب:</label>
+                <input type="number" id="count_slippers" value="0" min="0" oninput="calculateCounts()">
+            </div>
         </div>
 
-        <div class="card">
-            <h2>📋 قائمة الفواتير المسجلة</h2>
-            <input type="text" id="searchInput" placeholder="🔍 ابحث باسم العميل أو رقم الهاتف..." oninput="filterInvoices()">
-            <div id="invoicesList" style="margin-top: 15px;">جاري تحميل الفواتير...</div>
+        <!-- خانات الأعداد (السطر الثاني) -->
+        <div class="row-3 field-group">
+            <div>
+                <label>👡 صندل:</label>
+                <input type="number" id="count_sandals" value="0" min="0" oninput="calculateCounts()">
+            </div>
+            <div>
+                <label>👞 فردة:</label>
+                <input type="number" id="count_single" value="0" min="0" oninput="calculateCounts()">
+            </div>
+            <div>
+                <label>💼 شنط:</label>
+                <input type="number" id="count_bags" value="0" min="0" oninput="calculateCounts()">
+            </div>
         </div>
-    </div>
 
-    <footer>
-        <p>جميع الحقوق محفوظة © الإسكافي ALESKAFY SHOES</p>
-    </footer>
+        <!-- الخدمة المطلوبة -->
+        <div class="field-group">
+            <label>🛠️ الخدمة المطلوبة:</label>
+            <input type="text" id="details" placeholder="غسيل، خياطة..." required>
+        </div>
 
-    <script>
-        const SUPABASE_URL = 'https://ekozcfasqvuuikdjwmtj.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_qfv5sexqStJWEOJY0RxGkA_6iOiVVjf';
-        const CLOUDINARY_CLOUD_NAME = 'xk2fntv4';
-        const CLOUDINARY_PRESET = 'ml_default';
+        <!-- الحساب والمدفوع -->
+        <div class="row-2 field-group">
+            <div>
+                <label>💰 الحساب الكلي:</label>
+                <input type="number" id="price" placeholder="0" oninput="calculateTotals()" required>
+            </div>
+            <div>
+                <label>💵 المدفوع مقدماً:</label>
+                <input type="number" id="paid" placeholder="0" value="0" oninput="calculateTotals()">
+            </div>
+        </div>
 
-        const { createClient } = window.supabase;
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+        <!-- المبلغ المتبقي -->
+        <div class="field-group">
+            <label>🔴 المبلغ المتبقي:</label>
+            <input type="number" id="remaining" class="remaining-field" value="0" readonly>
+        </div>
 
-        let allInvoices = [];
+        <!-- الأزرار -->
+        <button type="submit" class="btn btn-green">📲 1. إرسال للعميل (وحفظ الفاتورة)</button>
+        <button type="button" class="btn btn-blue" onclick="sendToShop()">📑 2. إرسال للمحل</button>
+        <button type="button" class="btn btn-yellow" onclick="downloadDailyReport()">📊 تحميل التقرير اليومي</button>
+        <button type="button" class="btn btn-sky" onclick="openSocialMedia()">🌐 السوشيال ميديا للمحل</button>
 
-        function calculateRemaining() {
-            const price = parseFloat(document.getElementById('price').value) || 0;
-            const paid = parseFloat(document.getElementById('paid').value) || 0;
-            const remaining = price - paid;
-            document.getElementById('remainingDisplay').innerText = `المتبقي: ${remaining} ج.م`;
+        <!-- التنبيه -->
+        <div class="notice-box">
+            ⚠️ تنبيه: المحل غير مسؤول عن أي شيء بعد 15 يوم من ميعاد الإستلام .
+        </div>
+    </form>
+</div>
+
+<script>
+    const SUPABASE_URL = 'https://ekozcfasqvuuikdjwmtj.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_qfv5sexqStJWEOJY0RxGkA_6iOiVVjf';
+    const { createClient } = window.supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // تعيين تاريخ اليوم كافتراضي
+    document.getElementById('receive_date').valueAsDate = new Date();
+
+    function calculateTotals() {
+        const price = parseFloat(document.getElementById('price').value) || 0;
+        const paid = parseFloat(document.getElementById('paid').value) || 0;
+        document.getElementById('remaining').value = price - paid;
+    }
+
+    function getItemsSummary() {
+        let items = [];
+        const sneakers = document.getElementById('count_sneakers').value;
+        const shoes = document.getElementById('count_shoes').value;
+        const slippers = document.getElementById('count_slippers').value;
+        const sandals = document.getElementById('count_sandals').value;
+        const single = document.getElementById('count_single').value;
+        const bags = document.getElementById('count_bags').value;
+
+        if (sneakers > 0) items.push(`كوتشيات: ${sneakers}`);
+        if (shoes > 0) items.push(`جزم: ${shoes}`);
+        if (slippers > 0) items.push(`شبشب: ${slippers}`);
+        if (sandals > 0) items.push(`صندل: ${sandals}`);
+        if (single > 0) items.push(`فردة: ${single}`);
+        if (bags > 0) items.push(`شنط: ${bags}`);
+
+        return items.join(' | ') || 'صيانة متنوعة';
+    }
+
+    function formatPhone(phone) {
+        let cleaned = phone.replace(/\D/g, '');
+        if (cleaned.startsWith('01')) cleaned = '20' + cleaned.substring(1);
+        return cleaned;
+    }
+
+    // حفظ وإرسال للعميل
+    document.getElementById('invoiceForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const customerName = document.getElementById('customer_name').value;
+        const phone = document.getElementById('phone').value;
+        const details = document.getElementById('details').value;
+        const price = parseFloat(document.getElementById('price').value) || 0;
+        const paid = parseFloat(document.getElementById('paid').value) || 0;
+        const remaining = price - paid;
+        const itemType = getItemsSummary();
+
+        // 1. حفظ في Supabase
+        try {
+            await supabaseClient.from('invoices').insert([{
+                customer_name: customerName,
+                phone: phone,
+                item_type: itemType,
+                details: details,
+                price: price,
+                paid: paid,
+                status: 'قيد الانتظار'
+            }]);
+        } catch (err) {
+            console.log('Error saving:', err);
         }
 
-        async function uploadImage(file) {
-            if (!file) return null;
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', CLOUDINARY_PRESET);
+        // 2. إرسال واتس للعميل
+        const msg = `مرحباً ${customerName} 👋\nفاتورة صيانة من *الإسكافي ALESKAFY SHOES* 👞:\n\n` +
+            `📦 *المنتجات:* ${itemType}\n` +
+            `🛠️ *الخدمة:* ${details}\n` +
+            `💵 *الحساب الكلي:* ${price} ج.م\n` +
+            `✅ *المدفوع:* ${paid} ج.م\n` +
+            `🔴 *المتبقي:* ${remaining} ج.م\n\n` +
+            `⚠️ تنبيه: المحل غير مسؤول عن أي شيء بعد 15 يوم من ميعاد الإستلام.`;
 
-            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            return data.secure_url || null;
-        }
+        window.open(`https://wa.me/${formatPhone(phone)}?text=${encodeURIComponent(msg)}`, '_blank');
+    });
 
-        async function loadInvoices() {
-            const { data, error } = await supabaseClient
-                .from('invoices')
-                .select('*')
-                .order('created_at', { ascending: false });
+    // إرسال للمحل
+    function sendToShop() {
+        const customerName = document.getElementById('customer_name').value;
+        const phone = document.getElementById('phone').value;
+        const details = document.getElementById('details').value;
+        const price = parseFloat(document.getElementById('price').value) || 0;
+        const paid = parseFloat(document.getElementById('paid').value) || 0;
+        const remaining = price - paid;
+        const itemType = getItemsSummary();
 
-            const list = document.getElementById('invoicesList');
-            if (error) {
-                list.innerHTML = '<div style="color:red; text-align:center;">حدث خطأ أثناء تحميل البيانات!</div>';
-                return;
-            }
+        const msg = `إشعار فاتورة جديدة 📝\n\n` +
+            `👤 *العميل:* ${customerName}\n` +
+            `📞 *الهاتف:* ${phone}\n` +
+            `📦 *الأصناف:* ${itemType}\n` +
+            `🛠️ *الخدمة:* ${details}\n` +
+            `💰 *الحساب:* ${price} | *المدفوع:* ${paid} | *الباقي:* ${remaining}`;
 
-            allInvoices = data || [];
-            renderInvoices(allInvoices);
-        }
+        // ضع رقم واتس المحل هنا
+        window.open(`https://wa.me/201000000000?text=${encodeURIComponent(msg)}`, '_blank');
+    }
 
-        function formatPhoneForWA(phone) {
-            let cleaned = phone.replace(/\D/g, '');
-            if (cleaned.startsWith('01')) {
-                cleaned = '20' + cleaned.substring(1);
-            }
-            return cleaned;
-        }
+    function downloadDailyReport() {
+        alert('جاري إعداد التقرير اليومي...');
+    }
 
-        function sendWhatsApp(phone, name, details, price, paid, status) {
-            const formattedPhone = formatPhoneForWA(phone);
-            const remaining = (price || 0) - (paid || 0);
-            const message = `مرحباً ${name} 👋\nتحديث فاتورتك من محل *الإسكافي ALESKAFY SHOES* 👞:\n\n` +
-                `📌 *حالة الطلب:* ${status}\n` +
-                `🛠️ *التفاصيل:* ${details}\n` +
-                `💵 *الإجمالي:* ${price} ج.م\n` +
-                `✅ *المدفوع:* ${paid} ج.م\n` +
-                `⚠️ *المتبقي:* ${remaining} ج.م\n\n` +
-                `شكراً لتعاملك معنا! ❤️`;
+    function openSocialMedia() {
+        window.open('https://facebook.com', '_blank');
+    }
+</script>
 
-            const url = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
-        }
-
-        function renderInvoices(items) {
-            const list = document.getElementById('invoicesList');
-            if (!items.length) {
-                list.innerHTML = '<div style="text-align:center; color:#64748b;">لا توجد فواتير مسجلة حتى الآن.</div>';
-                return;
-            }
-
-            list.innerHTML = items.map(inv => {
-                const isDone = inv.status === 'تم التسليم';
-                const price = inv.price || 0;
-                const paid = inv.paid || 0;
-                const remaining = price - paid;
-
-                return `
-                    <div class="invoice-card" style="border-right-color: ${isDone ? 'var(--success)' : 'var(--secondary)'}">
-                        <div class="invoice-header">
-                            <h3>${inv.customer_name} 📞 (${inv.phone})</h3>
-                            <span class="badge ${isDone ? 'badge-done' : 'badge-pending'}">${inv.status || 'قيد الانتظار'}</span>
-                        </div>
-                        <p style="margin: 8px 0; font-size: 14px;"><strong>نوع المنتج:</strong> ${inv.item_type || 'غير محدد'}</p>
-                        <p style="margin: 8px 0; font-size: 14px;"><strong>التفاصيل:</strong> ${inv.details}</p>
-                        
-                        <div class="financials">
-                            <span>الإجمالي: <strong>${price}</strong> ج.م</span>
-                            <span>المدفوع: <strong>${paid}</strong> ج.م</span>
-                            <span style="color: ${remaining > 0 ? 'var(--danger)' : 'var(--success)'}">المتبقي: <strong>${remaining}</strong> ج.م</span>
-                        </div>
-
-                        ${inv.image_url ? `<img src="${inv.image_url}" class="img-preview" alt="صورة المنتج" />` : ''}
-
-                        <div class="actions">
-                            <button class="btn-action btn-wa" onclick="sendWhatsApp('${inv.phone}', '${inv.customer_name}', '${inv.details}', ${price}, ${paid}, '${inv.status}')">
-                                <i class="fab fa-whatsapp"></i> واتساب العميل
-                            </button>
-                            ${!isDone ? `<button class="btn-action btn-done" onclick="toggleStatus(${inv.id}, 'تم التسليم')">تم التسليم 🟢</button>` : `<button class="btn-action" style="background:#64748b; color:white;" onclick="toggleStatus(${inv.id}, 'قيد الانتظار')">قيد الانتظار ⏳</button>`}
-                            <button class="btn-action btn-delete" onclick="deleteInvoice(${inv.id})">حذف 🗑️</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function filterInvoices() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allInvoices.filter(inv => 
-                (inv.customer_name && inv.customer_name.toLowerCase().includes(query)) ||
-                (inv.phone && inv.phone.includes(query))
-            );
-            renderInvoices(filtered);
-        }
-
-        async function toggleStatus(id, newStatus) {
-            const { error } = await supabaseClient
-                .from('invoices')
-                .update({ status: newStatus })
-                .eq('id', id);
-
-            if (error) alert('خطأ في التعديل: ' + error.message);
-            else loadInvoices();
-        }
-
-        async function deleteInvoice(id) {
-            if (!confirm('هل أنت متأكد من حذف هذه الفاتورة؟')) return;
-            const { error } = await supabaseClient
-                .from('invoices')
-                .delete()
-                .eq('id', id);
-
-            if (error) alert('خطأ في الحذف: ' + error.message);
-            else loadInvoices();
-        }
-
-        document.getElementById('invoiceForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerText = 'جاري الحفظ... ⏳';
-
-            try {
-                const file = document.getElementById('imageInput').files[0];
-                let imageUrl = null;
-                if (file) {
-                    imageUrl = await uploadImage(file);
-                }
-
-                const newInvoice = {
-                    customer_name: document.getElementById('customer_name').value,
-                    phone: document.getElementById('phone').value,
-                    item_type: document.getElementById('item_type').value,
-                    details: document.getElementById('details').value,
-                    price: parseFloat(document.getElementById('price').value) || 0,
-                    paid: parseFloat(document.getElementById('paid').value) || 0,
-                    status: document.getElementById('status').value,
-                    image_url: imageUrl
-                };
-
-                const { error } = await supabaseClient.from('invoices').insert([newInvoice]);
-                if (error) throw error;
-
-                document.getElementById('invoiceForm').reset();
-                calculateRemaining();
-                loadInvoices();
-            } catch (err) {
-                alert('حدث خطأ أثناء الحفظ: ' + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'حفظ الفاتورة ومزامنتها 🚀';
-            }
-        });
-
-        loadInvoices();
-    </script>
 </body>
 </html>
