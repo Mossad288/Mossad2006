@@ -298,6 +298,17 @@
             `💵 *المدفوع مقدمًا:* ${p} جنيه\n` +
             `🔴 *المبلغ المتبقي:* ${rm} جنيه`;
 
+        // بناء روابط كل الصور المرفوعة لإرسالها للواتساب
+        let imagesText = "";
+        if (imgUrls.length > 0) {
+            imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:*";
+            imgUrls.forEach((url, index) => {
+                imagesText += `\n📷 *الصورة ${index + 1}:*\n${url}`;
+            });
+        } else {
+            imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:* لا توجد صور.";
+        }
+
         if (m === 'client') {
             if (ph.startsWith("0")) {
                 ph = "2" + ph;
@@ -307,6 +318,7 @@
                 `✨ *ALESKAFY SHOES* ✨\n` +
                 `🧾 *طلب صيانة جديد رقم (#${c})*\n\n` +
                 baseTxt +
+                imagesText +
                 `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.` +
                 `\n\n━━━━━━━━━━━━━━━\n` +
                 `🌐 تابع صفحة المحل على فيسبوك:\n` +
@@ -316,16 +328,6 @@
             window.location.href = "whatsapp://send?phone=" + ph + "&text=" + encodeURIComponent(msg);
 
         } else {
-            let imagesText = "";
-            if (imgUrls.length > 0) {
-                imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:*";
-                imgUrls.forEach((url, index) => {
-                    imagesText += `\n📷 *الصورة ${index + 1}:*\n${url}`;
-                });
-            } else {
-                imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:* لا توجد صور.";
-            }
-
             var oMsg =
                 `📥 *[ALESKAFY SHOES - نسخة المحل]*\n` +
                 `🧾 *أرشيف فاتورة اليوم رقم (#${c})*\n\n` +
