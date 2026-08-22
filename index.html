@@ -142,7 +142,8 @@
     }
 
     async function uploadImageIfSelected() {
-        if (!selectedFile || uploadedImageUrl !== "") return uploadedImageUrl;
+        if (!selectedFile) return uploadedImageUrl;
+        if (uploadedImageUrl !== "") return uploadedImageUrl;
         
         document.getElementById('uploadStatus').style.display = 'block';
         const fileName = `item_${Date.now()}.jpg`;
@@ -219,25 +220,34 @@
             isCurrentInvoiceSaved = true;
         }
 
-        var baseTxt = `👤 *اسم العميل:* ${n}\n📅 *تاريخ الاستلام:* ${r}\n📦 *تاريخ التسليم:* ${d}\n\n👟 *كوتشيات:* ${sk} | 🥾 *جزم:* ${ss} | 🩴 *شبشب:* ${sl}\n𑡡 *صندل:* ${sn} | 👞 *فردة:* ${sg} | 💼 *شنط:* ${bg}\n🛠️ *الخدمة:* ${sv}\n\n💰 *الحساب الكلي:* ${t} جنيه\n💵 *المدفوع مقدمًا:* ${p} جنيه\n🔴 *المبلغ المتبقي:* ${rm} جنيه\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n🙏 *شكراً لزيارتكم الجميلة* ❤️`;
+        var baseTxt = `👤 *اسم العميل:* ${n}\n📅 *تاريخ الاستلام:* ${r}\n📦 *تاريخ التسليم:* ${d}\n\n👟 *كوتشيات:* ${sk} | 🥾 *جزم:* ${ss} | 🩴 *شبشب:* ${sl}\n👡 *صندل:* ${sn} | 👞 *فردة:* ${sg} | 💼 *شنط:* ${bg}\n🛠️ *الخدمة:* ${sv}\n\n💰 *الحساب الكلي:* ${t} جنيه\n💵 *المدفوع مقدمًا:* ${p} جنيه\n🔴 *المبلغ المتبقي:* ${rm} جنيه\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n🙏 *شكراً لزيارتكم الجميلة* ❤️`;
         
+        // تجهيز ونقل رقم الفاتورة للرقم التالي تلقائياً بعد الإرسال الناجح
+        var activeNumToWhatsApp = c;
+        resetFormFieldsOnly();
+        await fetchNextInvoiceNum();
+
         if (m === 'client') {
             if (ph.startsWith("0")) ph = "2" + ph;
-            var msg = `✨ *ALESKAFY SHOES* ✨\n🧾 *طلب صيانة جديد رقم (#${c})*\n\n` + baseTxt + `\n\n━━━━━━━━━━━━━━━\n🌐 تابع صفحة المحل على فيسبوك:\nhttps://www.facebook.com/61560847583033\n\n❤️ شكراً لزيارتكم ونتشرف بخدمتكم دائماً.`;
+            var msg = `✨ *ALESKAFY SHOES* ✨\n🧾 *طلب صيانة جديد رقم (#${activeNumToWhatsApp})*\n\n` + baseTxt + `\n\n━━━━━━━━━━━━━━━\n🌐 تابع صفحة المحل على فيسبوك:\nhttps://www.facebook.com/61560847583033\n\n❤️ شكراً لزيارتكم ونتشرف بخدمتكم دائماً.`;
             window.location.href = "whatsapp://send?phone="+ph+"&text="+encodeURIComponent(msg);
         } else {
-            var imgTxt = imgUrl ? `\n🖼️ *صورة القطعة قبل الصيانة:* ${imgUrl}` : '';
-            var oMsg = `📥 *[ALESKAFY SHOES - نسخة المحل]*\n🧾 *أرشيف فاتورة اليوم رقم (#${c})*\n\n` + baseTxt + imgTxt;
+            var imgTxt = imgUrl ? `\n\n🖼️ *صورة القطعة قبل الصيانة:* ${imgUrl}` : '';
+            var oMsg = `📥 *[ALESKAFY SHOES - نسخة المحل]*\n🧾 *أرشيف فاتورة اليوم رقم (#${activeNumToWhatsApp})*\n\n` + baseTxt + imgTxt;
             window.location.href = "whatsapp://send?phone="+OWNER_PHONE+"&text="+encodeURIComponent(oMsg);
         }
     }
 
-    async function resetFormForNextInvoice() {
+    function resetFormFieldsOnly() {
         document.getElementById('invoiceForm').reset();
         document.getElementById('imagePreview').style.display = 'none';
         uploadedImageUrl = "";
         selectedFile = null;
         isCurrentInvoiceSaved = false;
+    }
+
+    async function resetFormForNextInvoice() {
+        resetFormFieldsOnly();
         await fetchNextInvoiceNum();
         alert("جاهز لكتابة الفاتورة الجديدة 👍");
     }
@@ -297,6 +307,7 @@
             const price = inv.price || 0;
             const paid = inv.paid || 0;
             const rem = price - paid;
+            const phoneVal = inv.phone || '-';
             const imgBtn = inv.image_url ? `<a href="${inv.image_url}" target="_blank" style="color:#f59e0b; font-size:12px; display:inline-block; margin-top:3px;">🖼️ عرض صورة القطعة</a>` : '';
 
             return `
@@ -305,7 +316,7 @@
                         <strong>👤 ${inv.customer_name}</strong>
                         <span class="status-badge ${statusClass}">${inv.status || 'تحت الصيانة'}</span>
                     </div>
-                    <div>📱 ${inv.phone || '-'} | 🛠️ ${inv.details || '-'}</div>
+                    <div>📱 ${phoneVal} | 🛠️ ${inv.details || '-'}</div>
                     <div>🔴 الباقي: <span style="color:#ef4444; font-weight:bold;">${rem} ج</span></div>
                     ${imgBtn}
                     
