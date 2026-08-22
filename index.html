@@ -11,49 +11,84 @@
         h1 { text-align: center; color: #f59e0b; margin: 0; font-size: 24px; }
         .badge { background: #f59e0b; color: #000; font-weight: bold; padding: 4px 10px; border-radius: 15px; display: inline-block; margin: 5px 0; font-size: 12px; }
         label { display: block; margin-top: 10px; font-size: 13px; color: #ccc; }
-        input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #334155; border-radius: 6px; background: #1f2937; color: #fff; box-sizing: border-box; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #334155; border-radius: 6px; background: #1f2937; color: #fff; box-sizing: border-box; }
         .row { display: flex; gap: 10px; flex-wrap: wrap; } .row div { flex: 1; min-width: 30%; }
         .btn { width: 100%; color: #fff; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; box-sizing: border-box; }
         .notice-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 12px; margin-top: 20px; text-align: center; font-size: 13px; color: #fca5a5; }
+        
+        .camera-btn { background: #8b5cf6; color: #fff; }
+        .track-btn { background: #06b6d4; color: #fff; }
+        #imagePreview { max-width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-top: 10px; border: 1px dashed #f59e0b; display: none; }
+        .manage-section { margin-top: 20px; padding-top: 15px; border-top: 2px dashed #f59e0b; }
+        .result-box { margin-top: 10px; padding: 10px; background: #1f2937; border-radius: 8px; border: 1px solid #334155; font-size: 13px; display: none; }
+        .status-badge { padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+        .bg-pending { background: #d97706; color: white; }
+        .bg-done { background: #16a34a; color: white; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; margin-top: 5px; }
     </style>
 </head>
-<body onload="resetCheck(); updateNum();">
+<body onload="fetchNextInvoiceNum();">
 
 <div class="container" id="mainApp">
     <div style="text-align:center;">
         <h1>ALESKAFY SHOES</h1>
-        <span class="badge" id="badge">فاتورة رقم: #1</span>
+        <span class="badge" id="badge">فاتورة اليوم رقم: جاري التحميل...</span>
     </div>
     <form>
         <label>👤 اسم العميل:</label><input type="text" id="name" placeholder="اسم العميل">
         <label>📱 واتساب العميل:</label><input type="tel" id="phone" placeholder="01012345678">
+        
         <div class="row">
             <div><label>📅 تاريخ الاستلام:</label><input type="date" id="rDate"></div>
             <div><label>📦 تاريخ التسليم:</label><input type="date" id="dDate"></div>
         </div>
+        
         <div class="row">
             <div><label>👟 كوتشيات:</label><input type="number" id="snk" value="0"></div>
             <div><label>🥾 جزم:</label><input type="number" id="shs" value="0"></div>
             <div><label>🩴 شبشب:</label><input type="number" id="slp" value="0"></div>
         </div>
+        
         <div class="row">
             <div><label>👡 صندل:</label><input type="number" id="snd" value="0"></div>
             <div><label>👞 فردة:</label><input type="number" id="sng" value="0"></div>
             <div><label>💼 شنط:</label><input type="number" id="bags" value="0"></div>
         </div>
+        
         <label>🛠️ الخدمة المطلوبة:</label><input type="text" id="srv" placeholder="غسيل، خياطة">
+        
+        <!-- زر الكاميرا -->
+        <label>📷 تصوير القطعة قبل الصيانة:</label>
+        <input type="file" id="itemImage" accept="image/*" capture="environment" style="display:none;" onchange="previewImage(event)">
+        <button type="button" class="btn camera-btn" onclick="document.getElementById('itemImage').click();">📷 تصوير / اختيار صورة</button>
+        <img id="imagePreview" alt="معاينة الصورة">
+
         <div class="row">
             <div><label>💰 الحساب الكلي:</label><input type="number" id="tot" oninput="calc()"></div>
             <div><label>💵 المدفوع مقدمًا:</label><input type="number" id="paid" oninput="calc()"></div>
         </div>
+        
         <label>🔴 المبلغ المتبقي:</label><input type="number" id="rem" readonly style="color:#ef4444; font-weight:bold; background:#111827;">
         
         <button type="button" class="btn" style="background:#22c55e; margin-top:15px;" onclick="save('client')">📱 1. إرسال للعميل</button>
         <button type="button" class="btn" style="background:#3b82f6;" onclick="save('owner')">📋 2. إرسال للمحل</button>
         <button type="button" class="btn" style="background:#f59e0b; color:#000;" onclick="rep()">📊 تحميل التقرير اليومي</button>
+        
         <a href="https://www.facebook.com/61560847583033" target="_blank" rel="noopener noreferrer" class="btn" style="background:#1877f2;">
            🌐 السوشيال ميديا للمحل
         </a>
+
+        <!-- قسم البحث والتعديل على حالة الفواتير -->
+        <div class="manage-section">
+            <h3 style="color:#f59e0b; text-align:center; margin-top:0;">🔍 البحث وإدارة حالة الفواتير</h3>
+            <label>بحث باسم العميل أو رقم الموبايل:</label>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="searchInput" placeholder="الاسم أو الرقم..." style="margin-top:0;">
+                <button type="button" class="btn track-btn" style="width: auto; margin-top:0; padding: 0 15px;" onclick="searchInvoices()">بحث</button>
+            </div>
+            <div id="searchResults" class="result-box"></div>
+        </div>
+        
         <div class="notice-box">⚠️ تنبيه: المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد الإستلام .</div>
     </form>
 </div>
@@ -64,7 +99,8 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     var OWNER_PHONE = "201090274601"; 
-    var lastSavedName = "";
+    var uploadedImageUrl = "";
+    var currentInvoiceNum = 1;
 
     function calc() {
         var t = parseFloat(document.getElementById('tot').value) || 0;
@@ -72,18 +108,44 @@
         document.getElementById('rem').value = t - p;
     }
 
-    function resetCheck() {
-        const today = new Date().toLocaleDateString("en-CA");
-        const savedDate = localStorage.getItem("invoiceDate");
+    // جلب رقم فاتورة اليوم الموحد من قاعدة البيانات فور فتح الصفحة
+    async function fetchNextInvoiceNum() {
+        const todayStart = new Date();
+        todayStart.setHours(0,0,0,0);
+        
+        const { data, error } = await supabaseClient
+            .from('invoices')
+            .select('id', { count: 'exact' })
+            .gte('created_at', todayStart.toISOString());
 
-        if (savedDate !== today) {
-            localStorage.setItem("invoiceDate", today);
-            localStorage.setItem("cnt", "1");
-            localStorage.setItem("list", JSON.stringify([]));
+        if (!error && data) {
+            currentInvoiceNum = data.length + 1;
+        } else {
+            currentInvoiceNum = 1;
         }
+        document.getElementById('badge').innerText = "فاتورة اليوم رقم: #" + currentInvoiceNum;
     }
 
-    function updateNum() { document.getElementById('badge').innerText = "فاتورة اليوم رقم: #" + (localStorage.getItem('cnt') || '1'); }
+    async function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const img = document.getElementById('imagePreview');
+            img.src = URL.createObjectURL(file);
+            img.style.display = 'block';
+
+            const fileName = `item_${Date.now()}.jpg`;
+            const { data, error } = await supabaseClient.storage
+                .from('invoice_images')
+                .upload(fileName, file);
+
+            if (!error) {
+                const { data: publicUrlData } = supabaseClient.storage
+                    .from('invoice_images')
+                    .getPublicUrl(fileName);
+                uploadedImageUrl = publicUrlData.publicUrl;
+            }
+        }
+    }
 
     function getItemsSummary() {
         let items = [];
@@ -104,7 +166,7 @@
         return items.join(' | ') || 'صيانة متنوعة';
     }
 
-    async function syncToSupabase(n, ph, itemType, sv, t, p) {
+    async function syncToSupabase(n, ph, itemType, sv, t, p, imgUrl) {
         try {
             await supabaseClient.from('invoices').insert([{
                 customer_name: n,
@@ -113,52 +175,56 @@
                 details: sv,
                 price: parseFloat(t) || 0,
                 paid: parseFloat(p) || 0,
-                status: 'قيد الانتظار'
+                image_url: imgUrl,
+                status: 'تحت الصيانة'
             }]);
         } catch (e) {
             console.error('Supabase Sync Error:', e);
         }
     }
 
-    function save(m) {
+    async function save(m) {
         var n = document.getElementById('name').value, t = document.getElementById('tot').value, ph = document.getElementById('phone').value.trim();
         if(!n || !t || (m==='client' && !ph)) { alert("املا البيانات!"); return; }
-        resetCheck();
-        
-        var r = document.getElementById('rDate').value, d = document.getElementById('dDate').value, sk = document.getElementById('snk').value, ss = document.getElementById('shs').value, sl = document.getElementById('slp').value, sn = document.getElementById('snd').value, sg = document.getElementById('sng').value, bg = document.getElementById('bags').value, sv = document.getElementById('srv').value, p = document.getElementById('paid').value, rm = document.getElementById('rem').value, c = localStorage.getItem('cnt') || '1';
-        var list = JSON.parse(localStorage.getItem('list')) || [];
-        
-        if (n !== lastSavedName) {
-            list.push({ id: c, name: n, total: parseFloat(t)||0, paid: parseFloat(p)||0, rem: parseFloat(rm)||0 });
-            localStorage.setItem('list', JSON.stringify(list)); 
-            lastSavedName = n;
 
-            // المزامنة التلقائية مع قاعدة البيانات
-            syncToSupabase(n, ph, getItemsSummary(), sv, t, p);
-        } else { 
-            c = (parseInt(c) - 1).toString(); 
-            if(c === "0") c = "1"; 
-        }
+        var r = document.getElementById('rDate').value, d = document.getElementById('dDate').value, sk = document.getElementById('snk').value, ss = document.getElementById('shs').value, sl = document.getElementById('slp').value, sn = document.getElementById('snd').value, sg = document.getElementById('sng').value, bg = document.getElementById('bags').value, sv = document.getElementById('srv').value, p = document.getElementById('paid').value, rm = document.getElementById('rem').value;
         
-        var txt = `👤 *اسم العميل:* ${n}\n📅 *تاريخ الاستلام:* ${r}\n📦 *تاريخ التسليم:* ${d}\n\n👟 *كوتشيات:* ${sk} | 🥾 *جزم:* ${ss} | 🩴 *شبشب:* ${sl}\n👡 *صندل:* ${sn} | 👞 *فردة:* ${sg} | 💼 *شنط:* ${bg}\n🛠️ *الخدمة:* ${sv}\n\n💰 *الحساب الكلي:* ${t} جنيه\n💵 *المدفوع مقدمًا:* ${p} جنيه\n🔴 *المبلغ المتبقي:* ${rm} جنيه\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n🙏 *شكراً لزيارتكم الجميلة* ❤️`;
+        var c = currentInvoiceNum.toString();
+
+        // حفظ الفاتورة في قاعدة البيانات
+        await syncToSupabase(n, ph, getItemsSummary(), sv, t, p, uploadedImageUrl);
+        
+        var imgTxt = uploadedImageUrl ? `\n🖼️ *صورة القطعة:* ${uploadedImageUrl}` : '';
+        var txt = `👤 *اسم العميل:* ${n}\n📅 *تاريخ الاستلام:* ${r}\n📦 *تاريخ التسليم:* ${d}\n\n👟 *كوتشيات:* ${sk} | 🥾 *جزم:* ${ss} | 🩴 *شبشب:* ${sl}\n👡 *صندل:* ${sn} | 👞 *فردة:* ${sg} | 💼 *شنط:* ${bg}\n🛠️ *الخدمة:* ${sv}${imgTxt}\n\n💰 *الحساب الكلي:* ${t} جنيه\n💵 *المدفوع مقدمًا:* ${p} جنيه\n🔴 *المبلغ المتبقي:* ${rm} جنيه\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n🙏 *شكراً لزيارتكم الجميلة* ❤️`;
         
         if (m === 'client') {
             if (ph.startsWith("0")) ph = "2" + ph;
             var msg = `✨ *ALESKAFY SHOES* ✨\n🧾 *طلب صيانة جديد رقم (#${c})*\n\n` + txt + `\n\n━━━━━━━━━━━━━━━\n🌐 تابع صفحة المحل على فيسبوك:\nhttps://www.facebook.com/61560847583033\n\n❤️ شكراً لزيارتكم ونتشرف بخدمتكم دائماً.`;
-            if(lastSavedName === n) { localStorage.setItem('cnt', (parseInt(c)+1).toString()); updateNum(); }
+            fetchNextInvoiceNum(); // تحديث الرقم التلقائي للفاتورة القادمة
             window.location.href = "whatsapp://send?phone="+ph+"&text="+encodeURIComponent(msg);
         } else {
             var oMsg = `📥 *[ALESKAFY SHOES - نسخة المحل]*\n🧾 *أرشيف فاتورة اليوم رقم (#${c})*\n\n` + txt;
-            if(lastSavedName === n) { localStorage.setItem('cnt', (parseInt(c)+1).toString()); updateNum(); }
+            fetchNextInvoiceNum(); // تحديث الرقم التلقائي للفاتورة القادمة
             window.location.href = "whatsapp://send?phone="+OWNER_PHONE+"&text="+encodeURIComponent(oMsg);
         }
     }
 
-    function rep() {
-        var list = JSON.parse(localStorage.getItem('list')) || []; if (list.length === 0) { alert("لا توجد فواتير!"); return; }
+    async function rep() {
+        const todayStart = new Date();
+        todayStart.setHours(0,0,0,0);
+
+        const { data: list, error } = await supabaseClient
+            .from('invoices')
+            .select('*')
+            .gte('created_at', todayStart.toISOString());
+
+        if (error || !list || list.length === 0) { alert("لا توجد فواتير اليوم!"); return; }
+        
         var t = 0, p = 0, r = 0, txt = "📊 تقرير حسابات الإسكافي شوز 📊\n====================\n\n";
-        list.forEach(function(x) {
-            txt += "فاتورة #"+x.id+" - العميل: "+x.name+"\nالحساب: "+x.total+" ج | المدفوع: "+x.paid+" ج | الباقي: "+x.rem+" ج\n--------------------\n"; t+=x.total; p+=x.paid; r+=x.rem;
+        list.forEach(function(x, idx) {
+            var rem = (x.price || 0) - (x.paid || 0);
+            txt += "فاتورة #" + (idx + 1) + " - العميل: " + x.customer_name + "\nالحساب: " + x.price + " ج | المدفوع: " + x.paid + " ج | الباقي: " + rem + " ج\n--------------------\n"; 
+            t += (x.price || 0); p += (x.paid || 0); r += rem;
         });
         txt += "\n====================\n💰 إجمالي اليوم: "+t+" ج\n💵 إجمالي الخزنة: "+p+" ج\n🔴 إجمالي المتبقي: "+r+" ج";
         var b = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8" });
@@ -170,6 +236,65 @@
         lnk.click();
         document.body.removeChild(lnk);
         URL.revokeObjectURL(lnk.href);
+    }
+
+    async function searchInvoices() {
+        const query = document.getElementById('searchInput').value.trim();
+        const resBox = document.getElementById('searchResults');
+
+        if (!query) { alert('أدخل اسم أو رقم للبحث'); return; }
+
+        resBox.style.display = 'block';
+        resBox.innerHTML = 'جاري البحث... ⏳';
+
+        const { data, error } = await supabaseClient
+            .from('invoices')
+            .select('*')
+            .or(`customer_name.ilike.%${query}%,phone.ilike.%${query}%`)
+            .order('created_at', { ascending: false });
+
+        if (error || !data || data.length === 0) {
+            resBox.innerHTML = '<div style="color: #ef4444; text-align: center;">لا توجد فواتير مطابقة!</div>';
+            return;
+        }
+
+        resBox.innerHTML = data.map(inv => {
+            const isDone = inv.status === 'تم الانتهاء من الصيانة';
+            const statusClass = isDone ? 'bg-done' : 'bg-pending';
+            const price = inv.price || 0;
+            const paid = inv.paid || 0;
+            const rem = price - paid;
+
+            return `
+                <div style="border-bottom: 1px dashed #475569; padding-bottom: 10px; margin-bottom: 10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong>👤 ${inv.customer_name}</strong>
+                        <span class="status-badge ${statusClass}">${inv.status || 'تحت الصيانة'}</span>
+                    </div>
+                    <div>📱 ${inv.phone || '-'} | 🛠️ ${inv.details || '-'}</div>
+                    <div>🔴 الباقي: <span style="color:#ef4444; font-weight:bold;">${rem} ج</span></div>
+                    
+                    <div style="display:flex; gap:5px; margin-top:5px;">
+                        <button type="button" class="btn-sm" style="background:#22c55e; color:#fff;" onclick="updateStatus(${inv.id}, 'تم الانتهاء من الصيانة')">✅ تم الانتهاء</button>
+                        <button type="button" class="btn-sm" style="background:#d97706; color:#fff;" onclick="updateStatus(${inv.id}, 'تحت الصيانة')">⏳ تحت الصيانة</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function updateStatus(id, newStatus) {
+        const { error } = await supabaseClient
+            .from('invoices')
+            .update({ status: newStatus })
+            .eq('id', id);
+
+        if (!error) {
+            alert('تم تغيير حالة الفاتورة بنجاح 👍');
+            searchInvoices();
+        } else {
+            alert('حدث خطأ أثناء التحديث!');
+        }
     }
 </script>
 </body>
