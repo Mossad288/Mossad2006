@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإسكافي ALESKAFY SHOES - نظام الفواتير والصيانة</title>
+    <!-- مكتبة Supabase الرسمية المعتمدة -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #2563eb;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .header h1 { margin: 0 0 5px 0; font-size: 24px; }
+        .header p { margin: 0; font-size: 14px; opacity: 0.9; }
+        .header .phone-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-top: 8px;
+            font-size: 13px;
+            direction: ltr;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 18px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 4px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--secondary);
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row > div { flex: 1; }
+
+        button {
+            width: 100%;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+
+        button:hover { background: var(--primary); }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        .invoice-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-right: 6px solid var(--secondary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .invoice-header h3 { margin: 0; font-size: 16px; color: var(--primary); }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .badge-pending { background-color: var(--warning); }
+        .badge-done { background-color: var(--success); }
+
+        .calc-box {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .img-preview {
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-action {
+            padding: 8px;
+            font-size: 13px;
+            margin-top: 0;
+        }
+
+        .btn-done { background: var(--success); }
+        .btn-delete { background: var(--danger); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- الهيدر الرسمي للمحل -->
+        <div class="header">
+            <h1>👞 الإسكافي - ALESKAFY SHOES 👠</h1>
+            <p>نظام إدارة الفواتير وحالات الصيانة</p>
+            <div class="phone-badge">📞 خدمة العملاء والصيانة</div>
+        </div>
+
+        <!-- نموذج إضافة فاتورة جديدة -->
+        <div class="card">
+            <h2>➕ إضافة فاتورة صيانة جديدة</h2>
+            <form id="invoiceForm">
+                <label>اسم العميل</label>
+                <input type="text" id="customer_name" placeholder="أدخل اسم العميل بالكامل" required>
+
+                <label>رقم الهاتف</label>
+                <input type="tel" id="phone" placeholder="01xxxxxxxxx" required>
+
+                <div class="row">
+                    <div>
+                        <label>نوع الخدمة / المنتج</label>
+                        <select id="item_type">
+                            <option value="أحذية">أحذية 👞</option>
+                            <option value="شنط">شنط 👜</option>
+                            <option value="جلدية أخرى">جلدية أخرى 🎒</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>حالة الطلب Initial Status</label>
+                        <select id="status">
+                            <option value="قيد الانتظار">قيد الانتظار ⏳</option>
+                            <option value="تم التسليم">تم التسليم 🟢</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label>تفاصيل الصيانة المطلوبة</label>
+                <textarea id="details" rows="2" placeholder="أدخل مواصفات العطل أو الخياطة المطلوب تنفيذها..." required></textarea>
+
+                <div class="row">
+                    <div>
+                        <label>المبلغ الإجمالي (ج.م)</label>
+                        <input type="number" id="price" placeholder="0" required oninput="calculateRemaining()">
+                    </div>
+                    <div>
+                        <label>المبلغ المدفوع (ج.م)</label>
+                        <input type="number" id="paid" placeholder="0" value="0" required oninput="calculateRemaining()">
+                    </div>
+                </div>
+
+                <div class="calc-box">
+                    <span>المتبقي للإستلام:</span>
+                    <span id="calc_remaining" style="color: red;">0 ج.م</span>
+                </div>
+
+                <label>صورة المنتج / الالتزام (اختياري)</label>
+                <input type="file" id="imageInput" accept="image/*">
+
+                <button type="submit" id="submitBtn">حفظ الفاتورة ومزامنتها 🚀</button>
+            </form>
+        </div>
+
+        <!-- عرض وتصفية الفواتير -->
+        <div class="card">
+            <h2>📋 قائمة الفواتير المسجلة</h2>
+            <input type="text" id="searchInput" placeholder="🔍 ابحث باسم العميل أو رقم الهاتف..." oninput="filterInvoices()">
+            <div id="invoicesList" style="margin-top: 15px;">جاري تحميل الفواتير من السيرفر...</div>
+        </div>
+    </div>
+
+    <script>
+        // إعدادات الربط المباشرة والسليمة 100%
+        const SUPABASE_URL = 'https://ekozcfasqvuuikdjwmtj.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_qfv5sexqStJWEOJY0RxGkA_6iOiVVjf';
+        const CLOUDINARY_CLOUD_NAME = 'xk2fntv4';
+        const CLOUDINARY_PRESET = 'ml_default';
+
+        // تهيئة Supabase Client
+        const { createClient } = window.supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let allInvoices = [];
+
+        function calculateRemaining() {
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const paid = parseFloat(document.getElementById('paid').value) || 0;
+            const remaining = price - paid;
+            const remElem = document.getElementById('calc_remaining');
+            remElem.innerText = remaining + ' ج.م';
+            remElem.style.color = remaining > 0 ? 'red' : 'green';
+        }
+
+        async function uploadImage(file) {
+            if (!file) return null;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_PRESET);
+
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            return data.secure_url || null;
+        }
+
+        async function loadInvoices() {
+            const { data, error } = await supabaseClient
+                .from('invoices')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const list = document.getElementById('invoicesList');
+            if (error) {
+                console.error(error);
+                list.innerHTML = '<div style="color:red; text-align:center;">حدث خطأ في تحميل الفواتير!</div>';
+                return;
+            }
+
+            allInvoices = data || [];
+            renderInvoices(allInvoices);
+        }
+
+        function renderInvoices(items) {
+            const list = document.getElementById('invoicesList');
+            if (!items.length) {
+                list.innerHTML = '<div style="text-align:center; color:#64748b;">لا توجد فواتير مسجلة حتى الآن.</div>';
+                return;
+            }
+
+            list.innerHTML = items.map(inv => {
+                const remaining = (inv.price || 0) - (inv.paid || 0);
+                const isDone = inv.status === 'تم التسليم';
+
+                return `
+                    <div class="invoice-card" style="border-right-color: ${isDone ? 'var(--success)' : 'var(--secondary)'}">
+                        <div class="invoice-header">
+                            <h3>${inv.customer_name} 📞 (${inv.phone})</h3>
+                            <span class="badge ${isDone ? 'badge-done' : 'badge-pending'}">${inv.status || 'قيد الانتظار'}</span>
+                        </div>
+                        <p style="margin: 8px 0; font-size: 14px;"><strong>النوع:</strong> ${inv.item_type || 'أحذية'}</p>
+                        <p style="margin: 8px 0; font-size: 14px;"><strong>التفاصيل:</strong> ${inv.details}</p>
+                        
+                        <div class="calc-box">
+                            <div>الإجمالي: ${inv.price || 0} ج.م</div>
+                            <div>المدفوع: ${inv.paid || 0} ج.م</div>
+                            <div style="color:${remaining > 0 ? 'red' : 'green'}">المتبقي: ${remaining} ج.م</div>
+                        </div>
+
+                        ${inv.image_url ? `<img src="${inv.image_url}" class="img-preview" alt="صورة المنتج" />` : ''}
+
+                        <div class="actions">
+                            ${!isDone ? `<button class="btn-action btn-done" onclick="toggleStatus(${inv.id}, 'تم التسليم')">تغيير لتم التسليم 🟢</button>` : `<button class="btn-action" style="background:#64748b;" onclick="toggleStatus(${inv.id}, 'قيد الانتظار')">إرجاع لقيد الانتظار ⏳</button>`}
+                            <button class="btn-action btn-delete" onclick="deleteInvoice(${inv.id})">حذف 🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterInvoices() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allInvoices.filter(inv => 
+                (inv.customer_name && inv.customer_name.toLowerCase().includes(query)) ||
+                (inv.phone && inv.phone.includes(query))
+            );
+            renderInvoices(filtered);
+        }
+
+        async function toggleStatus(id, newStatus) {
+            const { error } = await supabaseClient
+                .from('invoices')
+                .update({ status: newStatus })
+                .eq('id', id);
+
+            if (error) alert('خطأ في التعديل: ' + error.message);
+            else loadInvoices();
+        }
+
+        async function deleteInvoice(id) {
+            if (!confirm('هل أنت متأكد من حذف هذه الفاتورة نهائياً؟')) return;
+            const { error } = await supabaseClient
+                .from('invoices')
+                .delete()
+                .eq('id', id);
+
+            if (error) alert('خطأ في الحذف: ' + error.message);
+            else loadInvoices();
+        }
+
+        document.getElementById('invoiceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = 'جاري الحفظ والرفع إلى السيرفر... ⏳';
+
+            try {
+                const file = document.getElementById('imageInput').files[0];
+                let imageUrl = null;
+                if (file) {
+                    imageUrl = await uploadImage(file);
+                }
+
+                const priceVal = parseFloat(document.getElementById('price').value) || 0;
+                const paidVal = parseFloat(document.getElementById('paid').value) || 0;
+
+                const newInvoice = {
+                    customer_name: document.getElementById('customer_name').value,
+                    phone: document.getElementById('phone').value,
+                    details: document.getElementById('details').value,
+                    price: priceVal,
+                    paid: paidVal,
+                    item_type: document.getElementById('item_type').value,
+                    status: document.getElementById('status').value,
+                    image_url: imageUrl
+                };
+
+                const { error } = await supabaseClient.from('invoices').insert([newInvoice]);
+                if (error) throw error;
+
+                document.getElementById('invoiceForm').reset();
+                document.getElementById('calc_remaining').innerText = '0 ج.م';
+                loadInvoices();
+            } catch (err) {
+                alert('حدث خطأ أثناء الحفظ: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'حفظ الفاتورة ومزامنتها 🚀';
+            }
+        });
+
+        // تشغيل التحميل الأولي
+        loadInvoices();
+    </script>
+</body>
+</html>
