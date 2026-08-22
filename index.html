@@ -25,7 +25,7 @@
         .bg-pending { background: #d97706; color: white; }
         .bg-done { background: #16a34a; color: white; }
         .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; margin-top: 5px; }
-        .loading-text { color: #f59e0b; font-size: 12px; text-align: center; margin-top: 5px; display: none; }
+        .loading-text { color: #f59e0b; font-size: 13px; text-align: center; margin-top: 8px; font-weight: bold; display: none; }
     </style>
 </head>
 <body onload="fetchNextInvoiceNum();">
@@ -59,10 +59,10 @@
         <label>🛠️ الخدمة المطلوبة:</label><input type="text" id="srv" placeholder="غسيل، خياطة">
         
         <label>📷 تصوير القطعة قبل الصيانة:</label>
-        <input type="file" id="itemImage" accept="image/*" capture="environment" style="display:none;" onchange="previewImage(event)">
+        <input type="file" id="itemImage" accept="image/*" capture="environment" style="display:none;" onchange="handleImageSelection(event)">
         <button type="button" class="btn camera-btn" onclick="document.getElementById('itemImage').click();">📷 تصوير / اختيار صورة</button>
         <img id="imagePreview" alt="معاينة الصورة">
-        <div id="uploadStatus" class="loading-text">جاري رفع الصورة للسيرفر وتجهيز الرابط... ⏳</div>
+        <div id="uploadStatus" class="loading-text">⏳ جاري رفع الصورة للسيرفر، انتظر لحظة...</div>
 
         <div class="row">
             <div><label>💰 الحساب الكلي:</label><input type="number" id="tot" oninput="calc()"></div>
@@ -132,38 +132,64 @@
         document.getElementById('badge').innerText = "فاتورة اليوم رقم: #" + currentInvoiceNum;
     }
 
-    function previewImage(event) {
-        selectedFile = event.target.files[0];
-        if (selectedFile) {
+    // دالة جديدة محسنة لالتقاط وحفظ الصورة فوراً للآيفون والأجهزة كلها
+    async function handleImageSelection(event) {
+        const fileInput = document.getElementById('itemImage');
+        if (fileInput.files && fileInput.files[0]) {
+            selectedFile = fileInput.files[0];
             const img = document.getElementById('imagePreview');
             img.src = URL.createObjectURL(selectedFile);
             img.style.display = 'block';
-            uploadedImageUrl = ""; 
             
-            // رفع الصورة مباشرة أول ما تختارها عشان تكون جاهزة فوراً ومش تستنى لحد ما تدوس إرسال
-            uploadImageDirectly();
+            // رفع الصورة تلقائياً وبشكل فوري بمجرد اختيارها لتجنب مشاكل المتاهة
+            await uploadImageNow();
         }
     }
 
-    async function uploadImageDirectly() {
-        if (!selectedFile) return;
-        
-        document.getElementById('uploadStatus').style.display = 'block';
-        const fileName = `item_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
-        
-        const { data, error } = await supabaseClient.storage
-            .from('invoice_images')
-            .upload(fileName, selectedFile);
+    async function uploadImageNow() {
+        const fileInput = document.getElementById('itemImage');
+        if (!selectedFile && fileInput.files && fileInput.files[0]) {
+            selectedFile = fileInput.files[0];
+        }
 
-        document.getElementById('uploadStatus').style.display = 'none';
+        if (!selectedFile) return "";
+        if (uploadedImageUrl !== "") return uploadedImageUrl;
 
-        if (!error) {
+        const statusEl = document.getElementById('uploadStatus');
+        statusEl.innerText = "⏳ جاري رفع الصورة للسيرفر، انتظر لحظة...";
+        statusEl.style.display = 'block';
+        
+        try {
+            const fileName = `item_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
+            
+            const { data, error } = await supabaseClient.storage
+                .from('invoice_images')
+                .upload(fileName, selectedFile, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
+
+            if (error) {
+                console.error("Supabase upload error:", error);
+                statusEl.style.display = 'none';
+                alert("فشل رفع الصورة على السيرفر: " + error.message);
+                return "";
+            }
+
             const { data: publicUrlData } = supabaseClient.storage
                 .from('invoice_images')
                 .getPublicUrl(fileName);
+
             uploadedImageUrl = publicUrlData.publicUrl;
-        } else {
-            console.error("Upload failed", error);
+            statusEl.innerText = "✅ تم رفع الصورة بنجاح وجاهزة للإرسال!";
+            setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+            return uploadedImageUrl;
+
+        } (err) {
+            console.error("Upload exception:", err);
+            statusEl.style.display = 'none';
+            alert("حدث خطأ غير متوقع أثناء رفع الصورة!");
+            return "";
         }
     }
 
@@ -196,15 +222,10 @@
             return; 
         }
 
-        // لو لسه الصورة بترفع، استنى ثانية لحد ما الـ URL يكتمل
-        if (selectedFile && uploadedImageUrl === "") {
-            document.getElementById('uploadStatus').style.display = 'block';
-            let waitTries = 0;
-            while (uploadedImageUrl === "" && waitTries < 10) {
-                await new Promise(r => setTimeout(r, 500));
-                waitTries++;
-            }
-            document.getElementById('uploadStatus').style.display = 'none';
+        // لو المستخدم اختار صورة وما استناش الرفع التلقائي، نأكد رفعه هنا إجباري
+        let imgUrl = uploadedImageUrl;
+        if (!imgUrl && selectedFile) {
+            imgUrl = await uploadImageNow();
         }
 
         var r = document.getElementById('rDate').value, d = document.getElementById('dDate').value, sk = document.getElementById('snk').value, ss = document.getElementById('shs').value, sl = document.getElementById('slp').value, sn = document.getElementById('snd').value, sg = document.getElementById('sng').value, bg = document.getElementById('bags').value, sv = document.getElementById('srv').value, p = document.getElementById('paid').value, rm = document.getElementById('rem').value;
@@ -219,7 +240,7 @@
                 details: sv,
                 price: parseFloat(t) || 0,
                 paid: parseFloat(p) || 0,
-                image_url: uploadedImageUrl,
+                image_url: imgUrl,
                 status: 'تحت الصيانة'
             }]);
 
@@ -237,8 +258,7 @@
             var msg = `✨ *ALESKAFY SHOES* ✨\n🧾 *طلب صيانة جديد رقم (#${c})*\n\n` + baseTxt + `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n━━━━━━━━━━━━━━━\n🌐 تابع صفحة المحل على فيسبوك:\nhttps://www.facebook.com/61560847583033\n\n❤️ شكراً لزيارتكم ونتشرف بخدمتكم دائماً.`;
             window.location.href = "whatsapp://send?phone="+ph+"&text="+encodeURIComponent(msg);
         } else {
-            // هنا ربطنا رابط الصورة بصراحة وثبات في رسالة المحل مهما حصل
-            var imgTxt = uploadedImageUrl ? `\n\n🖼️ *رابط صورة القطعة قبل الصيانة:*\n${uploadedImageUrl}` : '\n\n🖼️ *رابط صورة القطعة:* (لم تقم بتصوير القطعة)';
+            var imgTxt = imgUrl ? `\n\n🖼️ *رابط صورة القطعة قبل الصيانة:*\n${imgUrl}` : '\n\n🖼️ *رابط صورة القطعة:* (لم يتم التقاط صورة)';
             var oMsg = `📥 *[ALESKAFY SHOES - نسخة المحل]*\n🧾 *أرشيف فاتورة اليوم رقم (#${c})*\n\n` + baseTxt + imgTxt + `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n🙏 *شكراً لزيارتكم الجميلة* ❤️`;
             window.location.href = "whatsapp://send?phone="+OWNER_PHONE+"&text="+encodeURIComponent(oMsg);
         }
