@@ -11,7 +11,7 @@
         h1 { text-align: center; color: #f59e0b; margin: 0; font-size: 24px; }
         .badge { background: #f59e0b; color: #000; font-weight: bold; padding: 8px 12px; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 8px 0; font-size: 14px; width: 100%; box-sizing: border-box;}
         
-        /* تصميم البسط والمقام الحقيقي (فوق بعض بخط فاصل) */
+        /* تصميم البسط والمقام الحقيقي */
         .fraction { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; font-weight: bold; line-height: 1.1; }
         .fraction .numerator { border-bottom: 2px solid currentColor; padding-bottom: 1px; }
         .fraction .denominator { padding-top: 1px; }
@@ -104,14 +104,12 @@
         <div class="manage-section">
             <h3 style="color:#f59e0b; text-align:center; margin-top:0;">🔍 البحث وإدارة حالة الفواتير</h3>
             
-            <!-- بحث برقم الأوردر (رقم اليوم التلقائي) -->
             <label>🔢 البحث برقم الأوردر (مثلاً اكتب 1 أو 2):</label>
             <div style="display:flex; gap:5px; margin-bottom: 10px;">
                 <input type="number" id="dailySearchInput" placeholder="رقم الأوردر اليومي..." style="margin-top:0;">
                 <button type="button" class="btn track-btn" style="width: auto; margin-top:0; padding: 0 15px;" onclick="searchByDailyNumber()">بحث بالرقم</button>
             </div>
 
-            <!-- بحث باسم العميل أو رقم الموبايل -->
             <label>👤 أو البحث باسم العميل أو رقم الموبايل:</label>
             <div style="display:flex; gap:5px;">
                 <input type="text" id="searchInput" placeholder="الاسم أو الرقم..." style="margin-top:0;">
@@ -153,14 +151,14 @@
     async function fetchNextInvoiceNum() {
         try {
             const today = new Date();
-            currentDayNum = today.getDate(); // رقم اليوم الحالي تلقائياً
+            currentDayNum = today.getDate();
 
             const todayStart = new Date();
             todayStart.setHours(0,0,0,0);
             
             const { data, error } = await supabaseClient
                 .from('invoices')
-                .select('id, daily_num')
+                .select('id, created_at')
                 .gte('created_at', todayStart.toISOString());
 
             if (!error && data) {
@@ -176,7 +174,6 @@
             formattedOrderCode = `${currentDailyNum}/${currentDayNum}`;
         }
 
-        // عرض الرقم بشكل كسر حقيقي (بسط فوق ومقام تحت) في واجهة التطبيق
         document.getElementById('badge').innerHTML = `
             <span>رقم أوردر اليوم التلقائي:</span>
             <span class="fraction" style="font-size: 16px;">
@@ -317,20 +314,18 @@
             rm = document.getElementById('rem').value;
 
         if (!isCurrentInvoiceSaved) {
+            // حفظ الأعمدة الأساسية المتوفرة في الجدول عندك حالياً لضمان عدم حدوث خطأ
             const { error } = await supabaseClient
                 .from('invoices')
                 .insert([{
                     customer_name: n,
                     phone: ph,
-                    item_type: getItemsSummary(),
+                    item_type: getItemsSummary() + ` | رف: ${shelf}`,
                     details: sv,
                     price: parseFloat(t) || 0,
                     paid: parseFloat(p) || 0,
                     image_url: imagesForDatabase,
-                    status: 'تحت الصيانة',
-                    daily_num: currentDailyNum,
-                    order_code: formattedOrderCode,
-                    shelf: shelf
+                    status: 'تحت الصيانة'
                 }]);
 
             if (error) {
@@ -425,9 +420,9 @@
 
         list.forEach(function(x, idx) {
             var rem = (x.price || 0) - (x.paid || 0);
-            var code = x.order_code || (idx + 1);
-            var shelfInfo = x.shelf ? ` [${x.shelf}]` : '';
-            txt += `أوردر (${code})${shelfInfo} - العميل: ${x.customer_name}\nالحساب: ${x.price} ج | المدفوع: ${x.paid} ج | الباقي: ${rem} ج\n--------------------\n`; 
+            var codeNum = idx + 1;
+            var dayNum = new Date(x.created_at).getDate() || 23;
+            txt += `أوردر (${codeNum}/${dayNum}) - العميل: ${x.customer_name}\nالحساب: ${x.price} ج | المدفوع: ${x.paid} ج | الباقي: ${rem} ج\n--------------------\n`; 
             t += (x.price || 0);
             p += (x.paid || 0);
             r += rem;
@@ -457,13 +452,24 @@
         resBox.style.display = 'block';
         resBox.innerHTML = 'جاري البحث... ⏳';
 
+        const todayStart = new Date();
+        todayStart.setHours(0,0,0,0);
+
         const { data, error } = await supabaseClient
             .from('invoices')
             .select('*')
-            .eq('daily_num', parseInt(query) || 0)
-            .order('created_at', { ascending: false });
+            .gte('created_at', todayStart.toISOString())
+            .order('created_at', { ascending: true });
 
-        renderSearchResults(data, error, resBox);
+        if (error || !data) {
+            resBox.innerHTML = '<div style="color: #ef4444; text-align: center;">لا توجد فواتير مطابقة!</div>';
+            return;
+        }
+
+        // فلترة النتائج حسب الترتيب اليومي (الرقم المطلوب)
+        const targetIndex = parseInt(query) - 1;
+        const matchedList = data[targetIndex] ? [data[targetIndex]] : [];
+        renderSearchResults(matchedList, null, resBox);
     }
 
     async function searchInvoices() {
@@ -493,7 +499,7 @@
             return;
         }
 
-        resBox.innerHTML = data.map(inv => {
+        resBox.innerHTML = data.map((inv, idx) => {
             const isDone = inv.status === 'تم الانتهاء من الصيانة';
             const statusClass = isDone ? 'bg-done' : 'bg-pending';
             const price = inv.price || 0;
@@ -502,12 +508,11 @@
             const phoneVal = inv.phone || '-';
             const itemType = inv.item_type || '-';
             const details = inv.details || '-';
-            const shelfVal = inv.shelf || 'غير محدد';
             
-            // تحويل كود الأوردر لبسط وتحتيه مقام بخط فاصل في نتائج البحث أيضاً
-            let orderCodeParts = inv.order_code ? inv.order_code.split('/') : [inv.daily_num, ''];
-            let numTop = orderCodeParts[0] || '';
-            let numBottom = orderCodeParts[1] || '';
+            // استخراج تاريخ اليوم أو ترتيب الأوردر بشكل كسر حقيقي
+            let invDate = new Date(inv.created_at || Date.now());
+            let numTop = idx + 1;
+            let numBottom = invDate.getDate();
 
             let fractionHtml = `
                 <span class="fraction" style="font-size: 14px;">
@@ -531,7 +536,7 @@
                         <span class="status-badge ${statusClass}">${inv.status || 'تحت الصيانة'}</span>
                     </div>
                     <div style="font-size: 13px; color: #38bdf8; margin-bottom: 3px; display:flex; align-items:center; gap:6px;">
-                        🔢 <b>رقم اليوم:</b> ${fractionHtml} | 🗄️ <b>المكان:</b> <span style="color:#facc15; font-weight:bold;">${shelfVal}</span>
+                        🔢 <b>رقم اليوم:</b> ${fractionHtml}
                     </div>
                     <div style="font-size: 13px; color: #cbd5e1; margin-bottom: 3px;">📱 الموبايل: ${phoneVal}</div>
                     <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ${itemType}</div>
@@ -557,5 +562,4 @@
         }
     }
 </script>
-</body>
 </html>
