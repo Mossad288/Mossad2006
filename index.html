@@ -9,7 +9,13 @@
         body { font-family: sans-serif; background: #0b0f19; margin: 0; padding: 15px; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
         .container { width: 100%; max-width: 430px; background: #111827; padding: 20px; border-radius: 12px; border: 1px solid #f59e0b; display: block; }
         h1 { text-align: center; color: #f59e0b; margin: 0; font-size: 24px; }
-        .badge { background: #f59e0b; color: #000; font-weight: bold; padding: 4px 10px; border-radius: 15px; display: inline-block; margin: 5px 0; font-size: 12px; }
+        .badge { background: #f59e0b; color: #000; font-weight: bold; padding: 8px 12px; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 8px 0; font-size: 14px; width: 100%; box-sizing: border-box;}
+        
+        /* تصميم البسط والمقام الحقيقي (فوق بعض بخط فاصل) */
+        .fraction { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; font-weight: bold; line-height: 1.1; }
+        .fraction .numerator { border-bottom: 2px solid currentColor; padding-bottom: 1px; }
+        .fraction .denominator { padding-top: 1px; }
+
         label { display: block; margin-top: 10px; font-size: 13px; color: #ccc; }
         input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #334155; border-radius: 6px; background: #1f2937; color: #fff; box-sizing: border-box; }
         .row { display: flex; gap: 10px; flex-wrap: wrap; } .row div { flex: 1; min-width: 30%; }
@@ -31,12 +37,12 @@
         .loading-text { color: #f59e0b; font-size: 13px; text-align: center; margin-top: 8px; font-weight: bold; display: none; }
     </style>
 </head>
-<body onload="fetchNextInvoiceNum();">
+<body onload="initApp();">
 
 <div class="container" id="mainApp">
     <div style="text-align:center;">
         <h1>ALESKAFY SHOES</h1>
-        <span class="badge" id="badge">فاتورة اليوم رقم: جاري التحميل...</span>
+        <div class="badge" id="badge">رقم الأوردر: جاري التحميل...</div>
     </div>
 
     <form id="invoiceForm">
@@ -61,6 +67,16 @@
         </div>
         
         <label>🛠️ الخدمة المطلوبة:</label><input type="text" id="srv" placeholder="غسيل، خياطة">
+
+        <label>🗄️ مكان التخزين (الرف بالمحل):</label>
+        <select id="shelfLocation">
+            <option value="رف أ">رف (أ)</option>
+            <option value="رف ب">رف (ب)</option>
+            <option value="رف ج">رف (ج)</option>
+            <option value="رف د">رف (د)</option>
+            <option value="رف هـ">رف (هـ)</option>
+            <option value="رف و">رف (و)</option>
+        </select>
         
         <label>📷 تصوير القطع قبل الصيانة (حدد أكثر من صورة دفعة واحدة):</label>
         <input type="file" id="itemImages" accept="image/*" multiple style="display:none;" onchange="handleImagesSelection(event)">
@@ -87,11 +103,21 @@
 
         <div class="manage-section">
             <h3 style="color:#f59e0b; text-align:center; margin-top:0;">🔍 البحث وإدارة حالة الفواتير</h3>
-            <label>بحث باسم العميل أو رقم الموبايل:</label>
+            
+            <!-- بحث برقم الأوردر (رقم اليوم التلقائي) -->
+            <label>🔢 البحث برقم الأوردر (مثلاً اكتب 1 أو 2):</label>
+            <div style="display:flex; gap:5px; margin-bottom: 10px;">
+                <input type="number" id="dailySearchInput" placeholder="رقم الأوردر اليومي..." style="margin-top:0;">
+                <button type="button" class="btn track-btn" style="width: auto; margin-top:0; padding: 0 15px;" onclick="searchByDailyNumber()">بحث بالرقم</button>
+            </div>
+
+            <!-- بحث باسم العميل أو رقم الموبايل -->
+            <label>👤 أو البحث باسم العميل أو رقم الموبايل:</label>
             <div style="display:flex; gap:5px;">
                 <input type="text" id="searchInput" placeholder="الاسم أو الرقم..." style="margin-top:0;">
-                <button type="button" class="btn track-btn" style="width: auto; margin-top:0; padding: 0 15px;" onclick="searchInvoices()">بحث</button>
+                <button type="button" class="btn track-btn" style="width: auto; margin-top:0; padding: 0 15px;" onclick="searchInvoices()">بحث بالاسم</button>
             </div>
+            
             <div id="searchResults" class="result-box"></div>
         </div>
         
@@ -107,8 +133,16 @@
     var OWNER_PHONE = "201090274601"; 
     var uploadedImageUrls = [];
     var selectedFilesList = [];
-    var currentInvoiceNum = 1;
+    var currentDailyNum = 1;
+    var currentDayNum = 23;
+    var formattedOrderCode = "";
     var isCurrentInvoiceSaved = false;
+
+    function initApp() {
+        const today = new Date();
+        document.getElementById('rDate').valueAsDate = today;
+        fetchNextInvoiceNum();
+    }
 
     function calc() {
         var t = parseFloat(document.getElementById('tot').value) || 0;
@@ -118,23 +152,38 @@
 
     async function fetchNextInvoiceNum() {
         try {
+            const today = new Date();
+            currentDayNum = today.getDate(); // رقم اليوم الحالي تلقائياً
+
             const todayStart = new Date();
             todayStart.setHours(0,0,0,0);
             
             const { data, error } = await supabaseClient
                 .from('invoices')
-                .select('id', { count: 'exact' })
+                .select('id, daily_num')
                 .gte('created_at', todayStart.toISOString());
 
             if (!error && data) {
-                currentInvoiceNum = data.length + 1;
+                currentDailyNum = data.length + 1;
             } else {
-                currentInvoiceNum = 1;
+                currentDailyNum = 1;
             }
+
+            formattedOrderCode = `${currentDailyNum}/${currentDayNum}`;
         } catch (e) {
-            currentInvoiceNum = 1;
+            currentDailyNum = 1;
+            currentDayNum = new Date().getDate();
+            formattedOrderCode = `${currentDailyNum}/${currentDayNum}`;
         }
-        document.getElementById('badge').innerText = "فاتورة اليوم رقم: #" + currentInvoiceNum;
+
+        // عرض الرقم بشكل كسر حقيقي (بسط فوق ومقام تحت) في واجهة التطبيق
+        document.getElementById('badge').innerHTML = `
+            <span>رقم أوردر اليوم التلقائي:</span>
+            <span class="fraction" style="font-size: 16px;">
+                <span class="numerator">${currentDailyNum}</span>
+                <span class="denominator">${currentDayNum}</span>
+            </span>
+        `;
     }
 
     function handleImagesSelection(event) {
@@ -239,6 +288,7 @@
         var n = document.getElementById('name').value.trim();
         var t = document.getElementById('tot').value.trim();
         var ph = document.getElementById('phone').value.trim();
+        var shelf = document.getElementById('shelfLocation').value;
 
         if(!n || !t || (m === 'client' && !ph)) { 
             alert("يرجى ملء كافة البيانات المطلوبة!"); 
@@ -266,8 +316,6 @@
             p = document.getElementById('paid').value,
             rm = document.getElementById('rem').value;
 
-        var c = currentInvoiceNum.toString();
-
         if (!isCurrentInvoiceSaved) {
             const { error } = await supabaseClient
                 .from('invoices')
@@ -279,7 +327,10 @@
                     price: parseFloat(t) || 0,
                     paid: parseFloat(p) || 0,
                     image_url: imagesForDatabase,
-                    status: 'تحت الصيانة'
+                    status: 'تحت الصيانة',
+                    daily_num: currentDailyNum,
+                    order_code: formattedOrderCode,
+                    shelf: shelf
                 }]);
 
             if (error) {
@@ -292,6 +343,8 @@
 
         var baseTxt =
             `👤 *اسم العميل:* ${n}\n` +
+            `🔢 *رقم الأوردر اليومي:* ${formattedOrderCode}\n` +
+            `🗄️ *مكان التخزين:* ${shelf}\n` +
             `📅 *تاريخ الاستلام:* ${r}\n` +
             `📦 *تاريخ التسليم:* ${d}\n\n` +
             `👟 *كوتشيات:* ${sk} | 🥾 *جزم:* ${ss} | 🩴 *شبشب:* ${sl}\n` +
@@ -306,10 +359,9 @@
                 ph = "2" + ph;
             }
 
-            // رسالة العميل (بدون صور نهائياً)
             var msg =
                 `✨ *ALESKAFY SHOES* ✨\n` +
-                `🧾 *طلب صيانة جديد رقم (#${c})*\n\n` +
+                `🧾 *إيصال استلام صيانة رقم (${formattedOrderCode})*\n\n` +
                 baseTxt +
                 `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.` +
                 `\n\n━━━━━━━━━━━━━━━\n` +
@@ -320,7 +372,6 @@
             window.location.href = "whatsapp://send?phone=" + ph + "&text=" + encodeURIComponent(msg);
 
         } else {
-            // رسالة المحل (بتتضمن كل الصور المرفوعة للأرشيف والمتابعة)
             let imagesText = "";
             if (imgUrls.length > 0) {
                 imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:*";
@@ -333,7 +384,7 @@
 
             var oMsg =
                 `📥 *[ALESKAFY SHOES - نسخة المحل]*\n` +
-                `🧾 *أرشيف فاتورة اليوم رقم (#${c})*\n\n` +
+                `🧾 *أرشيف أوردر رقم (${formattedOrderCode}) على (${shelf})*\n\n` +
                 baseTxt +
                 imagesText +
                 `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n` +
@@ -350,8 +401,9 @@
         uploadedImageUrls = [];
         selectedFilesList = [];
         isCurrentInvoiceSaved = false;
+        document.getElementById('rDate').valueAsDate = new Date();
         await fetchNextInvoiceNum();
-        alert("جاهز لكتابة الفاتورة الجديدة وبرقم جديد 👍");
+        alert("جاهز للفاتورة الجديدة، ورقم اليوم اترقم تلقائي 👍");
     }
 
     async function rep() {
@@ -373,7 +425,9 @@
 
         list.forEach(function(x, idx) {
             var rem = (x.price || 0) - (x.paid || 0);
-            txt += "فاتورة #" + (idx + 1) + " - العميل: " + x.customer_name + "\nالحساب: " + x.price + " ج | المدفوع: " + x.paid + " ج | الباقي: " + rem + " ج\n--------------------\n"; 
+            var code = x.order_code || (idx + 1);
+            var shelfInfo = x.shelf ? ` [${x.shelf}]` : '';
+            txt += `أوردر (${code})${shelfInfo} - العميل: ${x.customer_name}\nالحساب: ${x.price} ج | المدفوع: ${x.paid} ج | الباقي: ${rem} ج\n--------------------\n`; 
             t += (x.price || 0);
             p += (x.paid || 0);
             r += rem;
@@ -389,6 +443,27 @@
         lnk.click();
         document.body.removeChild(lnk);
         URL.revokeObjectURL(lnk.href);
+    }
+
+    async function searchByDailyNumber() {
+        const query = document.getElementById('dailySearchInput').value.trim();
+        const resBox = document.getElementById('searchResults');
+
+        if (!query) {
+            alert('أدخل رقم الأوردر للبحث (مثل 1 أو 2)');
+            return;
+        }
+
+        resBox.style.display = 'block';
+        resBox.innerHTML = 'جاري البحث... ⏳';
+
+        const { data, error } = await supabaseClient
+            .from('invoices')
+            .select('*')
+            .eq('daily_num', parseInt(query) || 0)
+            .order('created_at', { ascending: false });
+
+        renderSearchResults(data, error, resBox);
     }
 
     async function searchInvoices() {
@@ -409,6 +484,10 @@
             .or(`customer_name.ilike.%${query}%,phone.ilike.%${query}%`)
             .order('created_at', { ascending: false });
 
+        renderSearchResults(data, error, resBox);
+    }
+
+    function renderSearchResults(data, error, resBox) {
         if (error || !data || data.length === 0) {
             resBox.innerHTML = '<div style="color: #ef4444; text-align: center;">لا توجد فواتير مطابقة!</div>';
             return;
@@ -423,10 +502,23 @@
             const phoneVal = inv.phone || '-';
             const itemType = inv.item_type || '-';
             const details = inv.details || '-';
+            const shelfVal = inv.shelf || 'غير محدد';
+            
+            // تحويل كود الأوردر لبسط وتحتيه مقام بخط فاصل في نتائج البحث أيضاً
+            let orderCodeParts = inv.order_code ? inv.order_code.split('/') : [inv.daily_num, ''];
+            let numTop = orderCodeParts[0] || '';
+            let numBottom = orderCodeParts[1] || '';
+
+            let fractionHtml = `
+                <span class="fraction" style="font-size: 14px;">
+                    <span class="numerator">${numTop}</span>
+                    <span class="denominator">${numBottom}</span>
+                </span>
+            `;
 
             let imageLinks = '';
             if (inv.image_url) {
-                const imageUrls = String(inv.image_url).split(/\r?\n/).map(url => url.trim()).filter(url => url.length > 0);
+                const imageUrls = String(inv.image_url).split(/\r?\n/).map(url => url.trim()).filter(url => url.length > 1);
                 imageLinks = imageUrls.map((url, index) => {
                     return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#f59e0b; font-size:12px; display:inline-block; margin-left:8px; margin-top:4px; text-decoration:none;">🖼️ عرض صورة ${index + 1}</a>`;
                 }).join('');
@@ -438,9 +530,12 @@
                         <strong style="color: #f59e0b; font-size: 15px;">👤 ${inv.customer_name}</strong>
                         <span class="status-badge ${statusClass}">${inv.status || 'تحت الصيانة'}</span>
                     </div>
+                    <div style="font-size: 13px; color: #38bdf8; margin-bottom: 3px; display:flex; align-items:center; gap:6px;">
+                        🔢 <b>رقم اليوم:</b> ${fractionHtml} | 🗄️ <b>المكان:</b> <span style="color:#facc15; font-weight:bold;">${shelfVal}</span>
+                    </div>
                     <div style="font-size: 13px; color: #cbd5e1; margin-bottom: 3px;">📱 الموبايل: ${phoneVal}</div>
-                    <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف والعدد:</b> ${itemType}</div>
-                    <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة المطلوبة:</b> ${details}</div>
+                    <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ${itemType}</div>
+                    <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة:</b> ${details}</div>
                     <div style="font-size: 13px; margin-bottom: 4px;">💰 الحساب: ${price} ج | 💵 المدفوع: ${paid} ج | 🔴 الباقي: <span style="color:#ef4444; font-weight:bold;">${rem} ج</span></div>
                     <div>${imageLinks}</div>
                     <div style="display:flex; gap:6px; margin-top:6px;">
@@ -456,7 +551,7 @@
         const { error } = await supabaseClient.from('invoices').update({ status: newStatus }).eq('id', id);
         if (!error) {
             alert('تم تغيير حالة الفاتورة بنجاح 👍');
-            searchInvoices();
+            if(document.getElementById('searchInput').value.trim() !== '') searchInvoices();
         } else {
             alert('حدث خطأ أثناء التحديث!');
         }
