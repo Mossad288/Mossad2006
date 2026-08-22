@@ -227,8 +227,8 @@
             var msg = `✨ *ALESKAFY SHOES* ✨\n🧾 *طلب صيانة جديد رقم (#${c})*\n\n` + baseTxt + `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n━━━━━━━━━━━━━━━\n🌐 تابع صفحة المحل على فيسبوك:\nhttps://www.facebook.com/61560847583033\n\n❤️ شكراً لزيارتكم ونتشرف بخدمتكم دائماً.`;
             window.location.href = "whatsapp://send?phone="+ph+"&text="+encodeURIComponent(msg);
         } else {
-            // تم إضافة رابط الصورة هنا لرسالة المحل بوضوح
-            var imgTxt = imgUrl ? `\n\n🖼️ *رابط صورة القطعة قبل الصيانة:*\n${imgUrl}` : '';
+            // هنا تم وضع رابط الصورة صراحة في نص رسالة المحل
+            var imgTxt = imgUrl ? `\n\n🖼️ *رابط صورة القطعة قبل الصيانة:*\n${imgUrl}` : '\n\n🖼️ *رابط صورة القطعة:* (لا توجد صورة مرفوعة)';
             var oMsg = `📥 *[ALESKAFY SHOES - نسخة المحل]*\n🧾 *أرشيف فاتورة اليوم رقم (#${c})*\n\n` + baseTxt + imgTxt + `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n🙏 *شكراً لزيارتكم الجميلة* ❤️`;
             window.location.href = "whatsapp://send?phone="+OWNER_PHONE+"&text="+encodeURIComponent(oMsg);
         }
