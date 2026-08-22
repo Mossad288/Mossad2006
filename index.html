@@ -62,7 +62,7 @@
         <input type="file" id="itemImage" accept="image/*" capture="environment" style="display:none;" onchange="previewImage(event)">
         <button type="button" class="btn camera-btn" onclick="document.getElementById('itemImage').click();">📷 تصوير / اختيار صورة</button>
         <img id="imagePreview" alt="معاينة الصورة">
-        <div id="uploadStatus" class="loading-text">جاري رفع الصورة للسيرفر... ⏳</div>
+        <div id="uploadStatus" class="loading-text">جاري رفع الصورة للسيرفر وتجهيز الرابط... ⏳</div>
 
         <div class="row">
             <div><label>💰 الحساب الكلي:</label><input type="number" id="tot" oninput="calc()"></div>
@@ -138,15 +138,18 @@
             const img = document.getElementById('imagePreview');
             img.src = URL.createObjectURL(selectedFile);
             img.style.display = 'block';
+            uploadedImageUrl = ""; 
+            
+            // رفع الصورة مباشرة أول ما تختارها عشان تكون جاهزة فوراً ومش تستنى لحد ما تدوس إرسال
+            uploadImageDirectly();
         }
     }
 
-    async function uploadImageIfSelected() {
-        if (uploadedImageUrl !== "") return uploadedImageUrl;
-        if (!selectedFile) return "";
+    async function uploadImageDirectly() {
+        if (!selectedFile) return;
         
         document.getElementById('uploadStatus').style.display = 'block';
-        const fileName = `item_${Date.now()}.jpg`;
+        const fileName = `item_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
         
         const { data, error } = await supabaseClient.storage
             .from('invoice_images')
@@ -159,10 +162,8 @@
                 .from('invoice_images')
                 .getPublicUrl(fileName);
             uploadedImageUrl = publicUrlData.publicUrl;
-            return uploadedImageUrl;
         } else {
             console.error("Upload failed", error);
-            return "";
         }
     }
 
@@ -195,7 +196,16 @@
             return; 
         }
 
-        const imgUrl = await uploadImageIfSelected();
+        // لو لسه الصورة بترفع، استنى ثانية لحد ما الـ URL يكتمل
+        if (selectedFile && uploadedImageUrl === "") {
+            document.getElementById('uploadStatus').style.display = 'block';
+            let waitTries = 0;
+            while (uploadedImageUrl === "" && waitTries < 10) {
+                await new Promise(r => setTimeout(r, 500));
+                waitTries++;
+            }
+            document.getElementById('uploadStatus').style.display = 'none';
+        }
 
         var r = document.getElementById('rDate').value, d = document.getElementById('dDate').value, sk = document.getElementById('snk').value, ss = document.getElementById('shs').value, sl = document.getElementById('slp').value, sn = document.getElementById('snd').value, sg = document.getElementById('sng').value, bg = document.getElementById('bags').value, sv = document.getElementById('srv').value, p = document.getElementById('paid').value, rm = document.getElementById('rem').value;
         
@@ -209,7 +219,7 @@
                 details: sv,
                 price: parseFloat(t) || 0,
                 paid: parseFloat(p) || 0,
-                image_url: imgUrl,
+                image_url: uploadedImageUrl,
                 status: 'تحت الصيانة'
             }]);
 
@@ -227,8 +237,8 @@
             var msg = `✨ *ALESKAFY SHOES* ✨\n🧾 *طلب صيانة جديد رقم (#${c})*\n\n` + baseTxt + `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n━━━━━━━━━━━━━━━\n🌐 تابع صفحة المحل على فيسبوك:\nhttps://www.facebook.com/61560847583033\n\n❤️ شكراً لزيارتكم ونتشرف بخدمتكم دائماً.`;
             window.location.href = "whatsapp://send?phone="+ph+"&text="+encodeURIComponent(msg);
         } else {
-            // هنا تم وضع رابط الصورة صراحة في نص رسالة المحل
-            var imgTxt = imgUrl ? `\n\n🖼️ *رابط صورة القطعة قبل الصيانة:*\n${imgUrl}` : '\n\n🖼️ *رابط صورة القطعة:* (لا توجد صورة مرفوعة)';
+            // هنا ربطنا رابط الصورة بصراحة وثبات في رسالة المحل مهما حصل
+            var imgTxt = uploadedImageUrl ? `\n\n🖼️ *رابط صورة القطعة قبل الصيانة:*\n${uploadedImageUrl}` : '\n\n🖼️ *رابط صورة القطعة:* (لم تقم بتصوير القطعة)';
             var oMsg = `📥 *[ALESKAFY SHOES - نسخة المحل]*\n🧾 *أرشيف فاتورة اليوم رقم (#${c})*\n\n` + baseTxt + imgTxt + `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n🙏 *شكراً لزيارتكم الجميلة* ❤️`;
             window.location.href = "whatsapp://send?phone="+OWNER_PHONE+"&text="+encodeURIComponent(oMsg);
         }
