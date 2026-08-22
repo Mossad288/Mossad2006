@@ -212,19 +212,15 @@
     var uploadedImageUrls = [];
     var selectedFilesList = [];
     var currentDailyNum = 1;
-    var currentDayNum = 23;
+    var currentDayNum = 1;
     var formattedOrderCode = "";
     var isCurrentInvoiceSaved = false;
 
     function initApp() {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const formattedToday = `${year}-${month}-${day}`;
+        // حقول التواريخ هتبقي فاضية عشان تدخلها بايدك
+        document.getElementById('rDate').value = '';
+        document.getElementById('dDate').value = '';
 
-        document.getElementById('rDate').value = formattedToday;
-        document.getElementById('dDate').value = formattedToday;
         fetchNextInvoiceNum();
     }
 
@@ -387,8 +383,8 @@
 
         var imagesForDatabase = imgUrls.join('\n');
 
-        var r = document.getElementById('rDate').value,
-            d = document.getElementById('dDate').value,
+        var r = document.getElementById('rDate').value || 'غير محدد',
+            d = document.getElementById('dDate').value || 'غير محدد',
             sk = document.getElementById('snk').value,
             ss = document.getElementById('shs').value,
             sl = document.getElementById('slp').value,
@@ -482,17 +478,12 @@
         selectedFilesList = [];
         isCurrentInvoiceSaved = false;
 
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const formattedToday = `${year}-${month}-${day}`;
-
-        document.getElementById('rDate').value = formattedToday;
-        document.getElementById('dDate').value = formattedToday;
+        // تفريغ خانات التاريخ للفاتورة الجديدة
+        document.getElementById('rDate').value = '';
+        document.getElementById('dDate').value = '';
 
         await fetchNextInvoiceNum();
-        alert("جاهز للفاتورة الجديدة، ورقم اليوم اترقم تلقائي والتاريخ اتحدث 👍");
+        alert("جاهز للفاتورة الجديدة، ورقم اليوم اترقم تلقائي والتاريخ فاضي عشان تكتبه 👍");
     }
 
     async function rep() {
@@ -515,7 +506,7 @@
         list.forEach(function(x, idx) {
             var rem = (x.price || 0) - (x.paid || 0);
             var codeNum = idx + 1;
-            var dayNum = new Date(x.created_at).getDate() || 23;
+            var dayNum = new Date(x.created_at).getDate() || 1;
             txt += `أوردر (${codeNum}/${dayNum}) - العميل: ${x.customer_name}\nالحساب: ${x.price} ج | المدفوع: ${x.paid} ج | الباقي: ${rem} ج\n--------------------\n`; 
             t += (x.price || 0);
             p += (x.paid || 0);
