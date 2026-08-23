@@ -289,13 +289,14 @@
             const previewContainer = document.getElementById('previewsContainer');
             previewContainer.innerHTML = '';
             
+            selectedFilesList = [];
             for (let i = 0; i < files.length; i++) {
                 selectedFilesList.push(files[i]);
             }
             
             uploadedImageUrls = [];
 
-            selectedFilesList.forEach((file, index) => {
+            selectedFilesList.forEach((file) => {
                 const img = document.createElement('img');
                 img.className = 'preview-thumb';
                 img.src = URL.createObjectURL(file);
@@ -322,20 +323,18 @@
         try {
             for (let i = 0; i < selectedFilesList.length; i++) {
                 const file = selectedFilesList[i];
-                const extension = file.name && file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : 'jpg';
-                const safeExtension = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension) ? extension : 'jpg';
-                const fileName = `invoice_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 8)}.${safeExtension}`;
+                const fileName = `inv_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 7)}.jpg`;
 
-                const { error: uploadError } = await supabaseClient.storage
+                // استخدام الرفع المباشر الآمن لملفات الـ Blob
+                const { data, error: uploadError } = await supabaseClient.storage
                     .from('images')
                     .upload(fileName, file, {
                         cacheControl: '3600',
-                        upsert: false,
-                        contentType: file.type || 'image/jpeg'
+                        upsert: true
                     });
 
                 if (uploadError) {
-                    throw new Error("فشل رفع الصورة رقم " + (i + 1) + ": " + uploadError.message);
+                    throw new Error(uploadError.message);
                 }
 
                 const { data: publicUrlData } = supabaseClient.storage
@@ -343,7 +342,7 @@
                     .getPublicUrl(fileName);
 
                 if (!publicUrlData || !publicUrlData.publicUrl) {
-                    throw new Error("لم يتم إنشاء رابط للصورة رقم " + (i + 1));
+                    throw new Error("فشل توليد رابط الصورة");
                 }
 
                 urls.push(publicUrlData.publicUrl);
@@ -351,13 +350,13 @@
 
             uploadedImageUrls = urls;
             statusEl.innerText = "✅ تم رفع " + urls.length + " صورة بنجاح!";
-            setTimeout(() => { statusEl.style.display = 'none'; }, 2500);
+            setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
             return uploadedImageUrls;
 
         } catch (err) {
-            console.error("Upload exception:", err);
+            console.error("Upload error:", err);
             statusEl.style.display = 'none';
-            alert("❌ حصل خطأ في رفع الصور:\n\n" + err.message);
+            alert("❌ خطأ أثناء رفع الصور:\n" + err.message);
             return [];
         }
     }
@@ -675,15 +674,13 @@
             
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                const extension = file.name && file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : 'jpg';
-                const fileName = `invoice_${invoiceId}_${Date.now()}_${i}.${['jpg','jpeg','png','webp'].includes(extension) ? extension : 'jpg'}`;
+                const fileName = `inv_${invoiceId}_${Date.now()}_${i}.jpg`;
 
                 const { error: uploadError } = await supabaseClient.storage
                     .from('images')
                     .upload(fileName, file, {
                         cacheControl: '3600',
-                        upsert: false,
-                        contentType: file.type || 'image/jpeg'
+                        upsert: true
                     });
 
                 if (uploadError) throw new Error(uploadError.message);
