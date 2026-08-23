@@ -87,7 +87,7 @@
         .fraction .denominator { padding-top: 1px; }
 
         label { display: block; margin-top: 12px; font-size: 13px; color: #d4af37; font-weight: 600; }
-        input, select { width: 100%; padding: 11px; margin-top: 5px; border: 1px solid #33270a; border-radius: 8px; background: #141414; color: #fff; box-sizing: border-box; transition: all 0.3s ease; font-size: 14px; }
+        input, select { width: 100%; padding: 11px; margin-top: 5px; border: 1px solid #33270a; border-radius: 8px; background: #141414; color: #fff; box-sizing: border-box; transition: all 0.3s ease; font-size: 14px; text-align: center; }
         input:focus, select:focus { border-color: #f3e5ab; outline: none; box-shadow: 0 0 8px rgba(243, 229, 171, 0.4); }
 
         .row { display: flex; gap: 10px; flex-wrap: wrap; } .row div { flex: 1; min-width: 30%; }
@@ -162,7 +162,7 @@
             <option value="الرف : و">الرف : و</option>
         </select>
         
-        <label>📷 تصوير القطع قبل الصيانة (حدد أكثر من صورة دفعة واحدة):</label>
+        <label>📷 تصوير القطع قبل الصيانة:</label>
         <input type="file" id="itemImages" accept="image/*" multiple style="display:none;" onchange="handleImagesSelection(event)">
         <button type="button" class="btn camera-btn" onclick="document.getElementById('itemImages').click();">📷 تصوير / اختيار عدة صور</button>
         
@@ -188,25 +188,21 @@
         <div class="manage-section">
             <h3 style="color:#bf953f; text-align:center; margin-top:0;">🔍 البحث وإدارة حالة الفواتير</h3>
             
-            <label>🔢 البحث برقم الأوردر (بسط ومقام):</label>
-            <div style="background: #141414; padding: 12px; border: 1px solid #33270a; border-radius: 8px; margin-bottom: 10px;">
-                <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
-                    <div style="flex: 1;">
-                        <span style="font-size: 12px; color: #d4af37;">رقم الأوردر (فوق):</span>
-                        <input type="number" id="searchNumerator" placeholder="مثلاً: 1" style="margin-top: 3px;">
-                    </div>
-                    <div style="font-size: 24px; color: #bf953f; font-weight: bold; padding-top: 15px;">/</div>
-                    <div style="flex: 1;">
-                        <span style="font-size: 12px; color: #d4af37;">تاريخ اليوم (تحت):</span>
-                        <input type="number" id="searchDenominator" placeholder="مثلاً: 23" style="margin-top: 3px;">
+            <label style="text-align: center; margin-bottom: 8px;">🔢 البحث برقم الأوردر (بسط ومقام):</label>
+            <div style="background: #141414; padding: 15px; border: 1px solid #33270a; border-radius: 12px; margin-bottom: 10px; text-align: center;">
+                <div style="display: inline-flex; flex-direction: column; width: 110px; vertical-align: middle; margin-bottom: 10px;">
+                    <input type="number" id="searchNumerator" placeholder="رقم" style="text-align: center; padding: 8px; border-bottom-left-radius: 0; border-bottom-right-radius: 0; font-weight: bold; color: #f3e5ab; font-size: 16px;">
+                    <div style="background: #bf953f; height: 3px; width: 100%;"></div>
+                    <div style="position: relative;">
+                        <input type="number" id="searchDenominator" placeholder="اليوم" style="text-align: center; padding: 8px; border-top-left-radius: 0; border-top-right-radius: 0; font-weight: bold; color: #38bdf8; font-size: 16px;">
                     </div>
                 </div>
-                <button type="button" class="btn track-btn" style="width: 100%; margin-top: 0;" onclick="searchByFractionNumber()">بحث برقم الأوردر</button>
+                <button type="button" class="btn track-btn" style="width: 100%; margin-top: 5px;" onclick="searchByFractionNumber()">بحث برقم الأوردر</button>
             </div>
 
-            <label>👤 أو البحث باسم العميل أو رقم الموبايل:</label>
+            <label>👤 أو البحث باسم العميل أو رقم الموبايل (للجديد والقديم):</label>
             <div style="display:flex; gap:5px;">
-                <input type="text" id="searchInput" placeholder="الاسم أو الرقم..." style="margin-top:0;">
+                <input type="text" id="searchInput" placeholder="الاسم أو الرقم..." style="margin-top:0; text-align: right;">
                 <button type="button" class="btn track-btn" style="width: auto; margin-top:0; padding: 0 15px;" onclick="searchInvoices()">بحث بالاسم</button>
             </div>
             
@@ -256,21 +252,27 @@
             
             const { data, error } = await supabaseClient
                 .from('invoices')
-                .select('id, created_at')
-                .gte('created_at', todayStart.toISOString());
+                .select('daily_number, created_at')
+                .gte('created_at', todayStart.toISOString())
+                .order('daily_number', { ascending: false })
+                .limit(1);
 
-            if (!error && data) {
-                currentDailyNum = data.length + 1;
+            if (!error && data && data.length > 0 && data[0].daily_number) {
+                currentDailyNum = parseInt(data[0].daily_number) + 1;
             } else {
-                currentDailyNum = 1;
+                const { data: allToday } = await supabaseClient
+                    .from('invoices')
+                    .select('id, created_at')
+                    .gte('created_at', todayStart.toISOString());
+                
+                currentDailyNum = (allToday ? allToday.length : 0) + 1;
             }
-
-            formattedOrderCode = `${currentDailyNum}/${currentDayNum}`;
         } catch (e) {
             currentDailyNum = 1;
             currentDayNum = new Date().getDate();
-            formattedOrderCode = `${currentDailyNum}/${currentDayNum}`;
         }
+
+        formattedOrderCode = `${currentDailyNum}/${currentDayNum}`;
 
         document.getElementById('badge').innerHTML = `
             <span>رقم أوردر اليوم التلقائي:</span>
@@ -390,6 +392,7 @@
             return; 
         }
 
+        await fetchNextInvoiceNum();
         var imgUrls = await uploadAllImages();
 
         if (selectedFilesList.length > 0 && imgUrls.length !== selectedFilesList.length) {
@@ -422,7 +425,8 @@
                     price: parseFloat(t) || 0,
                     paid: parseFloat(p) || 0,
                     image_url: imagesForDatabase,
-                    status: 'تحت الصيانة'
+                    status: 'تحت الصيانة',
+                    daily_number: currentDailyNum
                 }]);
 
             if (error) {
@@ -508,7 +512,8 @@
         const { data: list, error } = await supabaseClient
             .from('invoices')
             .select('*')
-            .gte('created_at', todayStart.toISOString());
+            .gte('created_at', todayStart.toISOString())
+            .order('daily_number', { ascending: true });
 
         if (error || !list || list.length === 0) {
             alert("لا توجد فواتير اليوم!");
@@ -518,9 +523,9 @@
         var t = 0, p = 0, r = 0,
             txt = "📊 تقرير حسابات الإسكافي شوز 📊\n====================\n\n";
 
-        list.forEach(function(x, idx) {
+        list.forEach(function(x) {
             var rem = (x.price || 0) - (x.paid || 0);
-            var codeNum = idx + 1;
+            var codeNum = x.daily_number || 1;
             var dayNum = new Date(x.created_at).getDate() || 1;
             txt += `أوردر (${codeNum}/${dayNum}) - العميل: ${x.customer_name}\nالحساب: ${x.price} ج | المدفوع: ${x.paid} ج | الباقي: ${rem} ج\n--------------------\n`; 
             t += (x.price || 0);
@@ -546,14 +551,13 @@
         const resBox = document.getElementById('searchResults');
 
         if (isNaN(numVal) || isNaN(dayVal)) {
-            alert('الرجاء إدخال رقم الأوردر (فوق) وتاريخ اليوم (تحت)');
+            alert('الرجاء إدخال رقم الأوردر فوق وتاريخ اليوم تحت بشكل صحيح');
             return;
         }
 
         resBox.style.display = 'block';
         resBox.innerHTML = 'جاري البحث... ⏳';
 
-        // حساب بداية اليوم المطلوب بناءً على التاريخ المدخل
         const targetDateStart = new Date();
         targetDateStart.setDate(dayVal);
         targetDateStart.setHours(0, 0, 0, 0);
@@ -566,16 +570,9 @@
             .select('*')
             .gte('created_at', targetDateStart.toISOString())
             .lte('created_at', targetDateEnd.toISOString())
-            .order('created_at', { ascending: true });
+            .eq('daily_number', numVal);
 
-        if (error || !data) {
-            resBox.innerHTML = '<div style="color: #ef4444; text-align: center;">لا توجد فواتير مطابقة!</div>';
-            return;
-        }
-
-        const targetIndex = numVal - 1;
-        const matchedList = data[targetIndex] ? [data[targetIndex]] : [];
-        renderSearchResults(matchedList, null, resBox);
+        renderSearchResults(data, error, resBox);
     }
 
     async function searchInvoices() {
@@ -583,13 +580,14 @@
         const resBox = document.getElementById('searchResults');
 
         if (!query) {
-            alert('أدخل اسم أو رقم للبحث');
+            alert('أدخل اسم العميل أو رقم الموبايل للبحث');
             return;
         }
 
         resBox.style.display = 'block';
-        resBox.innerHTML = 'جاري البحث... ⏳';
+        resBox.innerHTML = 'جاري البحث في الفواتير القديمة والجديدة... ⏳';
 
+        // البحث الشامل في كل الفواتير بالاسم أو رقم الموبايل من غير تقييد بوقت
         const { data, error } = await supabaseClient
             .from('invoices')
             .select('*')
@@ -601,11 +599,11 @@
 
     function renderSearchResults(data, error, resBox) {
         if (error || !data || data.length === 0) {
-            resBox.innerHTML = '<div style="color: #ef4444; text-align: center;">لا توجد فواتير مطابقة بهذا الرقم!</div>';
+            resBox.innerHTML = '<div style="color: #ef4444; text-align: center;">لا توجد فواتير مطابقة بالاسم أو الرقم ده!</div>';
             return;
         }
 
-        resBox.innerHTML = data.map((inv, idx) => {
+        resBox.innerHTML = data.map((inv) => {
             const isDone = inv.status === 'تم الانتهاء من الصيانة';
             const statusClass = isDone ? 'bg-done' : 'bg-pending';
             const price = inv.price || 0;
@@ -616,7 +614,8 @@
             const details = inv.details || '-';
             
             let invDate = new Date(inv.created_at || Date.now());
-            let numTop = idx + 1;
+            // لو الفاتورة قديمة ومعندهاش daily_number، نعرضهالي بشكل افتراضي من تاريخها أو ترقيم مبدئي عشان تظهر سليمة
+            let numTop = inv.daily_number || '#';
             let numBottom = invDate.getDate();
 
             let fractionHtml = `
@@ -661,7 +660,12 @@
         const { error } = await supabaseClient.from('invoices').update({ status: newStatus }).eq('id', id);
         if (!error) {
             alert('تم تغيير حالة الفاتورة بنجاح 👍');
-            if(document.getElementById('searchInput').value.trim() !== '') searchInvoices();
+            const searchVal = document.getElementById('searchInput').value.trim();
+            if(searchVal !== '') {
+                searchInvoices();
+            } else if(document.getElementById('searchNumerator').value.trim() !== '') {
+                searchByFractionNumber();
+            }
         } else {
             alert('حدث خطأ أثناء التحديث!');
         }
