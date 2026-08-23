@@ -587,7 +587,6 @@
         resBox.style.display = 'block';
         resBox.innerHTML = 'جاري البحث في الفواتير القديمة والجديدة... ⏳';
 
-        // البحث الشامل في كل الفواتير بالاسم أو رقم الموبايل من غير تقييد بوقت
         const { data, error } = await supabaseClient
             .from('invoices')
             .select('*')
@@ -614,7 +613,6 @@
             const details = inv.details || '-';
             
             let invDate = new Date(inv.created_at || Date.now());
-            // لو الفاتورة قديمة ومعندهاش daily_number، نعرضهالي بشكل افتراضي من تاريخها أو ترقيم مبدئي عشان تظهر سليمة
             let numTop = inv.daily_number || '#';
             let numBottom = invDate.getDate();
 
@@ -646,14 +644,88 @@
                     <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ${itemType}</div>
                     <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة:</b> ${details}</div>
                     <div style="font-size: 13px; margin-bottom: 4px;">💰 الحساب: ${price} ج | 💵 المدفوع: ${paid} ج | 🔴 الباقي: <span style="color:#ef4444; font-weight:bold;">${rem} ج</span></div>
-                    <div>${imageLinks}</div>
-                    <div style="display:flex; gap:6px; margin-top:6px;">
+                    <div style="margin-bottom: 6px;">${imageLinks}</div>
+                    
+                    <div style="margin-top: 8px; padding-top: 6px; border-top: 1px dashed #221a05; background: #0c0c0c; padding: 6px; border-radius: 6px;">
+                        <input type="file" id="updateFile_${inv.id}" accept="image/*" multiple style="font-size:11px; margin-bottom:4px; padding:4px;">
+                        <button type="button" class="btn-sm" style="background:#bf953f; color:#000; width:100%;" onclick="uploadImageForExistingInvoice(${inv.id})">📷 رفع وإضافة صور لهذه الفاتورة</button>
+                    </div>
+
+                    <div style="display:flex; gap:6px; margin-top:8px;">
                         <button type="button" class="btn-sm" style="background:#16a34a; color:#fff;" onclick="updateStatus(${inv.id}, 'تم الانتهاء من الصيانة')">✅ تم الانتهاء</button>
                         <button type="button" class="btn-sm" style="background:#d97706; color:#fff;" onclick="updateStatus(${inv.id}, 'تحت الصيانة')">⏳ تحت الصيانة</button>
                     </div>
                 </div>
             `;
         }).join('');
+    }
+
+    async function uploadImageForExistingInvoice(invoiceId) {
+        const fileInput = document.getElementById(`updateFile_${invoiceId}`);
+        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+            alert("اختر صورة أو صور أولاً!");
+            return;
+        }
+
+        const files = fileInput.files;
+        let newUrls = [];
+
+        try {
+            alert("⏳ جاري رفع الصور، انتظر ثوانٍ...");
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const extension = file.name && file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : 'jpg';
+                const fileName = `invoice_${invoiceId}_${Date.now()}_${i}.${['jpg','jpeg','png','webp'].includes(extension) ? extension : 'jpg'}`;
+
+                const { error: uploadError } = await supabaseClient.storage
+                    .from('images')
+                    .upload(fileName, file, {
+                        cacheControl: '3600',
+                        upsert: false,
+                        contentType: file.type || 'image/jpeg'
+                    });
+
+                if (uploadError) throw new Error(uploadError.message);
+
+                const { data: publicUrlData } = supabaseClient.storage
+                    .from('images')
+                    .getPublicUrl(fileName);
+
+                if (publicUrlData && publicUrlData.publicUrl) {
+                    newUrls.push(publicUrlData.publicUrl);
+                }
+            }
+
+            const { data: currentInv } = await supabaseClient
+                .from('invoices')
+                .select('image_url')
+                .eq('id', invoiceId)
+                .single();
+
+            let existingUrls = (currentInv && currentInv.image_url) ? String(currentInv.image_url).split(/\r?\n/).map(u => u.trim()).filter(u => u.length > 1) : [];
+            let combinedUrls = existingUrls.concat(newUrls).join('\n');
+
+            const { error: updateError } = await supabaseClient
+                .from('invoices')
+                .update({ image_url: combinedUrls })
+                .eq('id', invoiceId);
+
+            if (updateError) throw new Error(updateError.message);
+
+            alert("✅ تم إضافة الصور وتحديث الفاتورة بنجاح!");
+            
+            const searchVal = document.getElementById('searchInput').value.trim();
+            if(searchVal !== '') {
+                searchInvoices();
+            } else if(document.getElementById('searchNumerator').value.trim() !== '') {
+                searchByFractionNumber();
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("❌ خطأ أثناء رفع الصور: " + err.message);
+        }
     }
 
     async function updateStatus(id, newStatus) {
