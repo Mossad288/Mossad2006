@@ -167,7 +167,7 @@
         <button type="button" class="btn camera-btn" onclick="document.getElementById('itemImages').click();">📷 تصوير / اختيار عدة صور</button>
         
         <div id="previewsContainer"></div>
-        <div id="uploadStatus" class="loading-text">جاري رفع الصوره ...</div>
+        <div id="uploadStatus" class="loading-text">⏳ جاري رفع الصور، انتظر لحظة...</div>
 
         <div class="row">
             <div><label>💰 الحساب الكلي:</label><input type="number" id="tot" oninput="calc()"></div>
@@ -176,19 +176,19 @@
         
         <label>🔴 المبلغ المتبقي:</label><input type="number" id="rem" readonly style="color:#ef4444; font-weight:bold; background:#0c0c0c;">
         
-        <button type="button" class="btn" style="background: linear-gradient(135deg, #16a34a, #15803d); margin-top:15px;" onclick="sendTo('client')">فاتوره العميل </button>
-        <button type="button" class="btn" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);" onclick="sendTo('owner')">فاتوره المحل </button>
+        <button type="button" class="btn" style="background: linear-gradient(135deg, #16a34a, #15803d); margin-top:15px;" onclick="sendTo('client')">📱 1. إرسال للعميل</button>
+        <button type="button" class="btn" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);" onclick="sendTo('owner')">📋 2. إرسال للمحل</button>
         <button type="button" class="btn" style="background: linear-gradient(135deg, #dc2626, #b91c1c);" onclick="resetFormForNextInvoice()">➕ فاتورة جديدة (تصفير ورقم جديد)</button>
-        <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color:#000;" onclick="rep()">تقرير يومي للفواتير </button>
+        <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color:#000;" onclick="rep()">📊 تحميل التقرير اليومي</button>
         
         <a href="https://www.facebook.com/61560847583033" target="_blank" rel="noopener noreferrer" class="btn" style="background: linear-gradient(135deg, #1877f2, #0c4a6e);">
            🌐 السوشيال ميديا للمحل
         </a>
 
         <div class="manage-section">
-            <h3 style="color:#bf953f; text-align:center; margin-top:0;">بحث الفواتير والتحقق من الصيانه </h3>
+            <h3 style="color:#bf953f; text-align:center; margin-top:0;">🔍 البحث وإدارة حالة الفواتير</h3>
             
-            <label style="text-align: center; margin-bottom: 8px;">بحث الرقم :</label>
+            <label style="text-align: center; margin-bottom: 8px;">🔢 البحث برقم الأوردر (بسط ومقام):</label>
             <div style="background: #141414; padding: 15px; border: 1px solid #33270a; border-radius: 12px; margin-bottom: 10px; text-align: center;">
                 <div style="display: inline-flex; flex-direction: column; width: 110px; vertical-align: middle; margin-bottom: 10px;">
                     <input type="number" id="searchNumerator" placeholder="رقم" style="text-align: center; padding: 8px; border-bottom-left-radius: 0; border-bottom-right-radius: 0; font-weight: bold; color: #f3e5ab; font-size: 16px;">
@@ -200,7 +200,7 @@
                 <button type="button" class="btn track-btn" style="width: 100%; margin-top: 5px;" onclick="searchByFractionNumber()">بحث برقم الأوردر</button>
             </div>
 
-            <label>البحث باسم العميل ورقم الموبايل  :</label>
+            <label>👤 أو البحث باسم العميل أو رقم الموبايل (للجديد والقديم):</label>
             <div style="display:flex; gap:5px;">
                 <input type="text" id="searchInput" placeholder="الاسم أو الرقم..." style="margin-top:0; text-align: right;">
                 <button type="button" class="btn track-btn" style="width: auto; margin-top:0; padding: 0 15px;" onclick="searchInvoices()">بحث بالاسم</button>
@@ -212,7 +212,7 @@
         <div class="notice-box">⚠️ تنبيه: المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد الإستلام .</div>
 
         <div class="footer-credits">
-            جميع الحقوق محفوظه لي <span>المهندس مسعد سالم _ سالم سعد</span>
+            جميع الحقوق محفوظه لي <span>المهندس مسعد سالم _ وسالم سعد</span>
         </div>
     </form>
 </div>
@@ -275,7 +275,7 @@
         formattedOrderCode = `${currentDailyNum}/${currentDayNum}`;
 
         document.getElementById('badge').innerHTML = `
-            <span>الـفواتير الخاصه بالـمحل :</span>
+            <span>رقم أوردر اليوم التلقائي:</span>
             <span class="fraction" style="font-size: 16px;">
                 <span class="numerator">${currentDailyNum}</span>
                 <span class="denominator">${currentDayNum}</span>
@@ -325,7 +325,6 @@
                 const file = selectedFilesList[i];
                 const fileName = `inv_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 7)}.jpg`;
 
-                // استخدام الرفع المباشر الآمن لملفات الـ Blob
                 const { data, error: uploadError } = await supabaseClient.storage
                     .from('images')
                     .upload(fileName, file, {
@@ -436,10 +435,9 @@
             isCurrentInvoiceSaved = true;
         }
 
+        // تفاصيل مشتركة
         var baseTxt =
             `👤 *اسم العميل:* ${n}\n` +
-            `🔢 *رقم الأوردر اليومي:* ${formattedOrderCode}\n` +
-            `🗄️ *مكان التخزين:* ${shelf}\n` +
             `📅 *تاريخ الاستلام:* ${r}\n` +
             `📦 *تاريخ التسليم:* ${d}\n\n` +
             `👟 *كوتشيات:* ${sk} | 🥾 *جزم:* ${ss} | 🩴 *شبشب:* ${sl}\n` +
@@ -454,9 +452,10 @@
                 ph = "2" + ph;
             }
 
+            // رسالة العميل (بدون رقم أوردر وبدون رف)
             var msg =
                 `✨ *ALESKAFY SHOES* ✨\n` +
-                `🧾 *إيصال استلام صيانة رقم (${formattedOrderCode})*\n\n` +
+                `🧾 *إيصال استلام صيانة*\n\n` +
                 baseTxt +
                 `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.` +
                 `\n\n━━━━━━━━━━━━━━━\n` +
@@ -477,9 +476,12 @@
                 imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:* لا توجد صور.";
             }
 
+            // نسخة المحل (فيها رقم الأوردر والرف)
             var oMsg =
                 `📥 *[ALESKAFY SHOES - نسخة المحل]*\n` +
                 `🧾 *أرشيف أوردر رقم (${formattedOrderCode}) على (${shelf})*\n\n` +
+                `🔢 *رقم الأوردر اليومي:* ${formattedOrderCode}\n` +
+                `🗄️ *مكان التخزين:* ${shelf}\n` +
                 baseTxt +
                 imagesText +
                 `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n` +
@@ -501,43 +503,77 @@
         document.getElementById('dDate').value = '';
 
         await fetchNextInvoiceNum();
-        alert("تم بدء فاتوره جديد ");
+        alert("جاهز للفاتورة الجديدة 👍");
     }
 
     async function rep() {
-        const todayStart = new Date();
-        todayStart.setHours(0,0,0,0);
+        const todayStr = new Date().toISOString().slice(0,10);
 
         const { data: list, error } = await supabaseClient
             .from('invoices')
-            .select('*')
-            .gte('created_at', todayStart.toISOString())
-            .order('daily_number', { ascending: true });
+            .select('*');
 
         if (error || !list || list.length === 0) {
-            alert("لا توجد فواتير اليوم!");
+            alert("لا توجد فواتير مسجلة!");
             return;
         }
         
-        var t = 0, p = 0, r = 0,
-            txt = "📊 تقرير حسابات الإسكافي شوز 📊\n====================\n\n";
+        let totalCreatedTodayPrice = 0;
+        let totalCollectedTodayPaid = 0;
+        let totalRemainingAll = 0;
+
+        let txt = "📊 تقرير حسابات الإسكافي شوز الشامل 📊\n====================\n\n";
 
         list.forEach(function(x) {
-            var rem = (x.price || 0) - (x.paid || 0);
+            var price = x.price || 0;
+            var paid = x.paid || 0;
+            var rem = price - paid;
             var codeNum = x.daily_number || 1;
             var dayNum = new Date(x.created_at).getDate() || 1;
-            txt += `أوردر (${codeNum}/${dayNum}) - العميل: ${x.customer_name}\nالحساب: ${x.price} ج | المدفوع: ${x.paid} ج | الباقي: ${rem} ج\n--------------------\n`; 
-            t += (x.price || 0);
-            p += (x.paid || 0);
-            r += rem;
+            
+            // حساب إجماليات الكلي والمتبقي العام
+            totalRemainingAll += rem;
+
+            // لو الفاتورة اتعملت النهارده، نحسب قيمتها الإجمالية
+            let invDateStr = new Date(x.created_at).toISOString().slice(0,10);
+            if (invDateStr === todayStr) {
+                totalCreatedTodayPrice += price;
+            }
+
+            // فحص سجل المدفوعات الإضافية لو تم سداد أجزاء في تواريخ أخرى
+            let paymentLogs = x.payment_logs || [];
+            let paidTodayFromLogs = 0;
+            paymentLogs.forEach(log => {
+                if (log.date === todayStr) {
+                    paidTodayFromLogs += log.amount;
+                }
+            });
+
+            // لو اتدفع مقدم النهارده أو اتدفع رصيد النهارده في السجل
+            if (invDateStr === todayStr) {
+                totalCollectedTodayPaid += paid; // المقدم الأصلي
+            }
+            totalCollectedTodayPaid += paidTodayFromLogs; // الدفعات اللاحقة اللي حصلت النهارده
+
+            txt += `أوردر (${codeNum}/${dayNum}) - العميل: ${x.customer_name}\nالحساب: ${price} ج | المدفوع الكلي: ${paid} ج | الباقي: ${rem} ج\n`;
+            if(paymentLogs.length > 0) {
+                txt += `* دفعات لاحقة مسجلة:\n`;
+                paymentLogs.forEach(l => {
+                    txt += `  - دفع ${l.amount} ج بتاريخ ${l.date}\n`;
+                });
+            }
+            txt += `--------------------\n`; 
         });
 
-        txt += "\n====================\n💰 إجمالي اليوم: "+t+" ج\n💵 إجمالي الخزنة: "+p+" ج\n🔴 إجمالي المتبقي: "+r+" ج";
+        txt += "\n====================\n";
+        txt += `💰 إجمالي مبيعات فواتير اليوم: ${totalCreatedTodayPrice} ج\n`;
+        txt += `💵 إجمالي الفلوس اللي دخلت الخزنة النهارده (مقدمات + باقيات مسددة): ${totalCollectedTodayPaid} ج\n`;
+        txt += `🔴 إجمالي المتبقي الخارجي على العملاء: ${totalRemainingAll} ج`;
 
         var b = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8" });
         var lnk = document.createElement('a');
         lnk.href = URL.createObjectURL(b);
-        lnk.download = "Report_" + new Date().toISOString().slice(0,10) + ".txt";
+        lnk.download = "Report_" + todayStr + ".txt";
         document.body.appendChild(lnk);
         lnk.click();
         document.body.removeChild(lnk);
@@ -642,9 +678,19 @@
                     <div style="font-size: 13px; color: #cbd5e1; margin-bottom: 3px;">📱 الموبايل: ${phoneVal}</div>
                     <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ${itemType}</div>
                     <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة:</b> ${details}</div>
-                    <div style="font-size: 13px; margin-bottom: 4px;">💰 الحساب: ${price} ج | 💵 المدفوع: ${paid} ج | 🔴 الباقي: <span style="color:#ef4444; font-weight:bold;">${rem} ج</span></div>
+                    <div style="font-size: 13px; margin-bottom: 4px;">💰 الحساب: ${price} ج | 💵 المدفوع: ${paid} ج | 🔴 المتبقي: <span style="color:#ef4444; font-weight:bold;" id="remText_${inv.id}">${rem} ج</span></div>
                     <div style="margin-bottom: 6px;">${imageLinks}</div>
                     
+                    <!-- خانة سداد المبلغ المتبقي لاحقاً -->
+                    ${rem > 0 ? `
+                    <div style="margin-top: 8px; padding: 8px; background: #1a1500; border: 1px solid #bf953f; border-radius: 6px;">
+                        <label style="margin:0 0 4px 0; font-size:12px; color:#f3e5ab;">💵 سداد جزء أو كامل المبلغ المتبقي (${rem} ج):</label>
+                        <div style="display:flex; gap:6px;">
+                            <input type="number" id="payMore_${inv.id}" placeholder="المبلغ المدفوع..." style="margin-top:0; padding:6px; font-size:13px;">
+                            <button type="button" class="btn-sm" style="background:#16a34a; color:#fff; margin-top:0; width:140px;" onclick="payRemainingAmount(${inv.id}, ${price}, ${paid})">💵 تثبيت الدفع</button>
+                        </div>
+                    </div>` : `<div style="color:#16a34a; font-size:12px; font-weight:bold; margin-top:4px;">✅ تم سداد كامل المبلغ بالكامل</div>`}
+
                     <div style="margin-top: 8px; padding-top: 6px; border-top: 1px dashed #221a05; background: #0c0c0c; padding: 6px; border-radius: 6px;">
                         <input type="file" id="updateFile_${inv.id}" accept="image/*" multiple style="font-size:11px; margin-bottom:4px; padding:4px;">
                         <button type="button" class="btn-sm" style="background:#bf953f; color:#000; width:100%;" onclick="uploadImageForExistingInvoice(${inv.id})">📷 رفع وإضافة صور لهذه الفاتورة</button>
@@ -657,6 +703,54 @@
                 </div>
             `;
         }).join('');
+    }
+
+    // دالة لتسجيل دفع المبلغ المتبقي لاحقاً وتحديث الخزنة والتقرير اليومي
+    async function payRemainingAmount(invoiceId, totalPrice, currentPaid) {
+        const inputVal = parseFloat(document.getElementById(`payMore_${invoiceId}`).value);
+        if (isNaN(inputVal) || inputVal <= 0) {
+            alert("يرجى إدخال مبلغ صحيح للسداد!");
+            return;
+        }
+
+        const currentRem = totalPrice - currentPaid;
+        if (inputVal > currentRem) {
+            alert("المبلغ المدفوع أكبر من المبلغ المتبقي (" + currentRem + " جنيه)!");
+            return;
+        }
+
+        const newPaidTotal = currentPaid + inputVal;
+        const todayStr = new Date().toISOString().slice(0, 10);
+
+        // جلب السجل القديم للدفوعات لو موجود
+        const { data: invData } = await supabaseClient.from('invoices').select('payment_logs').eq('id', invoiceId).single();
+        let logs = (invData && invData.payment_logs) ? invData.payment_logs : [];
+        
+        logs.push({
+            amount: inputVal,
+            date: todayStr
+        });
+
+        const { error } = await supabaseClient
+            .from('invoices')
+            .update({ 
+                paid: newPaidTotal,
+                payment_logs: logs
+            })
+            .eq('id', invoiceId);
+
+        if (!error) {
+            alert("✅ تم تسجيل دفع مبلغ " + inputVal + " جنيه بنجاح وأضيفت لتقرير اليوم!");
+            // إعادة تحديث نتائج البحث
+            const searchVal = document.getElementById('searchInput').value.trim();
+            if(searchVal !== '') {
+                searchInvoices();
+            } else if(document.getElementById('searchNumerator').value.trim() !== '') {
+                searchByFractionNumber();
+            }
+        } else {
+            alert("❌ حدث خطأ أثناء تحديث المبلغ!");
+        }
     }
 
     async function uploadImageForExistingInvoice(invoiceId) {
