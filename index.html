@@ -438,6 +438,7 @@
 
         var baseTxt =
             '👤 *اسم العميل:* ' + n + '\n' +
+            '📱 *رقم الموبايل:* ' + ph + '\n' +
             '📅 *تاريخ الاستلام:* ' + r + '\n' +
             '📦 *تاريخ التسليم:* ' + d + '\n\n' +
             '👟 *كوتشيات:* ' + sk + ' | 🥾 *جزم:* ' + ss + ' | 🩴 *شبشب:* ' + sl + '\n' +
@@ -448,7 +449,6 @@
             '🔴 *المبلغ المتبقي:* ' + rm + ' جنيه';
 
         if (m === 'client') {
-            // معالجة الرقم ليدعم الأرقام المحلية (يبدأ بـ 0) والدولية بدون مشاكل
             var cleanPh = ph.replace(/\D/g, '');
             if (cleanPh.startsWith("0")) {
                 cleanPh = "2" + cleanPh;
@@ -478,10 +478,7 @@
             }
 
             var oMsg =
-                '📥 *[ALESKAFY SHOES - نسخة المحل]*\n' +
-                '🧾 *أرشيف أوردر رقم (' + formattedOrderCode + ') على (' + shelf + ')*\n\n' +
-                '🔢 *رقم الأوردر اليومي:* ' + formattedOrderCode + '\n' +
-                '🗄️ *مكان التخزين:* ' + shelf + '\n' +
+                '📥 *[ALESKAFY SHOES - نسخة المحل]*\n\n' +
                 baseTxt +
                 imagesText;
 
@@ -788,7 +785,7 @@
                 .update({ image_url: combinedUrls })
                 .eq('id', invoiceId);
 
-            if (updateError) throw new Error(updateError.message);
+            if (updateError) throw new Error(updateError.name);
 
             alert("✅ تم إضافة الصور وتحديث الفاتورة بنجاح!");
             
