@@ -272,15 +272,14 @@
             currentDayNum = new Date().getDate();
         }
 
-        formattedOrderCode = `${currentDailyNum}/${currentDayNum}`;
+        formattedOrderCode = currentDailyNum + '/' + currentDayNum;
 
-        document.getElementById('badge').innerHTML = `
-            <span>رقم أوردر اليوم التلقائي:</span>
-            <span class="fraction" style="font-size: 16px;">
-                <span class="numerator">${currentDailyNum}</span>
-                <span class="denominator">${currentDayNum}</span>
-            </span>
-        `;
+        document.getElementById('badge').innerHTML = 
+            '<span>رقم أوردر اليوم التلقائي:</span>' +
+            '<span class="fraction" style="font-size: 16px;">' +
+                '<span class="numerator">' + currentDailyNum + '</span>' +
+                '<span class="denominator">' + currentDayNum + '</span>' +
+            '</span>';
     }
 
     function handleImagesSelection(event) {
@@ -296,7 +295,7 @@
             
             uploadedImageUrls = [];
 
-            selectedFilesList.forEach((file) => {
+            selectedFilesList.forEach(function(file) {
                 const img = document.createElement('img');
                 img.className = 'preview-thumb';
                 img.src = URL.createObjectURL(file);
@@ -315,7 +314,7 @@
         }
 
         const statusEl = document.getElementById('uploadStatus');
-        statusEl.innerText = `⏳ جاري رفع الصور (${selectedFilesList.length} صور)، انتظر لحظة...`;
+        statusEl.innerText = '⏳ جاري رفع الصور (' + selectedFilesList.length + ' صور)، انتظر لحظة...';
         statusEl.style.display = 'block';
 
         let urls = [];
@@ -323,7 +322,7 @@
         try {
             for (let i = 0; i < selectedFilesList.length; i++) {
                 const file = selectedFilesList[i];
-                const fileName = `inv_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 7)}.jpg`;
+                const fileName = 'inv_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2, 7) + '.jpg';
 
                 const { data, error: uploadError } = await supabaseClient.storage
                     .from('images')
@@ -349,7 +348,7 @@
 
             uploadedImageUrls = urls;
             statusEl.innerText = "✅ تم رفع " + urls.length + " صورة بنجاح!";
-            setTimeout(() => { statusEl.style.display = 'none'; }, 2000);
+            setTimeout(function() { statusEl.style.display = 'none'; }, 2000);
             return uploadedImageUrls;
 
         } catch (err) {
@@ -369,12 +368,12 @@
         const sg = document.getElementById('sng').value;
         const bg = document.getElementById('bags').value;
 
-        if (parseInt(sk) > 0) items.push(`كوتشيات: ${sk}`);
-        if (parseInt(ss) > 0) items.push(`جزم: ${ss}`);
-        if (parseInt(sl) > 0) items.push(`شبشب: ${sl}`);
-        if (parseInt(sn) > 0) items.push(`صندل: ${sn}`);
-        if (parseInt(sg) > 0) items.push(`فردة: ${sg}`);
-        if (parseInt(bg) > 0) items.push(`شنط: ${bg}`);
+        if (parseInt(sk) > 0) items.push('كوتشيات: ' + sk);
+        if (parseInt(ss) > 0) items.push('جزم: ' + ss);
+        if (parseInt(sl) > 0) items.push('شبشب: ' + sl);
+        if (parseInt(sn) > 0) items.push('صندل: ' + sn);
+        if (parseInt(sg) > 0) items.push('فردة: ' + sg);
+        if (parseInt(bg) > 0) items.push('شنط: ' + bg);
 
         return items.join(' | ') || 'صيانة متنوعة';
     }
@@ -418,7 +417,7 @@
                 .insert([{
                     customer_name: n,
                     phone: ph,
-                    item_type: getItemsSummary() + ` | ${shelf}`,
+                    item_type: getItemsSummary() + ' | ' + shelf,
                     details: sv,
                     price: parseFloat(t) || 0,
                     paid: parseFloat(p) || 0,
@@ -436,15 +435,15 @@
         }
 
         var baseTxt =
-            `👤 *اسم العميل:* ${n}\n` +
-            `📅 *تاريخ الاستلام:* ${r}\n` +
-            `📦 *تاريخ التسليم:* ${d}\n\n` +
-            `👟 *كوتشيات:* ${sk} | 🥾 *جزم:* ${ss} | 🩴 *شبشب:* ${sl}\n` +
-            `👡 *صندل:* ${sn} | 👞 *فردة:* ${sg} | 💼 *شنط:* ${bg}\n` +
-            `🛠️ *الخدمة:* ${sv}\n\n` +
-            `💰 *الحساب الكلي:* ${t} جنيه\n` +
-            `💵 *المدفوع مقدمًا:* ${p} جنيه\n` +
-            `🔴 *المبلغ المتبقي:* ${rm} جنيه`;
+            '👤 *اسم العميل:* ' + n + '\n' +
+            '📅 *تاريخ الاستلام:* ' + r + '\n' +
+            '📦 *تاريخ التسليم:* ' + d + '\n\n' +
+            '👟 *كوتشيات:* ' + sk + ' | 🥾 *جزم:* ' + ss + ' | 🩴 *شبشب:* ' + sl + '\n' +
+            '👡 *صندل:* ' + sn + ' | 👞 *فردة:* ' + sg + ' | 💼 *شنط:* ' + bg + '\n' +
+            '🛠️ *الخدمة:* ' + sv + '\n\n' +
+            '💰 *الحساب الكلي:* ' + t + ' جنيه\n' +
+            '💵 *المدفوع مقدمًا:* ' + p + ' جنيه\n' +
+            '🔴 *المبلغ المتبقي:* ' + rm + ' جنيه';
 
         if (m === 'client') {
             if (ph.startsWith("0")) {
@@ -452,14 +451,14 @@
             }
 
             var msg =
-                `✨ *ALESKAFY SHOES* ✨\n` +
-                `🧾 *إيصال استلام صيانة*\n\n` +
+                '✨ *ALESKAFY SHOES* ✨\n' +
+                '🧾 *إيصال استلام صيانة*\n\n' +
                 baseTxt +
-                `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.` +
-                `\n\n━━━━━━━━━━━━━━━\n` +
-                `🌐 تابع صفحة المحل على فيسبوك:\n` +
-                `https://www.facebook.com/61560847583033\n\n` +
-                `❤️ شكراً لزيارتكم ونتشرف بخدمتكم دائماً.`;
+                '\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.' +
+                '\n\n━━━━━━━━━━━━━━━\n' +
+                '🌐 تابع صفحة المحل على فيسبوك:\n' +
+                'https://www.facebook.com/61560847583033\n\n' +
+                '❤️ شكراً لزيارتكم ونتشرف بخدمتكم دائماً.';
 
             window.open("https://wa.me/" + ph + "?text=" + encodeURIComponent(msg), "_blank");
 
@@ -467,22 +466,22 @@
             let imagesText = "";
             if (imgUrls.length > 0) {
                 imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:*";
-                imgUrls.forEach((url, index) => {
-                    imagesText += `\n📷 *الصورة ${index + 1}:*\n${url}`;
+                imgUrls.forEach(function(url, index) {
+                    imagesText += '\n📷 *الصورة ' + (index + 1) + ':*\n' + url;
                 });
             } else {
                 imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:* لا توجد صور.";
             }
 
             var oMsg =
-                `📥 *[ALESKAFY SHOES - نسخة المحل]*\n` +
-                `🧾 *أرشيف أوردر رقم (${formattedOrderCode}) على (${shelf})*\n\n` +
-                `🔢 *رقم الأوردر اليومي:* ${formattedOrderCode}\n` +
-                `🗄️ *مكان التخزين:* ${shelf}\n` +
+                '📥 *[ALESKAFY SHOES - نسخة المحل]*\n' +
+                '🧾 *أرشيف أوردر رقم (' + formattedOrderCode + ') على (' + shelf + ')*\n\n' +
+                '🔢 *رقم الأوردر اليومي:* ' + formattedOrderCode + '\n' +
+                '🗄️ *مكان التخزين:* ' + shelf + '\n' +
                 baseTxt +
                 imagesText +
-                `\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n` +
-                `🙏 *شكراً لزيارتكم الجميلة* ❤️`;
+                '\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n' +
+                '🙏 *شكراً لزيارتكم الجميلة* ❤️';
 
             window.open("https://wa.me/" + OWNER_PHONE + "?text=" + encodeURIComponent(oMsg), "_blank");
         }
@@ -519,7 +518,7 @@
         let totalCollectedTodayPaid = 0;
         let totalRemainingAll = 0;
 
-        let txt = `📊 تقرير الإسكافي شوز اليومي (${todayStr}) 📊\n====================\n\n`;
+        let txt = '📊 تقرير الإسكافي شوز اليومي (' + todayStr + ') 📊\n====================\n\n';
         let todayInvoicesCount = 0;
 
         list.forEach(function(x) {
@@ -538,21 +537,21 @@
                 totalCreatedTodayPrice += price;
                 totalCollectedTodayPaid += paid;
 
-                txt += `أوردر اليوم (${codeNum}/${dayNum}) - العميل: ${x.customer_name}\n`;
-                txt += `الحساب: ${price} ج | المدفوع: ${paid} ج | الباقي: ${rem} ج\n`;
-                txt += `--------------------\n`;
+                txt += 'أوردر اليوم (' + codeNum + '/' + dayNum + ') - العميل: ' + x.customer_name + '\n';
+                txt += 'الحساب: ' + price + ' ج | المدفوع: ' + paid + ' ج | الباقي: ' + rem + ' ج\n';
+                txt += '--------------------\n';
             }
         });
 
         if (todayInvoicesCount === 0) {
-            txt += `لا توجد فواتير جديدة تم إصدارها اليوم.\n`;
+            txt += 'لا توجد فواتير جديدة تم إصدارها اليوم.\n';
         }
 
         txt += "\n====================\n";
-        txt += `📈 عدد فواتير النهارده: ${todayInvoicesCount}\n`;
-        txt += `💰 إجمالي مبيعات فواتير النهارده: ${totalCreatedTodayPrice} ج\n`;
-        txt += `💵 إجمالي النقدية اللي دخلت الخزنة النهارده: ${totalCollectedTodayPaid} ج\n`;
-        txt += `🔴 إجمالي المتبقي المتراكم على كل العملاء (القديم والجديد): ${totalRemainingAll} ج`;
+        txt += '📈 عدد فواتير النهارده: ' + todayInvoicesCount + '\n';
+        txt += '💰 إجمالي مبيعات فواتير النهارده: ' + totalCreatedTodayPrice + ' ج\n';
+        txt += '💵 إجمالي النقدية اللي دخلت الخزنة النهارده: ' + totalCollectedTodayPaid + ' ج\n';
+        txt += '🔴 إجمالي المتبقي المتراكم على كل العملاء (القديم والجديد): ' + totalRemainingAll + ' ج';
 
         var b = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8" });
         var lnk = document.createElement('a');
@@ -609,7 +608,7 @@
         const { data, error } = await supabaseClient
             .from('invoices')
             .select('*')
-            .or(`customer_name.ilike.%${query}%,phone.ilike.%${query}%`)
+            .or('customer_name.ilike.%' + query + '%,phone.ilike.%' + query + '%')
             .order('created_at', { ascending: false });
 
         renderSearchResults(data, error, resBox);
@@ -621,7 +620,7 @@
             return;
         }
 
-        resBox.innerHTML = data.map((inv) => {
+        resBox.innerHTML = data.map(function(inv) {
             const isDone = inv.status === 'تم الانتهاء من الصيانة';
             const statusClass = isDone ? 'bg-done' : 'bg-pending';
             const price = inv.price || 0;
@@ -635,58 +634,58 @@
             let numTop = inv.daily_number || '#';
             let numBottom = invDate.getDate();
 
-            let fractionHtml = `
-                <span class="fraction" style="font-size: 14px;">
-                    <span class="numerator">${numTop}</span>
-                    <span class="denominator">${numBottom}</span>
-                </span>
-            `;
+            let fractionHtml = 
+                '<span class="fraction" style="font-size: 14px;">' +
+                    '<span class="numerator">' + numTop + '</span>' +
+                    '<span class="denominator">' + numBottom + '</span>' +
+                '</span>';
 
             let imageLinks = '';
             if (inv.image_url) {
-                const imageUrls = String(inv.image_url).split(/\r?\n/).map(url => url.trim()).filter(url => url.length > 1);
-                imageLinks = imageUrls.map((url, index) => {
-                    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#bf953f; font-size:12px; display:inline-block; margin-left:8px; margin-top:4px; text-decoration:none;">🖼️ عرض صورة ${index + 1}</a>`;
+                const imageUrls = String(inv.image_url).split(/\r?\n/).map(function(url) { return url.trim(); }).filter(function(url) { return url.length > 1; });
+                imageLinks = imageUrls.map(function(url, index) {
+                    return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" style="color:#bf953f; font-size:12px; display:inline-block; margin-left:8px; margin-top:4px; text-decoration:none;">🖼️ عرض صورة ' + (index + 1) + '</a>';
                 }).join('');
             }
 
-            return `
-                <div style="border-bottom: 1px dashed #33270a; padding-bottom: 12px; margin-bottom: 12px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
-                        <strong style="color: #f3e5ab; font-size: 15px;">👤 ${inv.customer_name}</strong>
-                        <span class="status-badge ${statusClass}">${inv.status || 'تحت الصيانة'}</span>
-                    </div>
-                    <div style="font-size: 13px; color: #38bdf8; margin-bottom: 3px; display:flex; align-items:center; gap:6px;">
-                        🔢 <b>رقم اليوم:</b> ${fractionHtml}
-                    </div>
-                    <div style="font-size: 13px; color: #cbd5e1; margin-bottom: 3px;">📱 الموبايل: ${phoneVal}</div>
-                    <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ${itemType}</div>
-                    <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة:</b> ${details}</div>
-                    <div style="font-size: 13px; margin-bottom: 4px;">💰 الحساب: ${price} ج | 💵 المدفوع: ${paid} ج | 🔴 المتبقي: <span style="color:#ef4444; font-weight:bold;">${rem} ج</span></div>
-                    <div style="margin-bottom: 6px;">${imageLinks}</div>
-                    
-                    <!-- أزرار سداد المبلغ السريعة -->
-                    <div style="margin-top: 10px; padding: 10px; background: #1a1500; border: 1px solid #bf953f; border-radius: 8px;">
-                        <div style="font-size: 13px; color: #f3e5ab; margin-bottom: 6px; font-weight: bold;">
-                            💳 حالة الدفع: ${rem > 0 ? `<span style="color:#ef4444;">متبقي عليه (${rem} ج)</span>` : `<span style="color:#16a34a;">تم سداد المبلغ بالكامل ✅</span>`}
-                        </div>
-                        <div style="display:flex; gap:6px;">
-                            <button type="button" class="btn-sm" style="background:#16a34a; color:#fff; flex:1;" onclick="updatePaymentStatus(${inv.id}, ${price}, 0)">✅ تم سداد المبلغ</button>
-                            <button type="button" class="btn-sm" style="background:#d97706; color:#fff; flex:1;" onclick="updatePaymentStatus(${inv.id}, ${price}, ${rem > 0 ? rem : price})">⏳ لم يتم السداد</button>
-                        </div>
-                    </div>
+            let payStatusText = rem > 0 ? 
+                '<span style="color:#ef4444;">متبقي عليه (' + rem + ' ج)</span>' : 
+                '<span style="color:#16a34a;">تم سداد المبلغ بالكامل ✅</span>';
 
-                    <div style="margin-top: 8px; padding-top: 6px; border-top: 1px dashed #221a05; background: #0c0c0c; padding: 6px; border-radius: 6px;">
-                        <input type="file" id="updateFile_${inv.id}" accept="image/*" multiple style="font-size:11px; margin-bottom:4px; padding:4px;">
-                        <button type="button" class="btn-sm" style="background:#bf953f; color:#000; width:100%;" onclick="uploadImageForExistingInvoice(${inv.id})">📷 رفع وإضافة صور لهذه الفاتورة</button>
-                    </div>
+            return '<div style="border-bottom: 1px dashed #33270a; padding-bottom: 12px; margin-bottom: 12px;">' +
+                '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">' +
+                    '<strong style="color: #f3e5ab; font-size: 15px;">👤 ' + inv.customer_name + '</strong>' +
+                    '<span class="status-badge ' + statusClass + '">' + (inv.status || 'تحت الصيانة') + '</span>' +
+                '</div>' +
+                '<div style="font-size: 13px; color: #38bdf8; margin-bottom: 3px; display:flex; align-items:center; gap:6px;">' +
+                    '🔢 <b>رقم اليوم:</b> ' + fractionHtml +
+                '</div>' +
+                '<div style="font-size: 13px; color: #cbd5e1; margin-bottom: 3px;">📱 الموبايل: ' + phoneVal + '</div>' +
+                '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ' + itemType + '</div>' +
+                '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة:</b> ' + details + '</div>' +
+                '<div style="font-size: 13px; margin-bottom: 4px;">💰 الحساب: ' + price + ' ج | 💵 المدفوع: ' + paid + ' ج | 🔴 المتبقي: <span style="color:#ef4444; font-weight:bold;">' + rem + ' ج</span></div>' +
+                '<div style="margin-bottom: 6px;">' + imageLinks + '</div>' +
+                
+                '<div style="margin-top: 10px; padding: 10px; background: #1a1500; border: 1px solid #bf953f; border-radius: 8px;">' +
+                    '<div style="font-size: 13px; color: #f3e5ab; margin-bottom: 6px; font-weight: bold;">' +
+                        '💳 حالة الدفع: ' + payStatusText +
+                    '</div>' +
+                    '<div style="display:flex; gap:6px;">' +
+                        '<button type="button" class="btn-sm" style="background:#16a34a; color:#fff; flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ', 0)">✅ تم سداد المبلغ</button>' +
+                        '<button type="button" class="btn-sm" style="background:#d97706; color:#fff; flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ', ' + (rem > 0 ? rem : price) + ')">⏳ لم يتم السداد</button>' +
+                    '</div>' +
+                '</div>' +
 
-                    <div style="display:flex; gap:6px; margin-top:8px;">
-                        <button type="button" class="btn-sm" style="background:#16a34a; color:#fff;" onclick="updateStatus(${inv.id}, 'تم الانتهاء من الصيانة')">✅ تم الانتهاء</button>
-                        <button type="button" class="btn-sm" style="background:#d97706; color:#fff;" onclick="updateStatus(${inv.id}, 'تحت الصيانة')">⏳ تحت الصيانة</button>
-                    </div>
-                </div>
-            `;
+                '<div style="margin-top: 8px; padding-top: 6px; border-top: 1px dashed #221a05; background: #0c0c0c; padding: 6px; border-radius: 6px;">' +
+                    '<input type="file" id="updateFile_' + inv.id + '" accept="image/*" multiple style="font-size:11px; margin-bottom:4px; padding:4px;">' +
+                    '<button type="button" class="btn-sm" style="background:#bf953f; color:#000; width:100%;" onclick="uploadImageForExistingInvoice(' + inv.id + ')">📷 رفع وإضافة صور لهذه الفاتورة</button>' +
+                '</div>' +
+
+                '<div style="display:flex; gap:6px; margin-top:8px;">' +
+                    '<button type="button" class="btn-sm" style="background:#16a34a; color:#fff;" onclick="updateStatus(' + inv.id + ', \'تم الانتهاء من الصيانة\')">✅ تم الانتهاء</button>' +
+                    '<button type="button" class="btn-sm" style="background:#d97706; color:#fff;" onclick="updateStatus(' + inv.id + ', \'تحت الصيانة\')">⏳ تحت الصيانة</button>' +
+                '</div>' +
+            '</div>';
         }).join('');
     }
 
@@ -715,7 +714,7 @@
     }
 
     async function uploadImageForExistingInvoice(invoiceId) {
-        const fileInput = document.getElementById(`updateFile_${invoiceId}`);
+        const fileInput = document.getElementById('updateFile_' + invoiceId);
         if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
             alert("اختر صورة أو صور أولاً!");
             return;
@@ -729,7 +728,7 @@
             
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                const fileName = `inv_${invoiceId}_${Date.now()}_${i}.jpg`;
+                const fileName = 'inv_' + invoiceId + '_' + Date.now() + '_' + i + '.jpg';
 
                 const { error: uploadError } = await supabaseClient.storage
                     .from('images')
@@ -755,7 +754,7 @@
                 .eq('id', invoiceId)
                 .single();
 
-            let existingUrls = (currentInv && currentInv.image_url) ? String(currentInv.image_url).split(/\r?\n/).map(u => u.trim()).filter(u => u.length > 1) : [];
+            let existingUrls = (currentInv && currentInv.image_url) ? String(currentInv.image_url).split(/\r?\n/).map(function(u) { return u.trim(); }).filter(function(u) { return u.length > 1; }) : [];
             let combinedUrls = existingUrls.concat(newUrls).join('\n');
 
             const { error: updateError } = await supabaseClient
