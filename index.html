@@ -131,7 +131,7 @@
 
     <form id="invoiceForm">
         <label>👤 اسم العميل:</label><input type="text" id="name" placeholder="اسم العميل">
-        <label>📱 واتساب العميل:</label><input type="tel" id="phone" placeholder="01012345678">
+        <label>📱 واتساب العميل (محلي أو دولي):</label><input type="text" id="phone" placeholder="01012345678 أو كود الدولة والرقم">
         
         <div class="row">
             <div><label>📅 تاريخ الاستلام:</label><input type="date" id="rDate"></div>
@@ -179,7 +179,10 @@
         <button type="button" class="btn" style="background: linear-gradient(135deg, #16a34a, #15803d); margin-top:15px;" onclick="sendTo('client')">📱 1. إرسال للعميل</button>
         <button type="button" class="btn" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);" onclick="sendTo('owner')">📋 2. إرسال للمحل</button>
         <button type="button" class="btn" style="background: linear-gradient(135deg, #dc2626, #b91c1c);" onclick="resetFormForNextInvoice()">➕ فاتورة جديدة (تصفير ورقم جديد)</button>
-        <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color:#000;" onclick="rep()">📊 تحميل التقرير اليومي</button>
+        
+        <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color:#000;" onclick="rep('daily')">📊 تحميل التقرير اليومي</button>
+        <button type="button" class="btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); color:#fff;" onclick="rep('monthly')">📅 تحميل التقرير الشهري</button>
+        <button type="button" class="btn" style="background: linear-gradient(135deg, #7c3aed, #5b21b6); color:#fff;" onclick="rep('yearly')">📈 تحميل التقرير السنوي</button>
         
         <a href="https://www.facebook.com/61560847583033" target="_blank" rel="noopener noreferrer" class="btn" style="background: linear-gradient(135deg, #1877f2, #0c4a6e);">
            🌐 السوشيال ميديا للمحل
@@ -275,7 +278,7 @@
         formattedOrderCode = currentDailyNum + '/' + currentDayNum;
 
         document.getElementById('badge').innerHTML = 
-            '<span>رقم أوردر اليوم التلقائي:</span>' +
+            '<span>رقم أوردر اليوم الثابت:</span>' +
             '<span class="fraction" style="font-size: 16px;">' +
                 '<span class="numerator">' + currentDailyNum + '</span>' +
                 '<span class="denominator">' + currentDayNum + '</span>' +
@@ -389,7 +392,6 @@
             return; 
         }
 
-        await fetchNextInvoiceNum();
         var imgUrls = await uploadAllImages();
 
         if (selectedFilesList.length > 0 && imgUrls.length !== selectedFilesList.length) {
@@ -446,8 +448,10 @@
             '🔴 *المبلغ المتبقي:* ' + rm + ' جنيه';
 
         if (m === 'client') {
-            if (ph.startsWith("0")) {
-                ph = "2" + ph;
+            // معالجة الرقم ليدعم الأرقام المحلية (يبدأ بـ 0) والدولية بدون مشاكل
+            var cleanPh = ph.replace(/\D/g, '');
+            if (cleanPh.startsWith("0")) {
+                cleanPh = "2" + cleanPh;
             }
 
             var msg =
@@ -460,17 +464,17 @@
                 'https://www.facebook.com/61560847583033\n\n' +
                 '❤️ شكراً لزيارتكم ونتشرف بخدمتكم دائماً.';
 
-            window.open("https://wa.me/" + ph + "?text=" + encodeURIComponent(msg), "_blank");
+            window.open("https://wa.me/" + cleanPh + "?text=" + encodeURIComponent(msg), "_blank");
 
         } else {
             let imagesText = "";
             if (imgUrls.length > 0) {
-                imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:*";
+                imagesText = "\n\n🖼️ *رابط الصور:*";
                 imgUrls.forEach(function(url, index) {
-                    imagesText += '\n📷 *الصورة ' + (index + 1) + ':*\n' + url;
+                    imagesText += '\n' + url;
                 });
             } else {
-                imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:* لا توجد صور.";
+                imagesText = "\n\n🖼️ *رابط الصور:* لا توجد صور.";
             }
 
             var oMsg =
@@ -479,9 +483,7 @@
                 '🔢 *رقم الأوردر اليومي:* ' + formattedOrderCode + '\n' +
                 '🗄️ *مكان التخزين:* ' + shelf + '\n' +
                 baseTxt +
-                imagesText +
-                '\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.\n\n' +
-                '🙏 *شكراً لزيارتكم الجميلة* ❤️';
+                imagesText;
 
             window.open("https://wa.me/" + OWNER_PHONE + "?text=" + encodeURIComponent(oMsg), "_blank");
         }
@@ -502,8 +504,11 @@
         alert("جاهز للفاتورة الجديدة 👍");
     }
 
-    async function rep() {
-        const todayStr = new Date().toISOString().slice(0, 10);
+    async function rep(type) {
+        const now = new Date();
+        const todayStr = now.toISOString().slice(0, 10);
+        const currentMonthNum = now.getMonth();
+        const currentYearNum = now.getFullYear();
 
         const { data: list, error } = await supabaseClient
             .from('invoices')
@@ -514,49 +519,70 @@
             return;
         }
         
-        let totalCreatedTodayPrice = 0;
-        let totalCollectedTodayPaid = 0;
+        let totalCreatedPrice = 0;
+        let totalCollectedPaid = 0;
         let totalRemainingAll = 0;
+        let matchedCount = 0;
 
-        let txt = '📊 تقرير الإسكافي شوز اليومي (' + todayStr + ') 📊\n====================\n\n';
-        let todayInvoicesCount = 0;
+        let titleText = '';
+        if (type === 'daily') {
+            titleText = '📊 تقرير الإسكافي شوز اليومي (' + todayStr + ')';
+        } else if (type === 'monthly') {
+            titleText = '📅 تقرير الإسكافي شوز الشهري (شهر ' + (currentMonthNum + 1) + ' لسنة ' + currentYearNum + ')';
+        } else {
+            titleText = '📈 تقرير الإسكافي شوز السنوي (سنة ' + currentYearNum + ')';
+        }
+
+        let txt = titleText + '\n====================\n\n';
 
         list.forEach(function(x) {
             var price = x.price || 0;
             var paid = x.paid || 0;
             var rem = price - paid;
             var codeNum = x.daily_number || 1;
-            var dayNum = new Date(x.created_at).getDate() || 1;
+            let invDate = new Date(x.created_at || Date.now());
+            var dayNum = invDate.getDate() || 1;
             
             totalRemainingAll += rem;
 
-            let invDateStr = new Date(x.created_at).toISOString().slice(0, 10);
-            
-            if (invDateStr === todayStr) {
-                todayInvoicesCount++;
-                totalCreatedTodayPrice += price;
-                totalCollectedTodayPaid += paid;
+            let invDateStr = invDate.toISOString().slice(0, 10);
+            let invMonth = invDate.getMonth();
+            let invYear = invDate.getFullYear();
 
-                txt += 'أوردر اليوم (' + codeNum + '/' + dayNum + ') - العميل: ' + x.customer_name + '\n';
+            let includeFlag = false;
+            if (type === 'daily' && invDateStr === todayStr) {
+                includeFlag = true;
+            } else if (type === 'monthly' && invMonth === currentMonthNum && invYear === currentYearNum) {
+                includeFlag = true;
+            } else if (type === 'yearly' && invYear === currentYearNum) {
+                includeFlag = true;
+            }
+            
+            if (includeFlag) {
+                matchedCount++;
+                totalCreatedPrice += price;
+                totalCollectedPaid += paid;
+
+                txt += 'أوردر (' + codeNum + '/' + dayNum + ') - العميل: ' + x.customer_name + ' | التاريخ: ' + invDateStr + '\n';
                 txt += 'الحساب: ' + price + ' ج | المدفوع: ' + paid + ' ج | الباقي: ' + rem + ' ج\n';
                 txt += '--------------------\n';
             }
         });
 
-        if (todayInvoicesCount === 0) {
-            txt += 'لا توجد فواتير جديدة تم إصدارها اليوم.\n';
+        if (matchedCount === 0) {
+            txt += 'لا توجد فواتير مسجلة في هذه الفترة.\n';
         }
 
         txt += "\n====================\n";
-        txt += '📈 عدد فواتير النهارده: ' + todayInvoicesCount + '\n';
-        txt += '💰 إجمالي مبيعات فواتير النهارده: ' + totalCreatedTodayPrice + ' ج\n';
-        txt += '💵 إجمالي النقدية اللي دخلت الخزنة النهارده: ' + totalCollectedTodayPaid + ' ج\n';
-        txt += '🔴 إجمالي المتبقي المتراكم على كل العملاء (القديم والجديد): ' + totalRemainingAll + ' ج';
+        txt += '📈 عدد الفواتير في الفترة: ' + matchedCount + '\n';
+        txt += '💰 إجمالي المبيعات: ' + totalCreatedPrice + ' ج\n';
+        txt += '💵 إجمالي النقدية المحصولة: ' + totalCollectedPaid + ' ج\n';
+        txt += '🔴 إجمالي المتبقي المتراكم (لكل العملاء): ' + totalRemainingAll + ' ج';
 
         var b = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8" });
         var lnk = document.createElement('a');
         lnk.href = URL.createObjectURL(b);
-        lnk.download = "Daily_Report_" + todayStr + ".txt";
+        lnk.download = "Report_" + type + "_" + todayStr + ".txt";
         document.body.appendChild(lnk);
         lnk.click();
         document.body.removeChild(lnk);
