@@ -435,7 +435,6 @@
             isCurrentInvoiceSaved = true;
         }
 
-        // تفاصيل مشتركة
         var baseTxt =
             `👤 *اسم العميل:* ${n}\n` +
             `📅 *تاريخ الاستلام:* ${r}\n` +
@@ -452,7 +451,6 @@
                 ph = "2" + ph;
             }
 
-            // رسالة العميل (بدون رقم أوردر وبدون رف)
             var msg =
                 `✨ *ALESKAFY SHOES* ✨\n` +
                 `🧾 *إيصال استلام صيانة*\n\n` +
@@ -476,7 +474,6 @@
                 imagesText = "\n\n🖼️ *صور القطع قبل الصيانة:* لا توجد صور.";
             }
 
-            // نسخة المحل (فيها رقم الأوردر والرف)
             var oMsg =
                 `📥 *[ALESKAFY SHOES - نسخة المحل]*\n` +
                 `🧾 *أرشيف أوردر رقم (${formattedOrderCode}) على (${shelf})*\n\n` +
@@ -507,7 +504,7 @@
     }
 
     async function rep() {
-        const todayStr = new Date().toISOString().slice(0,10);
+        const todayStr = new Date().toISOString().slice(0, 10);
 
         const { data: list, error } = await supabaseClient
             .from('invoices')
@@ -522,7 +519,8 @@
         let totalCollectedTodayPaid = 0;
         let totalRemainingAll = 0;
 
-        let txt = "📊 تقرير حسابات الإسكافي شوز الشامل 📊\n====================\n\n";
+        let txt = `📊 تقرير الإسكافي شوز اليومي (${todayStr}) 📊\n====================\n\n`;
+        let todayInvoicesCount = 0;
 
         list.forEach(function(x) {
             var price = x.price || 0;
@@ -531,49 +529,35 @@
             var codeNum = x.daily_number || 1;
             var dayNum = new Date(x.created_at).getDate() || 1;
             
-            // حساب إجماليات الكلي والمتبقي العام
             totalRemainingAll += rem;
 
-            // لو الفاتورة اتعملت النهارده، نحسب قيمتها الإجمالية
-            let invDateStr = new Date(x.created_at).toISOString().slice(0,10);
+            let invDateStr = new Date(x.created_at).toISOString().slice(0, 10);
+            
             if (invDateStr === todayStr) {
+                todayInvoicesCount++;
                 totalCreatedTodayPrice += price;
-            }
+                totalCollectedTodayPaid += paid;
 
-            // فحص سجل المدفوعات الإضافية لو تم سداد أجزاء في تواريخ أخرى
-            let paymentLogs = x.payment_logs || [];
-            let paidTodayFromLogs = 0;
-            paymentLogs.forEach(log => {
-                if (log.date === todayStr) {
-                    paidTodayFromLogs += log.amount;
-                }
-            });
-
-            // لو اتدفع مقدم النهارده أو اتدفع رصيد النهارده في السجل
-            if (invDateStr === todayStr) {
-                totalCollectedTodayPaid += paid; // المقدم الأصلي
+                txt += `أوردر اليوم (${codeNum}/${dayNum}) - العميل: ${x.customer_name}\n`;
+                txt += `الحساب: ${price} ج | المدفوع: ${paid} ج | الباقي: ${rem} ج\n`;
+                txt += `--------------------\n`;
             }
-            totalCollectedTodayPaid += paidTodayFromLogs; // الدفعات اللاحقة اللي حصلت النهارده
-
-            txt += `أوردر (${codeNum}/${dayNum}) - العميل: ${x.customer_name}\nالحساب: ${price} ج | المدفوع الكلي: ${paid} ج | الباقي: ${rem} ج\n`;
-            if(paymentLogs.length > 0) {
-                txt += `* دفعات لاحقة مسجلة:\n`;
-                paymentLogs.forEach(l => {
-                    txt += `  - دفع ${l.amount} ج بتاريخ ${l.date}\n`;
-                });
-            }
-            txt += `--------------------\n`; 
         });
 
+        if (todayInvoicesCount === 0) {
+            txt += `لا توجد فواتير جديدة تم إصدارها اليوم.\n`;
+        }
+
         txt += "\n====================\n";
-        txt += `💰 إجمالي مبيعات فواتير اليوم: ${totalCreatedTodayPrice} ج\n`;
-        txt += `💵 إجمالي الفلوس اللي دخلت الخزنة النهارده (مقدمات + باقيات مسددة): ${totalCollectedTodayPaid} ج\n`;
-        txt += `🔴 إجمالي المتبقي الخارجي على العملاء: ${totalRemainingAll} ج`;
+        txt += `📈 عدد فواتير النهارده: ${todayInvoicesCount}\n`;
+        txt += `💰 إجمالي مبيعات فواتير النهارده: ${totalCreatedTodayPrice} ج\n`;
+        txt += `💵 إجمالي النقدية اللي دخلت الخزنة النهارده: ${totalCollectedTodayPaid} ج\n`;
+        txt += `🔴 إجمالي المتبقي المتراكم على كل العملاء (القديم والجديد): ${totalRemainingAll} ج`;
 
         var b = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8" });
         var lnk = document.createElement('a');
         lnk.href = URL.createObjectURL(b);
-        lnk.download = "Report_" + todayStr + ".txt";
+        lnk.download = "Daily_Report_" + todayStr + ".txt";
         document.body.appendChild(lnk);
         lnk.click();
         document.body.removeChild(lnk);
@@ -678,18 +662,19 @@
                     <div style="font-size: 13px; color: #cbd5e1; margin-bottom: 3px;">📱 الموبايل: ${phoneVal}</div>
                     <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ${itemType}</div>
                     <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة:</b> ${details}</div>
-                    <div style="font-size: 13px; margin-bottom: 4px;">💰 الحساب: ${price} ج | 💵 المدفوع: ${paid} ج | 🔴 المتبقي: <span style="color:#ef4444; font-weight:bold;" id="remText_${inv.id}">${rem} ج</span></div>
+                    <div style="font-size: 13px; margin-bottom: 4px;">💰 الحساب: ${price} ج | 💵 المدفوع: ${paid} ج | 🔴 المتبقي: <span style="color:#ef4444; font-weight:bold;">${rem} ج</span></div>
                     <div style="margin-bottom: 6px;">${imageLinks}</div>
                     
-                    <!-- خانة سداد المبلغ المتبقي لاحقاً -->
-                    ${rem > 0 ? `
-                    <div style="margin-top: 8px; padding: 8px; background: #1a1500; border: 1px solid #bf953f; border-radius: 6px;">
-                        <label style="margin:0 0 4px 0; font-size:12px; color:#f3e5ab;">💵 سداد جزء أو كامل المبلغ المتبقي (${rem} ج):</label>
-                        <div style="display:flex; gap:6px;">
-                            <input type="number" id="payMore_${inv.id}" placeholder="المبلغ المدفوع..." style="margin-top:0; padding:6px; font-size:13px;">
-                            <button type="button" class="btn-sm" style="background:#16a34a; color:#fff; margin-top:0; width:140px;" onclick="payRemainingAmount(${inv.id}, ${price}, ${paid})">💵 تثبيت الدفع</button>
+                    <!-- أزرار سداد المبلغ السريعة -->
+                    <div style="margin-top: 10px; padding: 10px; background: #1a1500; border: 1px solid #bf953f; border-radius: 8px;">
+                        <div style="font-size: 13px; color: #f3e5ab; margin-bottom: 6px; font-weight: bold;">
+                            💳 حالة الدفع: ${rem > 0 ? `<span style="color:#ef4444;">متبقي عليه (${rem} ج)</span>` : `<span style="color:#16a34a;">تم سداد المبلغ بالكامل ✅</span>`}
                         </div>
-                    </div>` : `<div style="color:#16a34a; font-size:12px; font-weight:bold; margin-top:4px;">✅ تم سداد كامل المبلغ بالكامل</div>`}
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" class="btn-sm" style="background:#16a34a; color:#fff; flex:1;" onclick="updatePaymentStatus(${inv.id}, ${price}, 0)">✅ تم سداد المبلغ</button>
+                            <button type="button" class="btn-sm" style="background:#d97706; color:#fff; flex:1;" onclick="updatePaymentStatus(${inv.id}, ${price}, ${rem > 0 ? rem : price})">⏳ لم يتم السداد</button>
+                        </div>
+                    </div>
 
                     <div style="margin-top: 8px; padding-top: 6px; border-top: 1px dashed #221a05; background: #0c0c0c; padding: 6px; border-radius: 6px;">
                         <input type="file" id="updateFile_${inv.id}" accept="image/*" multiple style="font-size:11px; margin-bottom:4px; padding:4px;">
@@ -705,43 +690,19 @@
         }).join('');
     }
 
-    // دالة لتسجيل دفع المبلغ المتبقي لاحقاً وتحديث الخزنة والتقرير اليومي
-    async function payRemainingAmount(invoiceId, totalPrice, currentPaid) {
-        const inputVal = parseFloat(document.getElementById(`payMore_${invoiceId}`).value);
-        if (isNaN(inputVal) || inputVal <= 0) {
-            alert("يرجى إدخال مبلغ صحيح للسداد!");
-            return;
-        }
-
-        const currentRem = totalPrice - currentPaid;
-        if (inputVal > currentRem) {
-            alert("المبلغ المدفوع أكبر من المبلغ المتبقي (" + currentRem + " جنيه)!");
-            return;
-        }
-
-        const newPaidTotal = currentPaid + inputVal;
-        const todayStr = new Date().toISOString().slice(0, 10);
-
-        // جلب السجل القديم للدفوعات لو موجود
-        const { data: invData } = await supabaseClient.from('invoices').select('payment_logs').eq('id', invoiceId).single();
-        let logs = (invData && invData.payment_logs) ? invData.payment_logs : [];
-        
-        logs.push({
-            amount: inputVal,
-            date: todayStr
-        });
+    async function updatePaymentStatus(invoiceId, totalPrice, targetRem) {
+        let newPaid = (targetRem === 0) ? totalPrice : (totalPrice - targetRem);
 
         const { error } = await supabaseClient
             .from('invoices')
             .update({ 
-                paid: newPaidTotal,
-                payment_logs: logs
+                paid: newPaid
             })
             .eq('id', invoiceId);
 
         if (!error) {
-            alert("✅ تم تسجيل دفع مبلغ " + inputVal + " جنيه بنجاح وأضيفت لتقرير اليوم!");
-            // إعادة تحديث نتائج البحث
+            alert("✅ تم تحديث حالة السداد بنجاح 👍");
+            
             const searchVal = document.getElementById('searchInput').value.trim();
             if(searchVal !== '') {
                 searchInvoices();
@@ -749,7 +710,7 @@
                 searchByFractionNumber();
             }
         } else {
-            alert("❌ حدث خطأ أثناء تحديث المبلغ!");
+            alert("❌ حدث خطأ أثناء التحديث!");
         }
     }
 
