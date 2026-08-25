@@ -477,8 +477,10 @@
                 imagesText = "\n\n🖼️ *رابط الصور:* لا توجد صور.";
             }
 
+            // تم إرجاع سطر الأوردر والرف بوضوح هنا، مع استبعاد الجملة التكرارية القديمة
             var oMsg =
-                '📥 *[ALESKAFY SHOES - نسخة المحل]*\n\n' +
+                '📥 *[ALESKAFY SHOES - نسخة المحل]*\n' +
+                '🧾 *أرشيف أوردر رقم (' + formattedOrderCode + ') على (' + shelf + ')*\n\n' +
                 baseTxt +
                 imagesText;
 
