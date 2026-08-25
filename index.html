@@ -109,7 +109,8 @@
         <button type="button" class="btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); color:#fff;" onclick="rep('monthly')">📅 تحميل التقرير الشهري</button>
     </form>
 
-    <a href="https://www.facebook.com/61560847583033" target="_blank" rel="noopener noreferrer" class="btn" style="background: linear-gradient(135deg, #1877f2, #0c4a6e);">
+    <!-- زر السوشيال ميديا يظهر للإدارة فقط -->
+    <a href="https://www.facebook.com/61560847583033" target="_blank" rel="noopener noreferrer" class="btn" id="socialBtn" style="background: linear-gradient(135deg, #1877f2, #0c4a6e); display:none;">
        🌐 السوشيال ميديا للمحل
     </a>
 
@@ -158,10 +159,8 @@
     var formattedOrderCode = "";
     var isCurrentInvoiceSaved = false;
 
-    // دالة فحص الرابط السري للإدارة
     function checkIsAdmin() {
         const urlParams = new URLSearchParams(window.location.search);
-        // لو الرابط فيه كلمة ?admin=masad2026 يفتح معاك كإدارة كاملة
         return urlParams.get('admin') === 'masad2026';
     }
 
@@ -169,16 +168,16 @@
         const isAdmin = checkIsAdmin();
         
         if (isAdmin) {
-            // شاشة الإدارة الخاصة بك (اللابتوب والموبايل الشخصي)
             document.getElementById('invoiceForm').style.display = 'block';
             document.getElementById('badge').style.display = 'flex';
             document.getElementById('nameSearchBox').style.display = 'block';
+            document.getElementById('socialBtn').style.display = 'flex';
             fetchNextInvoiceNum();
         } else {
-            // شاشة الصنايعي (بحث فقط مقفولة تماماً عن الإدخال أو التعديل)
             document.getElementById('invoiceForm').style.display = 'none';
             document.getElementById('badge').style.display = 'none';
             document.getElementById('nameSearchBox').style.display = 'none';
+            document.getElementById('socialBtn').style.display = 'none';
         }
     }
 
@@ -276,13 +275,15 @@
         const sn = document.getElementById('snd').value;
         const sg = document.getElementById('sng').value;
         const bg = document.getElementById('bags').value;
+        
         if (parseInt(sk) > 0) items.push('كوتشيات: ' + sk);
         if (parseInt(ss) > 0) items.push('جزم: ' + ss);
         if (parseInt(sl) > 0) items.push('شبشب: ' + sl);
         if (parseInt(sn) > 0) items.push('صندل: ' + sn);
         if (parseInt(sg) > 0) items.push('فردة: ' + sg);
         if (parseInt(bg) > 0) items.push('شنط: ' + bg);
-        return items.join(' | ') || 'صيانة متنوعة';
+        
+        return items.join(' | ') || 'أصناف متعددة';
     }
 
     async function sendTo(m) {
@@ -440,13 +441,17 @@
 
             let fractionHtml = '<span class="fraction" style="font-size: 14px;"><span class="numerator">' + numTop + '</span><span class="denominator">' + numBottom + '</span></span>';
 
-            let imageLinks = '';
+            let imageGalleryHtml = '';
             if (inv.image_url) {
                 const imageUrls = String(inv.image_url).split(/\r?\n/).map(u => u.trim()).filter(u => u.length > 1);
-                imageLinks = imageUrls.map((url, i) => '<a href="' + url + '" target="_blank" style="color:#bf953f; font-size:12px; display:inline-block; margin-left:8px;">🖼️ صورة ' + (i + 1) + '</a>').join('');
+                if (imageUrls.length > 0) {
+                    imageGalleryHtml = '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">' +
+                        imageUrls.map(url => '<a href="' + url + '" target="_blank"><img src="' + url + '" style="width:70px; height:70px; object-fit:cover; border-radius:6px; border:2px solid #bf953f;"></a>').join('') +
+                        '</div>';
+                }
             }
 
-            // شاشة الصنايعي (بحث فقط بدون أزرار تعديل)
+            // شاشة الصنايعي (عرض الأصناف بوضوح مع الصور وبدون تفاصيل مالية حساسة)
             if (!isAdmin) {
                 return '<div style="border-bottom: 1px dashed #33270a; padding-bottom: 12px; margin-bottom: 12px;">' +
                     '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">' +
@@ -455,8 +460,8 @@
                     '</div>' +
                     '<div style="font-size: 13px; color: #38bdf8; margin-bottom: 3px;">🔢 <b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
                     '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
-                    '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة:</b> ' + (inv.details || '-') + '</div>' +
-                    '<div style="margin-top: 6px;">' + imageLinks + '</div>' +
+                    '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة المطلوبة:</b> ' + (inv.details || '-') + '</div>' +
+                    imageGalleryHtml +
                 '</div>';
             }
 
@@ -471,7 +476,7 @@
                 '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
                 '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة:</b> ' + (inv.details || '-') + '</div>' +
                 '<div style="font-size: 13px; margin-bottom: 4px;">💰 الحساب: ' + price + ' ج | 💵 المدفوع: ' + paid + ' ج | 🔴 المتبقي: <span style="color:#ef4444; font-weight:bold;">' + rem + ' ج</span></div>' +
-                '<div style="margin-bottom: 6px;">' + imageLinks + '</div>' +
+                imageGalleryHtml +
                 '<div style="margin-top: 10px; padding: 10px; background: #1a1500; border: 1px solid #bf953f; border-radius: 8px;">' +
                     '<div style="font-size: 13px; color: #f3e5ab; margin-bottom: 6px; font-weight: bold;">💳 حالة الدفع: ' + (rem > 0 ? '<span style="color:#ef4444;">متبقي (' + rem + ' ج)</span>' : '<span style="color:#16a34a;">تم السداد ✅</span>') + '</div>' +
                     '<div style="display:flex; gap:6px;">' +
