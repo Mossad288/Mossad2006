@@ -114,25 +114,27 @@
        🌐 السوشيال ميديا للمحل
     </a>
 
-    <!-- قسم البحث والتتبع (يظهر للجميع) -->
+    <!-- قسم البحث والتتبع (يظهر للجميع بالشكل الأصلي: بسط ومقام + التاريخ للفلترة) -->
     <div class="manage-section">
         <h3 style="color:#bf953f; text-align:center; margin-top:0;">🔍 البحث والتتبع</h3>
         
-        <label style="text-align: center; margin-bottom: 8px;">🔢 البحث برقم الأوردر (رقم التشغيل + التاريخ):</label>
+        <label style="text-align: center; margin-bottom: 8px;">🔢 البحث برقم الأوردر (بسط ومقام):</label>
         <div style="background: #141414; padding: 15px; border: 1px solid #33270a; border-radius: 12px; margin-bottom: 10px; text-align: center;">
             
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <div style="flex: 1;">
-                    <label style="font-size: 11px; margin-top: 0;">رقم التشغيل (البسط):</label>
-                    <input type="number" id="searchNumerator" placeholder="مثل: 3" style="text-align: center; font-weight: bold; color: #f3e5ab; font-size: 15px;">
-                </div>
-                <div style="flex: 1.5;">
-                    <label style="font-size: 11px; margin-top: 0;">أو اختر التاريخ:</label>
-                    <input type="date" id="searchDate" style="text-align: center; font-size: 13px; color: #38bdf8;">
-                </div>
+            <!-- شكل البسط ومقام الأصلي -->
+            <div style="display: inline-flex; flex-direction: column; width: 110px; vertical-align: middle; margin-bottom: 10px;">
+                <input type="number" id="searchNumerator" placeholder="رقم" style="text-align: center; padding: 8px; border-bottom: none; font-weight: bold; color: #f3e5ab; font-size: 16px;">
+                <div style="background: #bf953f; height: 3px; width: 100%;"></div>
+                <input type="number" id="searchDenominator" placeholder="اليوم" style="text-align: center; padding: 8px; border-top: none; font-weight: bold; color: #38bdf8; font-size: 16px;">
             </div>
 
-            <button type="button" class="btn track-btn" style="width: 100%; margin-top: 5px;" onclick="searchByFractionNumber()">بحث بالأوردر أو التاريخ</button>
+            <!-- خانة اختيار التاريخ الإضافية لمنع تداخل الفواتير على مدار السنين -->
+            <div style="margin-top: 10px; text-align: right;">
+                <label style="font-size: 12px; color: #38bdf8; margin-bottom: 3px;">📅 اختر التاريخ (اختياري لتأكيد السنة/اليوم بدقة):</label>
+                <input type="date" id="searchDate" style="text-align: center; font-size: 13px; padding: 8px;">
+            </div>
+
+            <button type="button" class="btn track-btn" style="width: 100%; margin-top: 12px;" onclick="searchByFractionNumber()">بحث برقم الأوردر</button>
         </div>
 
         <div id="nameSearchBox" style="display:none;">
@@ -387,21 +389,22 @@
     }
 
     async function searchByFractionNumber() {
-        const numInput = document.getElementById('searchNumerator').value.trim();
+        const numVal = parseInt(document.getElementById('searchNumerator').value.trim());
+        const denVal = parseInt(document.getElementById('searchDenominator').value.trim());
         const dateInput = document.getElementById('searchDate').value; // صيغة YYYY-MM-DD
         const resBox = document.getElementById('searchResults');
 
-        if (!numInput && !dateInput) { 
-            alert('الرجاء إدخال رقم التشغيل أو اختيار التاريخ على الأقل للبحث'); 
+        if (isNaN(numVal) || isNaN(denVal)) { 
+            alert('الرجاء إدخال البسط (رقم الأوردر) والمقام (رقم اليوم) بشكل صحيح'); 
             return; 
         }
 
         resBox.style.display = 'block';
         resBox.innerHTML = 'جاري البحث... ⏳';
 
-        let query = supabaseClient.from('invoices').select('*');
+        let query = supabaseClient.from('invoices').select('*').eq('daily_number', numVal);
 
-        // لو اختار تاريخ محدد (سواء لوحده أو مع رقم التشغيل)
+        // لو اختار تاريخ محدد (لتأكيد السنة اليوم بدقة لمنع التداخل بعد سنة)
         if (dateInput) {
             const targetDateStart = new Date(dateInput);
             targetDateStart.setHours(0, 0, 0, 0);
@@ -411,13 +414,18 @@
             query = query.gte('created_at', targetDateStart.toISOString()).lte('created_at', targetDateEnd.toISOString());
         }
 
-        // لو كتب رقم التشغيل
-        if (numInput) {
-            query = query.eq('daily_number', parseInt(numInput));
+        const { data, error } = await query;
+        
+        // فلترة إضافية للتأكد من تطابق يوم المقام لو التاريخ مش محدد بدقة
+        let finalData = data;
+        if (!dateInput && data) {
+            finalData = data.filter(inv => {
+                let d = new Date(inv.created_at);
+                return d.getDate() === denVal;
+            });
         }
 
-        const { data, error } = await query.order('created_at', { ascending: false });
-        renderSearchResults(data, error, resBox);
+        renderSearchResults(finalData, error, resBox);
     }
 
     async function searchInvoices() {
@@ -466,7 +474,7 @@
                 }
             }
 
-            // شاشة الصنايعي (عرض الأصناف بوضوح مع الصور وتاريخ الفاتورة بدقة)
+            // شاشة الصنايعي
             if (!isAdmin) {
                 return '<div style="border-bottom: 1px dashed #33270a; padding-bottom: 12px; margin-bottom: 12px;">' +
                     '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">' +
@@ -474,21 +482,21 @@
                         '<span class="status-badge ' + statusClass + '">' + (inv.status || 'تحت الصيانة') + '</span>' +
                     '</div>' +
                     '<div style="font-size: 12px; color: #94a3b8; margin-bottom: 3px;">📅 تاريخ الأوردر: ' + invDate.toISOString().slice(0, 10) + '</div>' +
-                    '<div style="font-size: 13px; color: #38bdf8; margin-bottom: 3px;">🔢 <b>رقم التشغيل:</b> ' + fractionHtml + '</div>' +
+                    '<div style="font-size: 13px; color: #38bdf8; margin-bottom: 3px;">🔢 <b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
                     '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
                     '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة المطلوبة:</b> ' + (inv.details || '-') + '</div>' +
                     imageGalleryHtml +
                 '</div>';
             }
 
-            // شاشة الإدارة (تحكم كامل)
+            // شاشة الإدارة
             return '<div style="border-bottom: 1px dashed #33270a; padding-bottom: 12px; margin-bottom: 12px;">' +
                 '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">' +
                     '<strong style="color: #f3e5ab; font-size: 15px;">👤 ' + inv.customer_name + '</strong>' +
                     '<span class="status-badge ' + statusClass + '">' + (inv.status || 'تحت الصيانة') + '</span>' +
                 '</div>' +
                 '<div style="font-size: 12px; color: #94a3b8; margin-bottom: 3px;">📅 التاريخ: ' + invDate.toISOString().slice(0, 10) + '</div>' +
-                '<div style="font-size: 13px; color: #38bdf8; margin-bottom: 3px;">🔢 <b>رقم اليوم:</b> ' + fractionHtml + '</div>' +
+                '<div style="font-size: 13px; color: #38bdf8; margin-bottom: 3px;">🔢 <b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
                 '<div style="font-size: 13px; color: #cbd5e1; margin-bottom: 3px;">📱 الموبايل: ' + (inv.phone || '-') + '</div>' +
                 '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
                 '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة:</b> ' + (inv.details || '-') + '</div>' +
