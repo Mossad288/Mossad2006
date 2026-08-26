@@ -114,27 +114,27 @@
        🌐 السوشيال ميديا للمحل
     </a>
 
-    <!-- قسم البحث والتتبع (يظهر للجميع بالشكل الأصلي: بسط ومقام + التاريخ للفلترة) -->
+    <!-- قسم البحث والتتبع (يظهر للجميع بالشكل الأصلي: بسط ومقام + التاريخ للفلترة المرنة) -->
     <div class="manage-section">
         <h3 style="color:#bf953f; text-align:center; margin-top:0;">🔍 البحث والتتبع</h3>
         
-        <label style="text-align: center; margin-bottom: 8px;">🔢 البحث برقم الأوردر (بسط ومقام):</label>
+        <label style="text-align: center; margin-bottom: 8px;">🔢 البحث برقم الأوردر (بسط ومقام) أو بالتاريخ منفردًا:</label>
         <div style="background: #141414; padding: 15px; border: 1px solid #33270a; border-radius: 12px; margin-bottom: 10px; text-align: center;">
             
-            <!-- شكل البسط ومقام الأصلي -->
+            <!-- شكل البسط ومقام -->
             <div style="display: inline-flex; flex-direction: column; width: 110px; vertical-align: middle; margin-bottom: 10px;">
                 <input type="number" id="searchNumerator" placeholder="رقم" style="text-align: center; padding: 8px; border-bottom: none; font-weight: bold; color: #f3e5ab; font-size: 16px;">
                 <div style="background: #bf953f; height: 3px; width: 100%;"></div>
                 <input type="number" id="searchDenominator" placeholder="اليوم" style="text-align: center; padding: 8px; border-top: none; font-weight: bold; color: #38bdf8; font-size: 16px;">
             </div>
 
-            <!-- خانة اختيار التاريخ الإضافية لمنع تداخل الفواتير على مدار السنين -->
+            <!-- خانة اختيار التاريخ (تعمل بمفردها أو مع البسط والمقام) -->
             <div style="margin-top: 10px; text-align: right;">
-                <label style="font-size: 12px; color: #38bdf8; margin-bottom: 3px;">📅 اختر التاريخ (اختياري لتأكيد السنة/اليوم بدقة):</label>
+                <label style="font-size: 12px; color: #38bdf8; margin-bottom: 3px;">📅 اختر التاريخ (يمكنك البحث به وحده لجلب فواتير اليوم):</label>
                 <input type="date" id="searchDate" style="text-align: center; font-size: 13px; padding: 8px;">
             </div>
 
-            <button type="button" class="btn track-btn" style="width: 100%; margin-top: 12px;" onclick="searchByFractionNumber()">بحث برقم الأوردر</button>
+            <button type="button" class="btn track-btn" style="width: 100%; margin-top: 12px;" onclick="searchByFractionNumber()">بحث في الفواتير</button>
         </div>
 
         <div id="nameSearchBox" style="display:none;">
@@ -389,22 +389,28 @@
     }
 
     async function searchByFractionNumber() {
-        const numVal = parseInt(document.getElementById('searchNumerator').value.trim());
-        const denVal = parseInt(document.getElementById('searchDenominator').value.trim());
+        const numVal = document.getElementById('searchNumerator').value.trim();
+        const denVal = document.getElementById('searchDenominator').value.trim();
         const dateInput = document.getElementById('searchDate').value; // صيغة YYYY-MM-DD
         const resBox = document.getElementById('searchResults');
 
-        if (isNaN(numVal) || isNaN(denVal)) { 
-            alert('الرجاء إدخال البسط (رقم الأوردر) والمقام (رقم اليوم) بشكل صحيح'); 
+        // لو كل الحقول فاضية (لا رقم ولا تاريخ)
+        if (!numVal && !denVal && !dateInput) { 
+            alert('الرجاء إدخال رقم الأوردر (البسط) أو اختيار التاريخ للبحث'); 
             return; 
         }
 
         resBox.style.display = 'block';
         resBox.innerHTML = 'جاري البحث... ⏳';
 
-        let query = supabaseClient.from('invoices').select('*').eq('daily_number', numVal);
+        let query = supabaseClient.from('invoices').select('*').order('created_at', { ascending: false });
 
-        // لو اختار تاريخ محدد (لتأكيد السنة اليوم بدقة لمنع التداخل بعد سنة)
+        // لو تم إدخال رقم البسط
+        if (numVal) {
+            query = query.eq('daily_number', parseInt(numVal));
+        }
+
+        // لو تم إدخال التاريخ
         if (dateInput) {
             const targetDateStart = new Date(dateInput);
             targetDateStart.setHours(0, 0, 0, 0);
@@ -416,12 +422,13 @@
 
         const { data, error } = await query;
         
-        // فلترة إضافية للتأكد من تطابق يوم المقام لو التاريخ مش محدد بدقة
         let finalData = data;
-        if (!dateInput && data) {
+        // فلترة بالمقام (رقم اليوم) لو تم كتابته ولم يتم اختيار تاريخ صريح
+        if (!dateInput && denVal && data) {
+            const dNum = parseInt(denVal);
             finalData = data.filter(inv => {
                 let d = new Date(inv.created_at);
-                return d.getDate() === denVal;
+                return d.getDate() === dNum;
             });
         }
 
