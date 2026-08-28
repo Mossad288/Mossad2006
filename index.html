@@ -18,7 +18,7 @@
         }
         body { font-family: sans-serif; background: #000; margin: 0; padding: 15px; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; background-image: radial-gradient(circle at 50% 50%, #1a1500 0%, #000 80%); }
         .container { width: 100%; max-width: 450px; background: #0c0c0c; padding: 22px; border-radius: 16px; border: 2px solid #bf953f; animation: goldGlow 4s infinite ease-in-out; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        @media (min-width: 768px) { .container { max-width: 900px; padding: 30px; } }
+        @media (min-width: 768px) { .container { max-width: 950px; padding: 30px; } }
         h1 { text-align: center; margin: 0 0 5px 0; font-size: 28px; font-weight: 900; background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: shimmerText 5s linear infinite; }
         .badge { background: linear-gradient(135deg, #bf953f, #aa771c); color: #000; font-weight: bold; padding: 10px 14px; border-radius: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 12px 0; font-size: 14px; width: 100%; box-sizing: border-box; }
         .fraction { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; font-weight: bold; line-height: 1.1; }
@@ -35,14 +35,18 @@
         #previewsContainer { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; max-height: 160px; overflow-y: auto; padding: 5px; background: #141414; border-radius: 8px; border: 1px solid #33270a; }
         .preview-thumb { width: 75px; height: 75px; object-fit: cover; border-radius: 6px; border: 2px solid #bf953f; flex-shrink: 0; }
         .manage-section { margin-top: 20px; padding-top: 15px; border-top: 2px dashed #bf953f; }
-        .result-box { margin-top: 10px; padding: 10px; background: #141414; border-radius: 8px; border: 1px solid #33270a; font-size: 13px; display: none; }
+        .result-box { margin-top: 10px; padding: 10px; background: #141414; border-radius: 8px; border: 1px solid #33270a; font-size: 13px; display: none; max-height: 400px; overflow-y: auto; }
         .status-badge { padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
         .bg-pending { background: #d97706; color: white; }
         .bg-done { background: #16a34a; color: white; }
-        .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; margin-top: 8px; }
+        .bg-delivered { background: #0284c7; color: white; }
+        .btn-sm { padding: 6px 10px; font-size: 11px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; margin-top: 4px; }
         .loading-text { color: #f3e5ab; font-size: 13px; text-align: center; margin-top: 8px; font-weight: bold; display: none; }
         .footer-credits { text-align: center; margin-top: 22px; padding-top: 14px; border-top: 1px solid #221a05; font-size: 12px; color: #94a3b8; font-weight: 500; }
         .footer-credits span { background: linear-gradient(135deg, #bf953f, #fcf6ba); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
+        
+        /* تقسيم الشاشة للأجهزة الكبيرة لو حبينا */
+        .admin-layout { display: flex; flex-direction: column; gap: 20px; }
     </style>
 </head>
 <body onload="initApp();">
@@ -114,21 +118,33 @@
        🌐 السوشيال ميديا للمحل
     </a>
 
-    <!-- قسم البحث والتتبع (يظهر للجميع بالشكل الأصلي: بسط ومقام + التاريخ للفلترة المرنة) -->
+    <!-- قسم متابعة التسليمات السريعة (للإدارة) -->
+    <div class="manage-section" id="deliverySection" style="display:none;">
+        <h3 style="color:#38bdf8; text-align:center; margin-top:0;">🚚 متابعة الأوردرات المُسلمة للعملاء</h3>
+        <div class="row" style="margin-bottom: 10px;">
+            <div>
+                <button type="button" class="btn" style="background: linear-gradient(135deg, #059669, #047857); margin-top:0;" onclick="loadDeliveredInvoices('today')">☀️ مسلمات اليوم فقط</button>
+            </div>
+            <div>
+                <button type="button" class="btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); margin-top:0;" onclick="loadDeliveredInvoices('all')">📦 كل الأوردرات المسلمة</button>
+            </div>
+        </div>
+        <div id="deliveryResults" class="result-box"></div>
+    </div>
+
+    <!-- قسم البحث والتتبع -->
     <div class="manage-section">
         <h3 style="color:#bf953f; text-align:center; margin-top:0;">🔍 البحث والتتبع</h3>
         
         <label style="text-align: center; margin-bottom: 8px;">🔢 البحث برقم الأوردر (بسط ومقام) أو بالتاريخ منفردًا:</label>
         <div style="background: #141414; padding: 15px; border: 1px solid #33270a; border-radius: 12px; margin-bottom: 10px; text-align: center;">
             
-            <!-- شكل البسط ومقام -->
             <div style="display: inline-flex; flex-direction: column; width: 110px; vertical-align: middle; margin-bottom: 10px;">
                 <input type="number" id="searchNumerator" placeholder="رقم" style="text-align: center; padding: 8px; border-bottom: none; font-weight: bold; color: #f3e5ab; font-size: 16px;">
                 <div style="background: #bf953f; height: 3px; width: 100%;"></div>
                 <input type="number" id="searchDenominator" placeholder="اليوم" style="text-align: center; padding: 8px; border-top: none; font-weight: bold; color: #38bdf8; font-size: 16px;">
             </div>
 
-            <!-- خانة اختيار التاريخ (تعمل بمفردها أو مع البسط والمقام) -->
             <div style="margin-top: 10px; text-align: right;">
                 <label style="font-size: 12px; color: #38bdf8; margin-bottom: 3px;">📅 اختر التاريخ (يمكنك البحث به وحده لجلب فواتير اليوم):</label>
                 <input type="date" id="searchDate" style="text-align: center; font-size: 13px; padding: 8px;">
@@ -181,12 +197,14 @@
             document.getElementById('badge').style.display = 'flex';
             document.getElementById('nameSearchBox').style.display = 'block';
             document.getElementById('socialBtn').style.display = 'flex';
+            document.getElementById('deliverySection').style.display = 'block';
             fetchNextInvoiceNum();
         } else {
             document.getElementById('invoiceForm').style.display = 'none';
             document.getElementById('badge').style.display = 'none';
             document.getElementById('nameSearchBox').style.display = 'none';
             document.getElementById('socialBtn').style.display = 'none';
+            document.getElementById('deliverySection').style.display = 'none';
         }
     }
 
@@ -388,13 +406,42 @@
         lnk.click();
     }
 
+    async function loadDeliveredInvoices(filterType) {
+        const resBox = document.getElementById('deliveryResults');
+        resBox.style.display = 'block';
+        resBox.innerHTML = 'جاري التحميل... ⏳';
+
+        let query = supabaseClient.from('invoices').select('*').eq('status', 'تم التسليم 🚚').order('created_at', { ascending: false });
+
+        const { data, error } = await query;
+
+        if (error || !data || data.length === 0) {
+            resBox.innerHTML = '<div style="color: #38bdf8; text-align: center; padding: 10px;">لا توجد أوردرات مسلمة مسجلة حالياً!</div>';
+            return;
+        }
+
+        let filteredData = data;
+        if (filterType === 'today') {
+            const todayStr = new Date().toISOString().slice(0, 10);
+            filteredData = data.filter(inv => {
+                let d = new Date(inv.created_at);
+                return d.toISOString().slice(0, 10) === todayStr;
+            });
+            if (filteredData.length === 0) {
+                resBox.innerHTML = '<div style="color: #38bdf8; text-align: center; padding: 10px;">لم يتم تسليم أي أوردرات اليوم حتى الآن!</div>';
+                return;
+            }
+        }
+
+        renderSearchResults(filteredData, null, resBox);
+    }
+
     async function searchByFractionNumber() {
         const numVal = document.getElementById('searchNumerator').value.trim();
         const denVal = document.getElementById('searchDenominator').value.trim();
-        const dateInput = document.getElementById('searchDate').value; // صيغة YYYY-MM-DD
+        const dateInput = document.getElementById('searchDate').value;
         const resBox = document.getElementById('searchResults');
 
-        // لو كل الحقول فاضية (لا رقم ولا تاريخ)
         if (!numVal && !denVal && !dateInput) { 
             alert('الرجاء إدخال رقم الأوردر (البسط) أو اختيار التاريخ للبحث'); 
             return; 
@@ -405,12 +452,10 @@
 
         let query = supabaseClient.from('invoices').select('*').order('created_at', { ascending: false });
 
-        // لو تم إدخال رقم البسط
         if (numVal) {
             query = query.eq('daily_number', parseInt(numVal));
         }
 
-        // لو تم إدخال التاريخ
         if (dateInput) {
             const targetDateStart = new Date(dateInput);
             targetDateStart.setHours(0, 0, 0, 0);
@@ -423,7 +468,6 @@
         const { data, error } = await query;
         
         let finalData = data;
-        // فلترة بالمقام (رقم اليوم) لو تم كتابته ولم يتم اختيار تاريخ صريح
         if (!dateInput && denVal && data) {
             const dNum = parseInt(denVal);
             finalData = data.filter(inv => {
@@ -461,7 +505,8 @@
 
         resBox.innerHTML = data.map(function(inv) {
             const isDone = inv.status === 'تم الانتهاء من الصيانة';
-            const statusClass = isDone ? 'bg-done' : 'bg-pending';
+            const isDelivered = inv.status === 'تم التسليم 🚚';
+            const statusClass = isDelivered ? 'bg-delivered' : (isDone ? 'bg-done' : 'bg-pending');
             const price = inv.price || 0;
             const paid = inv.paid || 0;
             const rem = price - paid;
@@ -481,7 +526,6 @@
                 }
             }
 
-            // شاشة الصنايعي
             if (!isAdmin) {
                 return '<div style="border-bottom: 1px dashed #33270a; padding-bottom: 12px; margin-bottom: 12px;">' +
                     '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">' +
@@ -496,7 +540,6 @@
                 '</div>';
             }
 
-            // شاشة الإدارة
             return '<div style="border-bottom: 1px dashed #33270a; padding-bottom: 12px; margin-bottom: 12px;">' +
                 '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">' +
                     '<strong style="color: #f3e5ab; font-size: 15px;">👤 ' + inv.customer_name + '</strong>' +
@@ -516,9 +559,10 @@
                         '<button type="button" class="btn-sm" style="background:#d97706; color:#fff; flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ', ' + (rem > 0 ? rem : price) + ')">⏳ لم يتم السداد</button>' +
                     '</div>' +
                 '</div>' +
-                '<div style="display:flex; gap:6px; margin-top:8px;">' +
-                    '<button type="button" class="btn-sm" style="background:#16a34a; color:#fff;" onclick="updateStatus(' + inv.id + ', \'تم الانتهاء من الصيانة\')">✅ تم الانتهاء</button>' +
-                    '<button type="button" class="btn-sm" style="background:#d97706; color:#fff;" onclick="updateStatus(' + inv.id + ', \'تحت الصيانة\')">⏳ تحت الصيانة</button>' +
+                '<div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">' +
+                    '<button type="button" class="btn-sm" style="background:#0284c7; color:#fff; flex:1;" onclick="updateStatus(' + inv.id + ', \'تم التسليم 🚚\')">🚚 تم التسليم</button>' +
+                    '<button type="button" class="btn-sm" style="background:#16a34a; color:#fff; flex:1;" onclick="updateStatus(' + inv.id + ', \'تم الانتهاء من الصيانة\')">✅ تم الانتهاء</button>' +
+                    '<button type="button" class="btn-sm" style="background:#d97706; color:#fff; flex:1;" onclick="updateStatus(' + inv.id + ', \'تحت الصيانة\')">⏳ تحت الصيانة</button>' +
                 '</div>' +
             '</div>';
         }).join('');
@@ -532,7 +576,20 @@
 
     async function updateStatus(id, newStatus) {
         const { error } = await supabaseClient.from('invoices').update({ status: newStatus }).eq('id', id);
-        if (!error) { alert('تم تغيير الحالة بنجاح 👍'); searchByFractionNumber(); } else { alert('حدث خطأ!'); }
+        if (!error) { 
+            alert('تم تغيير الحالة بنجاح 👍'); 
+            searchByFractionNameOrRefresh(); 
+        } else { 
+            alert('حدث خطأ!'); 
+        }
+    }
+
+    function searchByFractionNameOrRefresh() {
+        if(document.getElementById('searchNumerator').value || document.getElementById('searchDate').value) {
+            searchByFractionNumber();
+        } else if(document.getElementById('searchInput').value) {
+            searchInvoices();
+        }
     }
 </script>
 </html>
