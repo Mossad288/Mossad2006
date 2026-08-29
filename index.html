@@ -106,7 +106,7 @@
 <body onload="initApp();">
 
     <!-- شاشة تسجيل الدخول -->
-    <div id="authScreen">
+    <div id="authScreen" style="display:none;">
         <div class="auth-card">
             <div class="auth-title">ALESKAFY SHOES</div>
             <div class="auth-subtitle" id="authSubtitleText">النظام الذكي لإدارة الصيانة</div>
@@ -114,10 +114,11 @@
             <input type="password" id="passwordInput" placeholder="أدخل الباسورد هنا" style="text-align: center; font-size: 16px; letter-spacing: 2px;" onkeydown="if(event.key === 'Enter') submitPassword()">
             
             <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color: #000; font-weight: 900; margin-top: 15px;" onclick="submitPassword()">🔓 دخول للنظام</button>
+            <button type="button" class="btn" style="background: transparent; color: #ef4444; border: 1px solid #ef4444; font-size: 12px; margin-top: 10px;" onclick="logoutApp()">🔒 مسح الجلسة وتسجيل الخروج</button>
         </div>
     </div>
 
-<div class="container" id="mainContainer">
+<div class="container" id="mainContainer" style="display:none;">
     <div style="text-align:center;">
         <div class="header-logo-area">
             <img src="https://iili.io/CpkSHbf.jpg" class="sys-logo" alt="Logo">
@@ -302,46 +303,77 @@
     function initApp() {
         const urlParams = new URLSearchParams(window.location.search);
         
-        // التحقق التام من الرابط المفتوح (Admin vs Worker) لمنع التداخل نهائياً
-        if (urlParams.get('admin') === '2020') {
+        const isAdminLink = urlParams.get('admin') === '2020';
+        const isWorkerLink = urlParams.get('worker') === '2030';
+        
+        if (isAdminLink) {
             document.getElementById('authSubtitleText').innerText = "تسجيل دخول الإدارة (المحل)";
-            // لا نسجل تلقائياً بالباسوورد، نترك شاشة الباسوورد تطلب باسوورد المحل (2020) حصراً
-        } else if (urlParams.get('worker') === '2030') {
+            if (localStorage.getItem('aleskafy_admin_logged') === 'true') {
+                grantAccess('admin');
+                return;
+            }
+        } else if (isWorkerLink) {
             document.getElementById('authSubtitleText').innerText = "تسجيل دخول الصنايعي";
-            // لا نسجل تلقائياً، نترك شاشة الباسوورد تطلب باسوورد الصنايعي (2030) حصراً
+            if (localStorage.getItem('aleskafy_worker_logged') === 'true') {
+                grantAccess('worker');
+                return;
+            }
+        } else {
+            document.getElementById('authSubtitleText').innerText = "النظام الذكي لإدارة الصيانة";
+            if (localStorage.getItem('aleskafy_general_logged') === 'true') {
+                grantAccess('admin');
+                return;
+            }
         }
+
+        document.getElementById('authScreen').style.display = 'flex';
+        document.getElementById('mainContainer').style.display = 'none';
     }
 
     function submitPassword() {
         let pass = document.getElementById('passwordInput').value.trim();
         const urlParams = new URLSearchParams(window.location.search);
         
-        // التحقق بحسب الرابط المفتوح وباسورد الإدخال
-        if (urlParams.get('admin') === '2020') {
+        const isAdminLink = urlParams.get('admin') === '2020';
+        const isWorkerLink = urlParams.get('worker') === '2030';
+
+        if (isAdminLink) {
             if (pass === "2020") {
+                localStorage.setItem('aleskafy_admin_logged', 'true');
                 grantAccess('admin');
             } else {
                 alert("❌ كلمة مرور المحل غير صحيحة!");
                 document.getElementById('passwordInput').value = "";
             }
-        } else if (urlParams.get('worker') === '2030') {
+        } else if (isWorkerLink) {
             if (pass === "2030") {
+                localStorage.setItem('aleskafy_worker_logged', 'true');
                 grantAccess('worker');
             } else {
                 alert("❌ كلمة مرور الصنايعي غير صحيحة!");
                 document.getElementById('passwordInput').value = "";
             }
         } else {
-            // لو تم فتح الرابط العادي بدون معاملات
             if (pass === "2020") {
+                localStorage.setItem('aleskafy_general_logged', 'true');
+                localStorage.setItem('aleskafy_admin_logged', 'true');
                 grantAccess('admin');
             } else if (pass === "2030") {
+                localStorage.setItem('aleskafy_general_logged', 'true');
+                localStorage.setItem('aleskafy_worker_logged', 'true');
                 grantAccess('worker');
             } else {
                 alert("❌ كلمة المرور غير صحيحة!");
                 document.getElementById('passwordInput').value = "";
             }
         }
+    }
+
+    function logoutApp() {
+        localStorage.removeItem('aleskafy_admin_logged');
+        localStorage.removeItem('aleskafy_worker_logged');
+        localStorage.removeItem('aleskafy_general_logged');
+        location.reload();
     }
 
     function grantAccess(role) {
@@ -382,7 +414,7 @@
         document.getElementById('mainDashboardScreen').style.display = 'block';
         
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('admin') === '2020') {
+        if (urlParams.get('admin') === '2020' || localStorage.getItem('aleskafy_admin_logged') === 'true') {
             document.getElementById('portalMenu').style.display = 'grid';
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
