@@ -23,7 +23,6 @@
 
         body { font-family: sans-serif; background: #000; margin: 0; padding: 15px; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
         
-        /* شاشة تسجيل الدخول بصورتك الشخصية خلفية بملء الشاشة والمربع شفاف */
         #authScreen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -39,8 +38,8 @@
         .auth-card {
             width: 100%;
             max-width: 380px;
-            background: rgba(0, 0, 0, 0.4); /* خلفية سوداء شفافة عشان الصورة تبان بوضوح */
-            backdrop-filter: blur(6px);       /* تأثير زجاجي أنيق */
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
             padding: 30px 20px;
             border-radius: 20px;
@@ -104,13 +103,13 @@
 </head>
 <body onload="initApp();">
 
-    <!-- شاشة تسجيل الدخول بخلفية صورتك والمربع الشفاف -->
+    <!-- شاشة تسجيل الدخول -->
     <div id="authScreen">
         <div class="auth-card">
             <div class="auth-title">ALESKAFY SHOES</div>
             <div class="auth-subtitle">النظام الذكي لإدارة الصيانة</div>
             
-            <label style="color:#d4af37; text-align:right; margin-bottom:5px;">🔐 أدخل كلمة المرور (2020):</label>
+            <label style="color:#d4af37; text-align:right; margin-bottom:5px;">🔐 أدخل كلمة المرور (2020 للمحل / 2030 للصنايعي):</label>
             <input type="password" id="passwordInput" placeholder="أدخل الباسورد هنا" style="text-align: center; font-size: 16px; letter-spacing: 2px;" onkeydown="if(event.key === 'Enter') submitPassword()">
             
             <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color: #000; font-weight: 900; margin-top: 15px;" onclick="submitPassword()">🔓 دخول للنظام</button>
@@ -141,7 +140,7 @@
 
     <!-- الشاشة الرئيسية -->
     <div id="mainDashboardScreen">
-        <!-- نموذج الفاتورة (للإدارة فقط) -->
+        <!-- نموذج الفاتورة (للإدارة فقط 2020) -->
         <form id="invoiceForm" style="display:none;">
             <label>👤 اسم العميل:</label><input type="text" id="name" placeholder="اسم العميل">
             <label>📱 واتساب العميل:</label><input type="text" id="phone" placeholder="01012345678">
@@ -200,7 +199,7 @@
         </a>
     </div>
 
-    <!-- ================= قسم استعلام الصنايعي والبحث ================= -->
+    <!-- ================= قسم استعلام الصنايعي (خاص برابط/باسورد الصنايعي 2030) ================= -->
     <div id="workerQuerySection" style="display: none; margin-top: 10px;">
         <h3 style="color:#bf953f; text-align:center; margin-top:5px;">🛠️ استعلام الصنايعي عن الأوردر</h3>
         <label style="text-align: center; margin-bottom: 8px;">🔢 ابحث برقم الأوردر (بسط ومقام) أو بالتاريخ:</label>
@@ -296,56 +295,42 @@
     var formattedOrderCode = "";
     var isCurrentInvoiceSaved = false;
 
-    function checkIsAdmin() {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('admin') === '2020';
-    }
-
-    function checkIsWorker() {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('worker') === '2020';
-    }
-
     function initApp() {
-        if (sessionStorage.getItem('aleskafy_auth') === 'true') {
-            grantAccess();
+        const savedAuth = sessionStorage.getItem('aleskafy_auth');
+        if (savedAuth === 'admin' || savedAuth === 'worker') {
+            grantAccess(savedAuth);
             return;
         }
 
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('admin') === '2020' || urlParams.get('worker') === '2020') {
-            sessionStorage.setItem('aleskafy_auth', 'true');
-            grantAccess();
+        if (urlParams.get('admin') === '2020') {
+            sessionStorage.setItem('aleskafy_auth', 'admin');
+            grantAccess('admin');
+        } else if (urlParams.get('worker') === '2030') {
+            sessionStorage.setItem('aleskafy_auth', 'worker');
+            grantAccess('worker');
         }
     }
 
     function submitPassword() {
         let pass = document.getElementById('passwordInput').value.trim();
         if (pass === "2020") {
-            sessionStorage.setItem('aleskafy_auth', 'true');
-            grantAccess();
+            sessionStorage.setItem('aleskafy_auth', 'admin');
+            grantAccess('admin');
+        } else if (pass === "2030") {
+            sessionStorage.setItem('aleskafy_auth', 'worker');
+            grantAccess('worker');
         } else {
-            alert("❌ كلمة المرور غير صحيحة! يرجى المحاولة مرة أخرى.");
+            alert("❌ كلمة المرور غير صحيحة! (2020 للمحل / 2030 للصنايعي)");
             document.getElementById('passwordInput').value = "";
         }
     }
 
-    function grantAccess() {
+    function grantAccess(role) {
         document.getElementById('authScreen').style.display = 'none';
         document.getElementById('mainContainer').style.display = 'block';
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const hasAdminParam = urlParams.has('admin');
-        const hasWorkerParam = urlParams.has('worker');
-
-        let isAdmin = hasAdminParam || (!hasAdminParam && !hasWorkerParam);
-        let isWorker = hasWorkerParam;
-
-        if (isWorker && !hasAdminParam) {
-            isAdmin = false;
-        }
-
-        if (isAdmin) {
+        if (role === 'admin') {
             document.getElementById('invoiceForm').style.display = 'block';
             document.getElementById('badge').style.display = 'flex';
             document.getElementById('socialBtn').style.display = 'flex';
@@ -378,8 +363,8 @@
         document.getElementById('reportsScreen').style.display = 'none';
         document.getElementById('mainDashboardScreen').style.display = 'block';
         
-        const urlParams = new URLSearchParams(window.location.search);
-        if (!urlParams.has('worker')) {
+        const authRole = sessionStorage.getItem('aleskafy_auth');
+        if (authRole === 'admin') {
             document.getElementById('portalMenu').style.display = 'grid';
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
