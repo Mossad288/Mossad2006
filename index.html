@@ -103,13 +103,13 @@
 </head>
 <body onload="initApp();">
 
-    <!-- شاشة تسجيل الدخول -->
+    <!-- شاشة تسجيل الدخول المخصصة -->
     <div id="authScreen">
         <div class="auth-card">
             <div class="auth-title">ALESKAFY SHOES</div>
-            <div class="auth-subtitle">النظام الذكي لإدارة الصيانة</div>
+            <div class="auth-subtitle" id="authSubtitleText">النظام الذكي لإدارة الصيانة</div>
             
-            <label style="color:#d4af37; text-align:right; margin-bottom:5px;">🔐 أدخل كلمة المرور (2020 للمحل / 2030 للصنايعي):</label>
+            <label style="color:#d4af37; text-align:right; margin-bottom:5px;" id="authLabelPrompt">🔐 أدخل كلمة المرور:</label>
             <input type="password" id="passwordInput" placeholder="أدخل الباسورد هنا" style="text-align: center; font-size: 16px; letter-spacing: 2px;" onkeydown="if(event.key === 'Enter') submitPassword()">
             
             <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color: #000; font-weight: 900; margin-top: 15px;" onclick="submitPassword()">🔓 دخول للنظام</button>
@@ -295,34 +295,66 @@
     var formattedOrderCode = "";
     var isCurrentInvoiceSaved = false;
 
+    // تحديد نوع الرابط الحالي (admin أم worker) بناءً على الرابط أو الجلسة
+    function getCurrentMode() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('admin') || urlParams.get('worker') !== '2030') {
+            // افتراضي أو لو فيه admin في الرابط
+            if (urlParams.get('worker') === '2030') return 'worker';
+            if (urlParams.get('admin') === '2020') return 'admin';
+        }
+        if (urlParams.get('worker') === '2030') return 'worker';
+        return 'admin'; // افتراضي المحل لو الرابط عادي
+    }
+
     function initApp() {
-        const savedAuth = sessionStorage.getItem('aleskafy_auth');
-        if (savedAuth === 'admin' || savedAuth === 'worker') {
-            grantAccess(savedAuth);
-            return;
+        const urlParams = new URLSearchParams(window.location.search);
+        const isWorkerLink = urlParams.has('worker') || window.location.href.includes('worker');
+        
+        // تظظيت واجهة شاشة الدخول حسب الرابط المفتوح
+        if (isWorkerLink) {
+            document.getElementById('authSubtitleText').innerText = 'بوابة الصنايعي (استعلام فقط)';
+            document.getElementById('authLabelPrompt').innerText = '🔐 أدخل باسورد الصنايعي المخصص:';
+        } else {
+            document.getElementById('authSubtitleText').innerText = 'النظام الذكي لإدارة الصيانة (لوحة المحل)';
+            document.getElementById('authLabelPrompt').innerText = '🔐 أدخل باسورد المحل المخصص:';
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('admin') === '2020') {
-            sessionStorage.setItem('aleskafy_auth', 'admin');
-            grantAccess('admin');
-        } else if (urlParams.get('worker') === '2030') {
-            sessionStorage.setItem('aleskafy_auth', 'worker');
-            grantAccess('worker');
+        const savedAuth = sessionStorage.getItem('aleskafy_auth');
+        const savedRole = sessionStorage.getItem('aleskafy_role');
+        
+        let targetExpectedRole = isWorkerLink ? 'worker' : 'admin';
+
+        if (savedAuth === 'true' && savedRole === targetExpectedRole) {
+            grantAccess(targetExpectedRole);
         }
     }
 
     function submitPassword() {
         let pass = document.getElementById('passwordInput').value.trim();
-        if (pass === "2020") {
-            sessionStorage.setItem('aleskafy_auth', 'admin');
-            grantAccess('admin');
-        } else if (pass === "2030") {
-            sessionStorage.setItem('aleskafy_auth', 'worker');
-            grantAccess('worker');
+        const urlParams = new URLSearchParams(window.location.search);
+        const isWorkerLink = urlParams.has('worker') || window.location.href.includes('worker');
+
+        if (isWorkerLink) {
+            // رابط الصنايعي لا يقبل إلا باسورد 2030 فقط
+            if (pass === "2030") {
+                sessionStorage.setItem('aleskafy_auth', 'true');
+                sessionStorage.setItem('aleskafy_role', 'worker');
+                grantAccess('worker');
+            } else {
+                alert("❌ كلمة مرور الصنايعي غير صحيحة لهذا الرابط!");
+                document.getElementById('passwordInput').value = "";
+            }
         } else {
-            alert("❌ كلمة المرور غير صحيحة! (2020 للمحل / 2030 للصنايعي)");
-            document.getElementById('passwordInput').value = "";
+            // رابط المحل لا يقبل إلا باسورد 2020 فقط
+            if (pass === "2020") {
+                sessionStorage.setItem('aleskafy_auth', 'true');
+                sessionStorage.setItem('aleskafy_role', 'admin');
+                grantAccess('admin');
+            } else {
+                alert("❌ كلمة مرور المحل غير صحيحة لهذا الرابط!");
+                document.getElementById('passwordInput').value = "";
+            }
         }
     }
 
@@ -363,7 +395,7 @@
         document.getElementById('reportsScreen').style.display = 'none';
         document.getElementById('mainDashboardScreen').style.display = 'block';
         
-        const authRole = sessionStorage.getItem('aleskafy_auth');
+        const authRole = sessionStorage.getItem('aleskafy_role');
         if (authRole === 'admin') {
             document.getElementById('portalMenu').style.display = 'grid';
         }
