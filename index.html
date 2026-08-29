@@ -44,11 +44,19 @@
         .footer-credits { text-align: center; margin-top: 22px; padding-top: 14px; border-top: 1px solid #221a05; font-size: 12px; color: #94a3b8; font-weight: 500; }
         .footer-credits span { background: linear-gradient(135deg, #bf953f, #fcf6ba); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
         
-        /* تصميم النوافذ الجانبية المنفصلة (الأبواب والسهم) */
+        /* تصميم النوافذ الفرعية */
         .sub-screen { display: none; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .back-btn { background: linear-gradient(135deg, #475569, #1e293b); color: #f8fafc; margin-bottom: 15px; font-size: 14px; }
-        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
+
+        /* شريط الأيقونات الصغيرة والشيك فوق للتحكم السريع للإدارة */
+        .admin-toolbar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
+        .mini-icon-btn { padding: 10px 5px; border-radius: 8px; font-size: 12px; font-weight: bold; color: #fff; border: 1px solid #33270a; cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: 0.2s; }
+        .mini-icon-btn:hover { transform: translateY(-2px); border-color: #bf953f; }
+
+        /* صور معاينة الصنايعي الصغيرة والشيك */
+        .worker-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1.5px solid #bf953f; transition: transform 0.2s; }
+        .worker-thumb:hover { transform: scale(1.1); }
     </style>
 </head>
 <body onload="initApp();">
@@ -59,9 +67,25 @@
         <div class="badge" id="badge" style="display:none;">رقم الأوردر: جاري التحميل...</div>
     </div>
 
-    <!-- الشاشة الرئيسية (نموذج الفاتورة + الأزرار الرئيسية) -->
+    <!-- شريط الأيقونات الصغيرة والشيك (البحث، التسليم، التقارير) يظهر للأدارة فقط فوق -->
+    <div class="admin-toolbar" id="portalMenu" style="display:none;">
+        <button type="button" class="mini-icon-btn track-btn" onclick="openScreen('searchScreen')">
+            <span style="font-size: 16px;">🔍</span>
+            <span>البحث والتتبع</span>
+        </button>
+        <button type="button" class="mini-icon-btn" style="background: linear-gradient(135deg, #059669, #047857);" onclick="openScreen('deliveryScreen')">
+            <span style="font-size: 16px;">🚚</span>
+            <span>المُسلمة</span>
+        </button>
+        <button type="button" class="mini-icon-btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color:#000;" onclick="openScreen('reportsScreen')">
+            <span style="font-size: 16px;">📊</span>
+            <span>التقارير</span>
+        </button>
+    </div>
+
+    <!-- الشاشة الرئيسية -->
     <div id="mainDashboardScreen">
-        <!-- نموذج الفاتورة (يظهر للإدارة فقط) -->
+        <!-- نموذج الفاتورة (للإدارة فقط) -->
         <form id="invoiceForm" style="display:none;">
             <label>👤 اسم العميل:</label><input type="text" id="name" placeholder="اسم العميل">
             <label>📱 واتساب العميل:</label><input type="text" id="phone" placeholder="01012345678">
@@ -118,16 +142,9 @@
         <a href="https://www.facebook.com/61560847583033" target="_blank" rel="noopener noreferrer" class="btn" id="socialBtn" style="background: linear-gradient(135deg, #1877f2, #0c4a6e); display:none;">
            🌐 السوشيال ميديا للمحل
         </a>
-
-        <!-- أزرار الانتقال للشاشات الفرعية (الإدارة فقط) -->
-        <div class="menu-grid" id="portalMenu" style="display:none;">
-            <button type="button" class="btn track-btn" onclick="openScreen('searchScreen')">🔍 نافذة البحث والتتبع الشامل</button>
-            <button type="button" class="btn" style="background: linear-gradient(135deg, #059669, #047857);" onclick="openScreen('deliveryScreen')">🚚 نافذة الأوردرات المسلمة (اليوم والكلي)</button>
-            <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color:#000;" onclick="openScreen('reportsScreen')">📊 نافذة التقارير (يومي، شهري، سنوي)</button>
-        </div>
     </div>
 
-    <!-- ================= شاشة بحث الصنايعي (الرئيسية العامة) ================= -->
+    <!-- ================= شاشة بحث الصنايعي ================= -->
     <div id="workerSearchSection" style="margin-top: 25px; padding-top: 20px; border-top: 2px dashed #bf953f;">
         <h3 style="color: #f3e5ab; text-align: center; margin-top: 0; font-size: 16px;">🛠️ استعلام الصنايعي عن الأوردر</h3>
         <label style="text-align: center; margin-bottom: 6px;">🔢 ابحث برقم الأوردر (بسط ومقام):</label>
@@ -142,12 +159,12 @@
         <div id="workerResult" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- ================= شاشة البحث والتتبع الفرعية ================= -->
+    <!-- ================= شاشة البحث والتتبع الشامل ================= -->
     <div id="searchScreen" class="sub-screen">
         <button type="button" class="btn back-btn" onclick="closeScreen()">⬅️ رجوع لوحة التحكم الرئيسية</button>
         <h3 style="color:#bf953f; text-align:center; margin-top:0;">🔍 البحث والتتبع الشامل</h3>
         
-        <label style="text-align: center; margin-bottom: 8px;">🔢 البحث برقم الأوردر (بسط ومقام) أو بالتاريخ منفردًا:</label>
+        <label style="text-align: center; margin-bottom: 8px;">🔢 البحث برقم الأوردر (بسط ومقام) أو بالتاريخ:</label>
         <div style="background: #141414; padding: 15px; border: 1px solid #33270a; border-radius: 12px; margin-bottom: 10px; text-align: center;">
             <div style="display: inline-flex; flex-direction: column; width: 110px; vertical-align: middle; margin-bottom: 10px;">
                 <input type="number" id="searchNumerator" placeholder="رقم" style="text-align: center; padding: 8px; border-bottom: none; font-weight: bold; color: #f3e5ab; font-size: 16px;">
@@ -174,7 +191,7 @@
         <div id="searchResults" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- ================= شاشة الأوردرات المُسلمة الفرعية ================= -->
+    <!-- ================= شاشة الأوردرات المُسلمة ================= -->
     <div id="deliveryScreen" class="sub-screen">
         <button type="button" class="btn back-btn" onclick="closeScreen()">⬅️ رجوع لوحة التحكم الرئيسية</button>
         <h3 style="color:#38bdf8; text-align:center; margin-top:0;">🚚 الأوردرات المُسلمة للعملاء</h3>
@@ -189,7 +206,7 @@
         <div id="deliveryResults" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- ================= شاشة التقارير الفرعية ================= -->
+    <!-- ================= شاشة التقارير ================= -->
     <div id="reportsScreen" class="sub-screen">
         <button type="button" class="btn back-btn" onclick="closeScreen()">⬅️ رجوع لوحة التحكم الرئيسية</button>
         <h3 style="color:#f3e5ab; text-align:center; margin-top:0;">📊 تقارير المحل الإدارية</h3>
@@ -239,14 +256,13 @@
             document.getElementById('badge').style.display = 'none';
             document.getElementById('socialBtn').style.display = 'none';
             document.getElementById('portalMenu').style.display = 'none';
-            fetchNextInvoiceNum(); // نحتاج الرقم للداشبورد أو حتي لو مش أدمن
         }
         fetchNextInvoiceNum();
     }
 
-    // التنقل بين الشاشات الفرعية والرئيسية
     function openScreen(screenId) {
         document.getElementById('mainDashboardScreen').style.display = 'none';
+        document.getElementById('portalMenu').style.display = 'none';
         document.getElementById('workerSearchSection').style.display = 'none';
         document.getElementById('searchScreen').style.display = 'none';
         document.getElementById('deliveryScreen').style.display = 'none';
@@ -261,6 +277,7 @@
         document.getElementById('deliveryScreen').style.display = 'none';
         document.getElementById('reportsScreen').style.display = 'none';
         document.getElementById('mainDashboardScreen').style.display = 'block';
+        document.getElementById('portalMenu').style.display = 'grid';
         document.getElementById('workerSearchSection').style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -435,8 +452,7 @@
             var msg = '✨ *ALESKAFY SHOES* ✨\n🧾 *إيصال استلام صيانة - رقم (' + currentDailyNum + ')*\n\n' + clientTxt + '\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.';
             window.open("https://wa.me/" + cleanPh + "?text=" + encodeURIComponent(msg), "_blank");
         } else {
-            let imagesText = imgUrls.length > 0 ? "\n\n🖼️ *رابط الصور:*\n" + imgUrls.join('\n') : "\n\n🖼️ *رابط الصور:* لا توجد صور.";
-            var oMsg = '📥 *[ALESKAFY SHOES - نسخة المحل]*\n🧾 *أرشيف أوردر رقم (' + formattedOrderCode + ') على (' + shelf + ')*\n\n' + baseTxt + imagesText;
+            var oMsg = '📥 *[ALESKAFY SHOES - نسخة المحل]*\n🧾 *أرشيف أوردر رقم (' + formattedOrderCode + ') على (' + shelf + ')*\n\n' + baseTxt;
             window.open("https://wa.me/" + OWNER_PHONE + "?text=" + encodeURIComponent(oMsg), "_blank");
         }
     }
@@ -555,7 +571,7 @@
         }
 
         resBox.style.display = 'block';
-        resBox.innerHTML = 'جاري البحث... ⏳';
+        resBox.innerHTML = 'جاري التحميل... ⏳';
 
         let query = supabaseClient.from('invoices').select('*').order('created_at', { ascending: false });
 
@@ -591,7 +607,7 @@
         const resBox = document.getElementById('searchResults');
         if (!query) { alert('أدخل اسم العميل أو رقم الموبايل'); return; }
         resBox.style.display = 'block';
-        resBox.innerHTML = 'جاري البحث... ⏳';
+        resBox.innerHTML = 'جاري التحميل... ⏳';
 
         const { data, error } = await supabaseClient
             .from('invoices')
@@ -625,8 +641,8 @@
             if (inv.image_url) {
                 const imageUrls = String(inv.image_url).split(/\r?\n/).map(u => u.trim()).filter(u => u.length > 1);
                 if (imageUrls.length > 0) {
-                    imageGalleryHtml = '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">' +
-                        imageUrls.map(url => '<a href="' + url + '" target="_blank"><img src="' + url + '" style="width:70px; height:70px; object-fit:cover; border-radius:6px; border:2px solid #bf953f;"></a>').join('') +
+                    imageGalleryHtml = '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">' +
+                        imageUrls.map(url => '<a href="' + url + '" target="_blank"><img src="' + url + '" class="worker-thumb"></a>').join('') +
                         '</div>';
                 }
             }
