@@ -586,7 +586,10 @@
 
     async function rep(type) {
         const now = new Date();
-        const todayStr = now.toISOString().slice(0, 10);
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
         const currentYear = now.getFullYear();
         const currentMonth = now.getMonth();
 
@@ -600,7 +603,10 @@
             var price = x.price || 0, paid = x.paid || 0, rem = price - paid;
             totalRemainingAll += rem;
             let invDate = new Date(x.created_at || Date.now());
-            let invDateStr = invDate.toISOString().slice(0, 10);
+            let invYear = invDate.getFullYear();
+            let invMonth = String(invDate.getMonth() + 1).padStart(2, '0');
+            let invDay = String(invDate.getDate()).padStart(2, '0');
+            let invDateStr = `${invYear}-${invMonth}-${invDay}`;
             
             let include = false;
             if (type === 'daily' && invDateStr === todayStr) include = true;
@@ -635,10 +641,12 @@
 
         let filteredData = data;
         if (filterType === 'today') {
-            const todayStr = new Date().toISOString().slice(0, 10);
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             filteredData = data.filter(inv => {
                 let d = new Date(inv.created_at);
-                return d.toISOString().slice(0, 10) === todayStr;
+                let dStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                return dStr === todayStr;
             });
             if (filteredData.length === 0) {
                 resBox.innerHTML = '<div style="color: #38bdf8; text-align: center; padding: 10px;">لم يتم تسليم أي أوردرات اليوم حتى الآن!</div>';
@@ -670,10 +678,8 @@
         }
 
         if (dateInput) {
-            const targetDateStart = new Date(dateInput);
-            targetDateStart.setHours(0, 0, 0, 0);
-            const targetDateEnd = new Date(dateInput);
-            targetDateEnd.setHours(23, 59, 59, 999);
+            const targetDateStart = new Date(dateInput + 'T00:00:00');
+            const targetDateEnd = new Date(dateInput + 'T23:59:59');
             query = query.gte('created_at', targetDateStart.toISOString()).lte('created_at', targetDateEnd.toISOString());
         }
 
@@ -707,10 +713,8 @@
         let query = supabaseClient.from('invoices').select('*').order('created_at', { ascending: false });
         if (numVal) query = query.eq('daily_number', parseInt(numVal));
         if (dateInput) {
-            const targetDateStart = new Date(dateInput);
-            targetDateStart.setHours(0, 0, 0, 0);
-            const targetDateEnd = new Date(dateInput);
-            targetDateEnd.setHours(23, 59, 59, 999);
+            const targetDateStart = new Date(dateInput + 'T00:00:00');
+            const targetDateEnd = new Date(dateInput + 'T23:59:59');
             query = query.gte('created_at', targetDateStart.toISOString()).lte('created_at', targetDateEnd.toISOString());
         }
 
@@ -808,7 +812,7 @@
                     '<strong style="color: #f3e5ab; font-size: 15px;">👤 ' + inv.customer_name + '</strong>' +
                     '<span class="status-badge ' + statusClass + '">' + (inv.status || 'تحت الصيانة') + '</span>' +
                 '</div>' +
-                '<div style="font-size: 12px; color: #94a3b8; margin-bottom: 3px;">📅 التاريخ: ' + invDate.toISOString().slice(0, 10) + '</div>' +
+                '<div style="font-size: 12px; color: #94a3b8; margin-bottom: 3px;">📅 التاريخ: ' + invDate.toLocaleDateString('en-CA') + '</div>' +
                 '<div style="font-size: 13px; color: #38bdf8; margin-bottom: 3px;">🔢 <b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
                 '<div style="font-size: 13px; color: #cbd5e1; margin-bottom: 3px;">📱 الموبايل: ' + (inv.phone || '-') + '</div>' +
                 '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
