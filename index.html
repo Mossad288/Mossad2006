@@ -145,7 +145,7 @@
 
     <!-- الشاشة الرئيسية -->
     <div id="mainDashboardScreen">
-        <!-- نموذج الفاتورة (للإدارة فقط 2020) -->
+        <!-- نموذج الفاتورة (للإدارة فقط) -->
         <form id="invoiceForm" style="display:none;">
             <label>👤 اسم العميل:</label><input type="text" id="name" placeholder="اسم العميل">
             <label>📱 واتساب العميل:</label><input type="text" id="phone" placeholder="01012345678">
@@ -302,9 +302,7 @@
 
     function initApp() {
         const urlParams = new URLSearchParams(window.location.search);
-        
-        const isAdminLink = urlParams.get('admin') === '2020';
-        const isWorkerLink = urlParams.get('worker') === '2030';
+        const isAdminLink = urlParams.get('admin') === 'masad2026';
         
         if (isAdminLink) {
             document.getElementById('authSubtitleText').innerText = "تسجيل دخول الإدارة (المحل)";
@@ -312,16 +310,10 @@
                 grantAccess('admin');
                 return;
             }
-        } else if (isWorkerLink) {
+        } else {
             document.getElementById('authSubtitleText').innerText = "تسجيل دخول الصنايعي";
             if (localStorage.getItem('aleskafy_worker_logged') === 'true') {
                 grantAccess('worker');
-                return;
-            }
-        } else {
-            document.getElementById('authSubtitleText').innerText = "النظام الذكي لإدارة الصيانة";
-            if (localStorage.getItem('aleskafy_general_logged') === 'true') {
-                grantAccess('admin');
                 return;
             }
         }
@@ -333,37 +325,22 @@
     function submitPassword() {
         let pass = document.getElementById('passwordInput').value.trim();
         const urlParams = new URLSearchParams(window.location.search);
-        
-        const isAdminLink = urlParams.get('admin') === '2020';
-        const isWorkerLink = urlParams.get('worker') === '2030';
+        const isAdminLink = urlParams.get('admin') === 'masad2026';
 
         if (isAdminLink) {
             if (pass === "2020") {
                 localStorage.setItem('aleskafy_admin_logged', 'true');
                 grantAccess('admin');
             } else {
-                alert("❌ كلمة مرور المحل غير صحيحة!");
+                alert("❌ كلمة مرور الإدارة غير صحيحة!");
                 document.getElementById('passwordInput').value = "";
             }
-        } else if (isWorkerLink) {
-            if (pass === "2030") {
+        } else {
+            if (pass === "3030") {
                 localStorage.setItem('aleskafy_worker_logged', 'true');
                 grantAccess('worker');
             } else {
                 alert("❌ كلمة مرور الصنايعي غير صحيحة!");
-                document.getElementById('passwordInput').value = "";
-            }
-        } else {
-            if (pass === "2020") {
-                localStorage.setItem('aleskafy_general_logged', 'true');
-                localStorage.setItem('aleskafy_admin_logged', 'true');
-                grantAccess('admin');
-            } else if (pass === "2030") {
-                localStorage.setItem('aleskafy_general_logged', 'true');
-                localStorage.setItem('aleskafy_worker_logged', 'true');
-                grantAccess('worker');
-            } else {
-                alert("❌ كلمة المرور غير صحيحة!");
                 document.getElementById('passwordInput').value = "";
             }
         }
@@ -372,7 +349,6 @@
     function logoutApp() {
         localStorage.removeItem('aleskafy_admin_logged');
         localStorage.removeItem('aleskafy_worker_logged');
-        localStorage.removeItem('aleskafy_general_logged');
         location.reload();
     }
 
@@ -414,7 +390,7 @@
         document.getElementById('mainDashboardScreen').style.display = 'block';
         
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('admin') === '2020' || localStorage.getItem('aleskafy_admin_logged') === 'true') {
+        if (urlParams.get('admin') === 'masad2026' || localStorage.getItem('aleskafy_admin_logged') === 'true') {
             document.getElementById('portalMenu').style.display = 'grid';
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
