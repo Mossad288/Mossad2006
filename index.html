@@ -16,9 +16,63 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
         body { font-family: sans-serif; background: #000; margin: 0; padding: 15px; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; background-image: radial-gradient(circle at 50% 50%, #1a1500 0%, #000 80%); }
-        .container { width: 100%; max-width: 450px; background: #0c0c0c; padding: 22px; border-radius: 16px; border: 2px solid #bf953f; animation: goldGlow 4s infinite ease-in-out; box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative; }
+        
+        /* شاشة تسجيل الدخول الفخمة باللوجو */
+        #authScreen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 380px;
+            background: #0c0c0c;
+            padding: 30px 20px;
+            border-radius: 20px;
+            border: 2px solid #bf953f;
+            box-shadow: 0 15px 40px rgba(191, 149, 63, 0.25);
+            text-align: center;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .auth-logo {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid #bf953f;
+            box-shadow: 0 0 20px rgba(191, 149, 63, 0.4);
+            margin-bottom: 15px;
+        }
+        .auth-title {
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .auth-subtitle {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .container { width: 100%; max-width: 450px; background: #0c0c0c; padding: 22px; border-radius: 16px; border: 2px solid #bf953f; animation: goldGlow 4s infinite ease-in-out; box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative; display: none; }
         @media (min-width: 768px) { .container { max-width: 950px; padding: 30px; } }
+        
         h1 { text-align: center; margin: 0 0 5px 0; font-size: 28px; font-weight: 900; background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: shimmerText 5s linear infinite; }
         .badge { background: linear-gradient(135deg, #bf953f, #aa771c); color: #000; font-weight: bold; padding: 10px 14px; border-radius: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 12px 0; font-size: 14px; width: 100%; box-sizing: border-box; }
         .fraction { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; font-weight: bold; line-height: 1.1; }
@@ -45,7 +99,6 @@
         .footer-credits span { background: linear-gradient(135deg, #bf953f, #fcf6ba); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
         
         .sub-screen { display: none; animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .back-btn { background: linear-gradient(135deg, #475569, #1e293b); color: #f8fafc; margin-bottom: 15px; font-size: 14px; }
 
         .admin-toolbar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
@@ -58,7 +111,22 @@
 </head>
 <body onload="initApp();">
 
-<div class="container">
+    <!-- شاشة تسجيل الدخول الفخمة باللوجو -->
+    <div id="authScreen">
+        <div class="auth-card">
+            <!-- رابط اللوجو الخاص بك -->
+            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=300&auto=format&fit=crop" class="auth-logo" alt="ALESKAFY SHOES LOGO" id="customLogoImg">
+            <div class="auth-title">ALESKAFY SHOES</div>
+            <div class="auth-subtitle">النظام الذكي لإدارة الصيانة</div>
+            
+            <label style="color:#d4af37; text-align:right; margin-bottom:5px;">🔐 أخل كلمة المرور (2020):</label>
+            <input type="password" id="passwordInput" placeholder="أدخل الباسورد هنا" style="text-align: center; font-size: 16px; letter-spacing: 2px;" onkeydown="if(event.key === 'Enter') submitPassword()">
+            
+            <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color: #000; font-weight: 900; margin-top: 15px;" onclick="submitPassword()">🔓 دجول للنظام</button>
+        </div>
+    </div>
+
+<div class="container" id="mainContainer">
     <div style="text-align:center;">
         <h1>ALESKAFY SHOES</h1>
         <div class="badge" id="badge" style="display:none;">رقم الأوردر: جاري التحميل...</div>
@@ -141,7 +209,7 @@
         </a>
     </div>
 
-    <!-- ================= قسم استعلام الصنايعي والبحث (يظهر فقط في لينك الصنايعي/العميل) ================= -->
+    <!-- ================= قسم استعلام الصنايعي والبحث ================= -->
     <div id="workerQuerySection" style="display: none; margin-top: 10px;">
         <h3 style="color:#bf953f; text-align:center; margin-top:5px;">🛠️ استعلام الصنايعي عن الأوردر</h3>
         <label style="text-align: center; margin-bottom: 8px;">🔢 ابحث برقم الأوردر (بسط ومقام) أو بالتاريخ:</label>
@@ -237,6 +305,10 @@
     var formattedOrderCode = "";
     var isCurrentInvoiceSaved = false;
 
+    // وضع اللوجو الخاص بك هنا كمستند مرئي أو رابط مباشر
+    // يمكنك تعديل هذا الرابط بصورة الشوز اللي بعتها لو حابب ترفعها وتربطها
+    const MY_CUSTOM_LOGO_URL = "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=300&auto=format&fit=crop";
+
     function checkIsAdmin() {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('admin') === '2020';
@@ -248,44 +320,61 @@
     }
 
     function initApp() {
+        // فحص إذا كان الباسورد متسجل قبل كده في الجلسة
+        if (sessionStorage.getItem('aleskafy_auth') === 'true') {
+            grantAccess();
+            return;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        // لو الرابط فيه الكلمة مباشرة كاختصار
+        if (urlParams.get('admin') === '2020' || urlParams.get('worker') === '2020') {
+            sessionStorage.setItem('aleskafy_auth', 'true');
+            grantAccess();
+        }
+    }
+
+    function submitPassword() {
+        let pass = document.getElementById('passwordInput').value.trim();
+        if (pass === "2020") {
+            sessionStorage.setItem('aleskafy_auth', 'true');
+            grantAccess();
+        } else {
+            alert("❌ كلمة المرور غير صحيحة! يرجى المحاولة مرة أخرى.");
+            document.getElementById('passwordInput').value = "";
+        }
+    }
+
+    function grantAccess() {
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('mainContainer').style.display = 'block';
+
+        // افتراضي لو مفيش باراميتر نعتبره شغال كصنايعي أو إدارة بناءً على الرابط الافتراضي
         const urlParams = new URLSearchParams(window.location.search);
         const hasAdminParam = urlParams.has('admin');
         const hasWorkerParam = urlParams.has('worker');
 
-        // نظام الباسورد للينكين
-        if (!hasAdminParam && !hasWorkerParam) {
-            let pass = prompt("الرجاء إدخال كلمة المرور للوصول للنظام (2020):");
-            if (pass === "2020") {
-                // افتراضي لو دخل باسورد عام نسأله أو نفتحه كصنايعي، أو نوجهه للإدارة لو يحب
-                // هنا هنخليه يفتح كصنايعي افتراضياً لو دخل الباسورد العام، أو نقدر نحدد
-                window.location.href = window.location.pathname + "?worker=2020";
-                return;
-            } else {
-                alert("كلمة المرور غير صحيحة!");
-                document.body.innerHTML = "<h2 style='color:red; text-align:center; margin-top:20vh;'>تم رفض الوصول - كلمة المرور خطأ</h2>";
-                return;
-            }
-        }
+        // لو الدخول بالباسورد اليدوي من غير باراميتر، نفتحه لوحة كاملة أو كصنايعي حسب الرغبة (هنا هنفتحه كإدارة افتراضي أو كصنايعي لو تحب، هخليه يظهر الإدارة لو ماحددش)
+        let isAdmin = hasAdminParam || (!hasAdminParam && !hasWorkerParam);
+        let isWorker = hasWorkerParam;
 
-        const isAdmin = checkIsAdmin();
-        const isWorker = checkIsWorker();
+        if (isWorker && !hasAdminParam) {
+            isAdmin = false;
+        }
 
         if (isAdmin) {
             document.getElementById('invoiceForm').style.display = 'block';
             document.getElementById('badge').style.display = 'flex';
             document.getElementById('socialBtn').style.display = 'flex';
             document.getElementById('portalMenu').style.display = 'grid';
-            document.getElementById('workerQuerySection').style.display = 'none'; // مخفي في الإدارة تماماً
+            document.getElementById('workerQuerySection').style.display = 'none';
             fetchNextInvoiceNum();
-        } else if (isWorker) {
+        } else {
             document.getElementById('invoiceForm').style.display = 'none';
             document.getElementById('badge').style.display = 'none';
             document.getElementById('socialBtn').style.display = 'none';
             document.getElementById('portalMenu').style.display = 'none';
-            document.getElementById('workerQuerySection').style.display = 'block'; // يظهر في لينك الصنايعي فقط
-        } else {
-            alert("كلمة مرور الإدارة أو الصنايعي غير صحيحة في الرابط!");
-            document.body.innerHTML = "<h2 style='color:red; text-align:center; margin-top:20vh;'>رابط غير صالح</h2>";
+            document.getElementById('workerQuerySection').style.display = 'block';
         }
     }
 
@@ -305,7 +394,9 @@
         document.getElementById('deliveryScreen').style.display = 'none';
         document.getElementById('reportsScreen').style.display = 'none';
         document.getElementById('mainDashboardScreen').style.display = 'block';
-        if (checkIsAdmin()) {
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        if (!urlParams.has('worker')) {
             document.getElementById('portalMenu').style.display = 'grid';
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -562,7 +653,6 @@
         renderSearchResults(filteredData, null, resBox, false);
     }
 
-    // بحث الصنايعي (في لينك الصنايعي)
     async function searchByFractionNumber() {
         const numVal = document.getElementById('searchNumerator').value.trim();
         const denVal = document.getElementById('searchDenominator').value.trim();
@@ -604,7 +694,6 @@
         renderSearchResults(finalData, error, resBox, false);
     }
 
-    // بحث الإدارة (في شاشة التتبع)
     async function adminSearchByFractionNumber() {
         const numVal = document.getElementById('adminSearchNumerator').value.trim();
         const denVal = document.getElementById('adminSearchDenominator').value.trim();
