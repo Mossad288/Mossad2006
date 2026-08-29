@@ -109,7 +109,7 @@
     <div id="authScreen">
         <div class="auth-card">
             <div class="auth-title">ALESKAFY SHOES</div>
-            <div class="auth-subtitle">النظام الذكي لإدارة الصيانة</div>
+            <div class="auth-subtitle" id="authSubtitleText">النظام الذكي لإدارة الصيانة</div>
             
             <input type="password" id="passwordInput" placeholder="أدخل الباسورد هنا" style="text-align: center; font-size: 16px; letter-spacing: 2px;" onkeydown="if(event.key === 'Enter') submitPassword()">
             
@@ -203,7 +203,7 @@
         </a>
     </div>
 
-    <!-- ================= قسم استعلام الصنايعي (خاص برابط/باسورد الصنايعي 2030) ================= -->
+    <!-- ================= قسم استعلام الصنايعي ================= -->
     <div id="workerQuerySection" style="display: none; margin-top: 10px;">
         <h3 style="color:#bf953f; text-align:center; margin-top:5px;">🛠️ استعلام الصنايعي عن الأوردر</h3>
         <label style="text-align: center; margin-bottom: 8px;">🔢 ابحث برقم الأوردر (بسط ومقام) أو بالتاريخ:</label>
@@ -300,33 +300,47 @@
     var isCurrentInvoiceSaved = false;
 
     function initApp() {
-        const savedAuth = sessionStorage.getItem('aleskafy_auth');
-        if (savedAuth === 'admin' || savedAuth === 'worker') {
-            grantAccess(savedAuth);
-            return;
-        }
-
         const urlParams = new URLSearchParams(window.location.search);
+        
+        // التحقق التام من الرابط المفتوح (Admin vs Worker) لمنع التداخل نهائياً
         if (urlParams.get('admin') === '2020') {
-            sessionStorage.setItem('aleskafy_auth', 'admin');
-            grantAccess('admin');
+            document.getElementById('authSubtitleText').innerText = "تسجيل دخول الإدارة (المحل)";
+            // لا نسجل تلقائياً بالباسوورد، نترك شاشة الباسوورد تطلب باسوورد المحل (2020) حصراً
         } else if (urlParams.get('worker') === '2030') {
-            sessionStorage.setItem('aleskafy_auth', 'worker');
-            grantAccess('worker');
+            document.getElementById('authSubtitleText').innerText = "تسجيل دخول الصنايعي";
+            // لا نسجل تلقائياً، نترك شاشة الباسوورد تطلب باسوورد الصنايعي (2030) حصراً
         }
     }
 
     function submitPassword() {
         let pass = document.getElementById('passwordInput').value.trim();
-        if (pass === "2020") {
-            sessionStorage.setItem('aleskafy_auth', 'admin');
-            grantAccess('admin');
-        } else if (pass === "2030") {
-            sessionStorage.setItem('aleskafy_auth', 'worker');
-            grantAccess('worker');
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // التحقق بحسب الرابط المفتوح وباسورد الإدخال
+        if (urlParams.get('admin') === '2020') {
+            if (pass === "2020") {
+                grantAccess('admin');
+            } else {
+                alert("❌ كلمة مرور المحل غير صحيحة!");
+                document.getElementById('passwordInput').value = "";
+            }
+        } else if (urlParams.get('worker') === '2030') {
+            if (pass === "2030") {
+                grantAccess('worker');
+            } else {
+                alert("❌ كلمة مرور الصنايعي غير صحيحة!");
+                document.getElementById('passwordInput').value = "";
+            }
         } else {
-            alert("❌ كلمة المرور غير صحيحة! (2020 للمحل / 2030 للصنايعي)");
-            document.getElementById('passwordInput').value = "";
+            // لو تم فتح الرابط العادي بدون معاملات
+            if (pass === "2020") {
+                grantAccess('admin');
+            } else if (pass === "2030") {
+                grantAccess('worker');
+            } else {
+                alert("❌ كلمة المرور غير صحيحة!");
+                document.getElementById('passwordInput').value = "";
+            }
         }
     }
 
@@ -367,8 +381,8 @@
         document.getElementById('reportsScreen').style.display = 'none';
         document.getElementById('mainDashboardScreen').style.display = 'block';
         
-        const authRole = sessionStorage.getItem('aleskafy_auth');
-        if (authRole === 'admin') {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('admin') === '2020') {
             document.getElementById('portalMenu').style.display = 'grid';
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
