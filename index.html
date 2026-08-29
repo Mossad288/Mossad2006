@@ -283,7 +283,7 @@
     <div class="notice-box">⚠️ تنبيه: المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد الإستلام .</div>
 
     <div class="footer-credits">
-        جميع الحقوق محفوظه لي <span>المهندس مسعد سالم _ الاسكافي شوز  </span>
+        جميع الحقوق محفوظه لي <span>المهندس مسعد سالم _ وسالم سعد</span>
     </div>
 </div>
 
@@ -306,13 +306,13 @@
         
         if (isAdminLink) {
             document.getElementById('authSubtitleText').innerText = "تسجيل دخول الإدارة (المحل)";
-            if (localStorage.getItem('aleskafy_admin_logged') === 'true') {
+            if (sessionStorage.getItem('aleskafy_admin_logged') === 'true') {
                 grantAccess('admin');
                 return;
             }
         } else {
             document.getElementById('authSubtitleText').innerText = "تسجيل دخول الصنايعي";
-            if (localStorage.getItem('aleskafy_worker_logged') === 'true') {
+            if (sessionStorage.getItem('aleskafy_worker_logged') === 'true') {
                 grantAccess('worker');
                 return;
             }
@@ -329,7 +329,7 @@
 
         if (isAdminLink) {
             if (pass === "2020") {
-                localStorage.setItem('aleskafy_admin_logged', 'true');
+                sessionStorage.setItem('aleskafy_admin_logged', 'true');
                 grantAccess('admin');
             } else {
                 alert("❌ كلمة مرور الإدارة غير صحيحة!");
@@ -337,7 +337,7 @@
             }
         } else {
             if (pass === "3030") {
-                localStorage.setItem('aleskafy_worker_logged', 'true');
+                sessionStorage.setItem('aleskafy_worker_logged', 'true');
                 grantAccess('worker');
             } else {
                 alert("❌ كلمة مرور الصنايعي غير صحيحة!");
@@ -347,8 +347,8 @@
     }
 
     function logoutApp() {
-        localStorage.removeItem('aleskafy_admin_logged');
-        localStorage.removeItem('aleskafy_worker_logged');
+        sessionStorage.removeItem('aleskafy_admin_logged');
+        sessionStorage.removeItem('aleskafy_worker_logged');
         location.reload();
     }
 
@@ -390,7 +390,7 @@
         document.getElementById('mainDashboardScreen').style.display = 'block';
         
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('admin') === 'masad2026' || localStorage.getItem('aleskafy_admin_logged') === 'true') {
+        if (urlParams.get('admin') === 'masad2026' || sessionStorage.getItem('aleskafy_admin_logged') === 'true') {
             document.getElementById('portalMenu').style.display = 'grid';
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -555,8 +555,8 @@
             if (cleanPh.startsWith("0")) cleanPh = "2" + cleanPh;
             var clientTxt =
                 '👤 *اسم العميل:* ' + n + '\n' +
-
-               '📅 *تاريخ الاستلام:* ' + r + '\n' +
+                '📱 *رقم الموبايل:* ' + ph + '\n' +
+                '📅 *تاريخ الاستلام:* ' + r + '\n' +
                 '📦 *تاريخ التسليم:* ' + d + '\n' +
                 '🗄️ *مكان التخزين:* ' + shelf + '\n\n' +
                 '👟 *كوتشيات:* ' + sk + ' | 🥾 *جزم:* ' + ss + ' | 🩴 *شبشب:* ' + sl + '\n' +
