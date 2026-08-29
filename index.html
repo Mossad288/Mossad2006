@@ -65,7 +65,9 @@
         .container { width: 100%; max-width: 450px; background: #0c0c0c; padding: 22px; border-radius: 16px; border: 2px solid #bf953f; animation: goldGlow 4s infinite ease-in-out; box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative; display: none; }
         @media (min-width: 768px) { .container { max-width: 950px; padding: 30px; } }
         
-        h1 { text-align: center; margin: 0 0 5px 0; font-size: 28px; font-weight: 900; background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: shimmerText 5s linear infinite; }
+        .header-logo-area { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 5px; }
+        .sys-logo { width: 50px; height: 50px; object-fit: cover; border-radius: 50%; border: 2px solid #bf953f; box-shadow: 0 0 10px rgba(191,149,63,0.4); }
+        h1 { text-align: center; margin: 0; font-size: 26px; font-weight: 900; background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: shimmerText 5s linear infinite; }
         .badge { background: linear-gradient(135deg, #bf953f, #aa771c); color: #000; font-weight: bold; padding: 10px 14px; border-radius: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 12px 0; font-size: 14px; width: 100%; box-sizing: border-box; }
         .fraction { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; font-weight: bold; line-height: 1.1; }
         .fraction .numerator { border-bottom: 2px solid currentColor; padding-bottom: 1px; }
@@ -117,7 +119,10 @@
 
 <div class="container" id="mainContainer">
     <div style="text-align:center;">
-        <h1>ALESKAFY SHOES</h1>
+        <div class="header-logo-area">
+            <img src="https://iili.io/CpkSHbf.jpg" class="sys-logo" alt="Logo">
+            <h1>ALESKAFY SHOES</h1>
+        </div>
         <div class="badge" id="badge" style="display:none;">رقم الأوردر: جاري التحميل...</div>
     </div>
 
@@ -502,8 +507,9 @@
         if (!isCurrentInvoiceSaved) {
             const { error } = await supabaseClient.from('invoices').insert([{
                 customer_name: n, phone: ph,
-                item_type: getItemsSummary() + ' | ' + shelf,
-                details: sv, price: parseFloat(t) || 0, paid: parseFloat(p) || 0,
+                item_type: getItemsSummary(),
+                details: sv + ' | ' + shelf,
+                price: parseFloat(t) || 0, paid: parseFloat(p) || 0,
                 image_url: imagesForDatabase, status: 'تحت الصيانة', daily_number: currentDailyNum
             }]);
             if (error) { alert("خطأ في حفظ الفاتورة: " + error.message); return; }
@@ -513,7 +519,8 @@
         var baseTxt =
             '👤 *اسم العميل:* ' + n + '\n' +
             '📅 *تاريخ الاستلام:* ' + r + '\n' +
-            '📦 *تاريخ التسليم:* ' + d + '\n\n' +
+            '📦 *تاريخ التسليم:* ' + d + '\n' +
+            '🗄️ *مكان التخزين:* ' + shelf + '\n\n' +
             '👟 *كوتشيات:* ' + sk + ' | 🥾 *جزم:* ' + ss + ' | 🩴 *شبشب:* ' + sl + '\n' +
             '👡 *صندل:* ' + sn + ' | 👞 *فردة:* ' + sg + ' | 💼 *شنط:* ' + bg + '\n' +
             '🛠️ *الخدمة:* ' + sv + '\n\n' +
@@ -528,7 +535,8 @@
                 '👤 *اسم العميل:* ' + n + '\n' +
                 '📱 *رقم الموبايل:* ' + ph + '\n' +
                 '📅 *تاريخ الاستلام:* ' + r + '\n' +
-                '📦 *تاريخ التسليم:* ' + d + '\n\n' +
+                '📦 *تاريخ التسليم:* ' + d + '\n' +
+                '🗄️ *مكان التخزين:* ' + shelf + '\n\n' +
                 '👟 *كوتشيات:* ' + sk + ' | 🥾 *جزم:* ' + ss + ' | 🩴 *شبشب:* ' + sl + '\n' +
                 '👡 *صندل:* ' + sn + ' | 👞 *فردة:* ' + sg + ' | 💼 *شنط:* ' + bg + '\n' +
                 '🛠️ *الخدمة:* ' + sv + '\n\n' +
@@ -748,9 +756,23 @@
                 adminControlsHtml = 
                 '<div style="margin-top: 10px; padding: 10px; background: #1a1500; border: 1px solid #bf953f; border-radius: 8px;">' +
                     '<div style="font-size: 13px; color: #f3e5ab; margin-bottom: 6px; font-weight: bold;">💳 حالة الدفع: ' + (rem > 0 ? '<span style="color:#ef4444;">متبقي (' + rem + ' ج)</span>' : '<span style="color:#16a34a;">تم السداد ✅</span>') + '</div>' +
-                    '<div style="display:flex; gap:6px;">' +
+                    '<div style="display:flex; gap:6px; margin-bottom: 8px;">' +
                         '<button type="button" class="btn-sm" style="background:#16a34a; color:#fff; flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ', 0)">✅ تم سداد المبلغ</button>' +
                         '<button type="button" class="btn-sm" style="background:#d97706; color:#fff; flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ', ' + (rem > 0 ? rem : price) + ')">⏳ لم يتم السداد</button>' +
+                    '</div>' +
+                    '<div style="margin-top: 6px;">' +
+                        '<label style="font-size:11px; color:#d4af37; margin-bottom:2px;">🗄️ تعديل مكان التخزين (الرف):</label>' +
+                        '<div style="display:flex; gap:5px;">' +
+                            '<select id="shelf_edit_' + inv.id + '" style="padding:6px; font-size:12px; margin-top:0;">' +
+                                '<option value="الرف : أ">الرف : أ</option>' +
+                                '<option value="الرف : ب">الرف : ب</option>' +
+                                '<option value="الرف : ج">الرف : ج</option>' +
+                                '<option value="الرف : د">الرف : د</option>' +
+                                '<option value="الرف : هـ">الرف : هـ</option>' +
+                                '<option value="الرف : و">الرف : و</option>' +
+                            '</select>' +
+                            '<button type="button" class="btn-sm" style="background:#bf953f; color:#000; padding: 6px 12px; margin-top:0;" onclick="updateShelfLocation(' + inv.id + ')">تحديث الرف</button>' +
+                        '</div>' +
                     '</div>' +
                 '</div>' +
                 '<div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">' +
@@ -781,6 +803,25 @@
         let newPaid = (targetRem === 0) ? totalPrice : (totalPrice - targetRem);
         const { error } = await supabaseClient.from('invoices').update({ paid: newPaid }).eq('id', invoiceId);
         if (!error) { alert("✅ تم تحديث حالة السداد بنجاح 👍"); searchByFractionNumber(); } else { alert("❌ حدث خطأ!"); }
+    }
+
+    async function updateShelfLocation(id) {
+        const newShelf = document.getElementById('shelf_edit_' + id).value;
+        const { data: invData } = await supabaseClient.from('invoices').select('details').eq('id', id).single();
+        if(invData) {
+            let currentDetails = invData.details || '';
+            let parts = currentDetails.split('|').map(p => p.trim());
+            let cleanDetails = parts.filter(p => !p.startsWith('الرف')).join(' | ');
+            let updatedDetails = cleanDetails ? (cleanDetails + ' | ' + newShelf) : newShelf;
+
+            const { error } = await supabaseClient.from('invoices').update({ details: updatedDetails }).eq('id', id);
+            if (!error) {
+                alert('✅ تم تحديث الرف بنجاح إلى (' + newShelf + ') 👍');
+                adminSearchByFractionNumber();
+            } else {
+                alert('❌ حدث خطأ أثناء تحديث الرف!');
+            }
+        }
     }
 
     async function updateStatus(id, newStatus) {
