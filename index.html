@@ -17,7 +17,7 @@
             100% { background-position: 0% 50%; }
         }
         body { font-family: sans-serif; background: #000; margin: 0; padding: 15px; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; background-image: radial-gradient(circle at 50% 50%, #1a1500 0%, #000 80%); }
-        .container { width: 100%; max-width: 450px; background: #0c0c0c; padding: 22px; border-radius: 16px; border: 2px solid #bf953f; animation: goldGlow 4s infinite ease-in-out; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .container { width: 100%; max-width: 450px; background: #0c0c0c; padding: 22px; border-radius: 16px; border: 2px solid #bf953f; animation: goldGlow 4s infinite ease-in-out; box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative; }
         @media (min-width: 768px) { .container { max-width: 950px; padding: 30px; } }
         h1 { text-align: center; margin: 0 0 5px 0; font-size: 28px; font-weight: 900; background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: shimmerText 5s linear infinite; }
         .badge { background: linear-gradient(135deg, #bf953f, #aa771c); color: #000; font-weight: bold; padding: 10px 14px; border-radius: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 12px 0; font-size: 14px; width: 100%; box-sizing: border-box; }
@@ -35,7 +35,7 @@
         #previewsContainer { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; max-height: 160px; overflow-y: auto; padding: 5px; background: #141414; border-radius: 8px; border: 1px solid #33270a; }
         .preview-thumb { width: 75px; height: 75px; object-fit: cover; border-radius: 6px; border: 2px solid #bf953f; flex-shrink: 0; }
         .manage-section { margin-top: 20px; padding-top: 15px; border-top: 2px dashed #bf953f; }
-        .result-box { margin-top: 10px; padding: 10px; background: #141414; border-radius: 8px; border: 1px solid #33270a; font-size: 13px; display: none; max-height: 400px; overflow-y: auto; }
+        .result-box { margin-top: 10px; padding: 10px; background: #141414; border-radius: 8px; border: 1px solid #33270a; font-size: 13px; max-height: 400px; overflow-y: auto; }
         .status-badge { padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
         .bg-pending { background: #d97706; color: white; }
         .bg-done { background: #16a34a; color: white; }
@@ -45,8 +45,11 @@
         .footer-credits { text-align: center; margin-top: 22px; padding-top: 14px; border-top: 1px solid #221a05; font-size: 12px; color: #94a3b8; font-weight: 500; }
         .footer-credits span { background: linear-gradient(135deg, #bf953f, #fcf6ba); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
         
-        /* تقسيم الشاشة للأجهزة الكبيرة لو حبينا */
-        .admin-layout { display: flex; flex-direction: column; gap: 20px; }
+        /* تصميم النوافذ الجانبية المنفصلة (الأبواب والسهم) */
+        .sub-screen { display: none; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .back-btn { background: linear-gradient(135deg, #475569, #1e293b); color: #f8fafc; margin-bottom: 15px; font-size: 14px; }
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
     </style>
 </head>
 <body onload="initApp();">
@@ -57,70 +60,110 @@
         <div class="badge" id="badge" style="display:none;">رقم الأوردر: جاري التحميل...</div>
     </div>
 
-    <!-- نموذج الفاتورة (يظهر للإدارة فقط) -->
-    <form id="invoiceForm" style="display:none;">
-        <label>👤 اسم العميل:</label><input type="text" id="name" placeholder="اسم العميل">
-        <label>📱 واتساب العميل:</label><input type="text" id="phone" placeholder="01012345678">
+    <!-- الشاشة الرئيسية (نموذج الفاتورة + الأزرار الرئيسية) -->
+    <div id="mainDashboardScreen">
+        <!-- نموذج الفاتورة (يظهر للإدارة فقط) -->
+        <form id="invoiceForm" style="display:none;">
+            <label>👤 اسم العميل:</label><input type="text" id="name" placeholder="اسم العميل">
+            <label>📱 واتساب العميل:</label><input type="text" id="phone" placeholder="01012345678">
+            
+            <div class="row">
+                <div><label>📅 تاريخ الاستلام:</label><input type="date" id="rDate"></div>
+                <div><label>📦 تاريخ التسليم:</label><input type="date" id="dDate"></div>
+            </div>
+            
+            <div class="row">
+                <div><label>👟 كوتشيات:</label><input type="number" id="snk" value="0"></div>
+                <div><label>🥾 جزم:</label><input type="number" id="shs" value="0"></div>
+                <div><label>🩴 شبشب:</label><input type="number" id="slp" value="0"></div>
+            </div>
+            
+            <div class="row">
+                <div><label>👡 صندل:</label><input type="number" id="snd" value="0"></div>
+                <div><label>👞 فردة:</label><input type="number" id="sng" value="0"></div>
+                <div><label>💼 شنط:</label><input type="number" id="bags" value="0"></div>
+            </div>
+            
+            <label>🛠️ الخدمة المطلوبة:</label><input type="text" id="srv" placeholder="غسيل، خياطة">
+
+            <label>🗄️ مكان التخزين (الرف بالمحل):</label>
+            <select id="shelfLocation">
+                <option value="الرف : أ">الرف : أ</option>
+                <option value="الرف : ب">الرف : ب</option>
+                <option value="الرف : ج">الرف : ج</option>
+                <option value="الرف : د">الرف : د</option>
+                <option value="الرف : هـ">الرف : هـ</option>
+                <option value="الرف : و">الرف : و</option>
+            </select>
+            
+            <label>📷 تصوير القطع قبل الصيانة:</label>
+            <input type="file" id="itemImages" accept="image/*" multiple style="display:none;" onchange="handleImagesSelection(event)">
+            <button type="button" class="btn camera-btn" onclick="document.getElementById('itemImages').click();">📷 تصوير / اختيار عدة صور</button>
+            
+            <div id="previewsContainer"></div>
+            <div id="uploadStatus" class="loading-text">⏳ جاري رفع الصور، انتظر لحظة...</div>
+
+            <div class="row">
+                <div><label>💰 الحساب الكلي:</label><input type="number" id="tot" oninput="calc()"></div>
+                <div><label>💵 المدفوع مقدمًا:</label><input type="number" id="paid" oninput="calc()"></div>
+            </div>
+            
+            <label>🔴 المبلغ المتبقي:</label><input type="number" id="rem" readonly style="color:#ef4444; font-weight:bold; background:#0c0c0c;">
+            
+            <button type="button" class="btn" style="background: linear-gradient(135deg, #16a34a, #15803d); margin-top:15px;" onclick="sendTo('client')">📱 1. إرسال للعميل</button>
+            <button type="button" class="btn" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);" onclick="sendTo('owner')">📋 2. إرسال للمحل</button>
+            <button type="button" class="btn" style="background: linear-gradient(135deg, #dc2626, #b91c1c);" onclick="resetFormForNextInvoice()">➕ فاتورة جديدة (تصفير ورقم جديد)</button>
+        </form>
+
+        <!-- زر السوشيال ميديا للإدارة فقط -->
+        <a href="https://www.facebook.com/61560847583033" target="_blank" rel="noopener noreferrer" class="btn" id="socialBtn" style="background: linear-gradient(135deg, #1877f2, #0c4a6e); display:none;">
+           🌐 السوشيال ميديا للمحل
+        </a>
+
+        <!-- أزرار الانتقال للشاشات الفرعية (الإدارة فقط) -->
+        <div class="menu-grid" id="portalMenu" style="display:none;">
+            <button type="button" class="btn track-btn" onclick="openScreen('searchScreen')">🔍 نافذة البحث والتتبع الشامل</button>
+            <button type="button" class="btn" style="background: linear-gradient(135deg, #059669, #047857);" onclick="openScreen('deliveryScreen')">🚚 نافذة الأوردرات المسلمة (اليوم والكلي)</button>
+            <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color:#000;" onclick="openScreen('reportsScreen')">📊 نافذة التقارير (يومي، شهري، سنوي)</button>
+        </div>
+    </div>
+
+    <!-- ================= شاشة البحث والتتبع الفرعية ================= -->
+    <div id="searchScreen" class="sub-screen">
+        <button type="button" class="btn back-btn" onclick="closeScreen()">⬅️ رجوع لوحة التحكم الرئيسية</button>
+        <h3 style="color:#bf953f; text-align:center; margin-top:0;">🔍 البحث والتتبع</h3>
         
-        <div class="row">
-            <div><label>📅 تاريخ الاستلام:</label><input type="date" id="rDate"></div>
-            <div><label>📦 تاريخ التسليم:</label><input type="date" id="dDate"></div>
+        <label style="text-align: center; margin-bottom: 8px;">🔢 البحث برقم الأوردر (بسط ومقام) أو بالتاريخ منفردًا:</label>
+        <div style="background: #141414; padding: 15px; border: 1px solid #33270a; border-radius: 12px; margin-bottom: 10px; text-align: center;">
+            <div style="display: inline-flex; flex-direction: column; width: 110px; vertical-align: middle; margin-bottom: 10px;">
+                <input type="number" id="searchNumerator" placeholder="رقم" style="text-align: center; padding: 8px; border-bottom: none; font-weight: bold; color: #f3e5ab; font-size: 16px;">
+                <div style="background: #bf953f; height: 3px; width: 100%;"></div>
+                <input type="number" id="searchDenominator" placeholder="اليوم" style="text-align: center; padding: 8px; border-top: none; font-weight: bold; color: #38bdf8; font-size: 16px;">
+            </div>
+
+            <div style="margin-top: 10px; text-align: right;">
+                <label style="font-size: 12px; color: #38bdf8; margin-bottom: 3px;">📅 اختر التاريخ:</label>
+                <input type="date" id="searchDate" style="text-align: center; font-size: 13px; padding: 8px;">
+            </div>
+
+            <button type="button" class="btn track-btn" style="width: 100%; margin-top: 12px;" onclick="searchByFractionNumber()">بحث برقم الأوردر أو التاريخ</button>
+        </div>
+
+        <div>
+            <label>👤 أو البحث باسم العميل أو رقم الموبايل:</label>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="searchInput" placeholder="الاسم أو الرقم..." style="margin-top:0; text-align: right;">
+                <button type="button" class="btn track-btn" style="width: auto; margin-top:0; padding: 0 15px;" onclick="searchInvoices()">بحث بالاسم</button>
+            </div>
         </div>
         
-        <div class="row">
-            <div><label>👟 كوتشيات:</label><input type="number" id="snk" value="0"></div>
-            <div><label>🥾 جزم:</label><input type="number" id="shs" value="0"></div>
-            <div><label>🩴 شبشب:</label><input type="number" id="slp" value="0"></div>
-        </div>
-        
-        <div class="row">
-            <div><label>👡 صندل:</label><input type="number" id="snd" value="0"></div>
-            <div><label>👞 فردة:</label><input type="number" id="sng" value="0"></div>
-            <div><label>💼 شنط:</label><input type="number" id="bags" value="0"></div>
-        </div>
-        
-        <label>🛠️ الخدمة المطلوبة:</label><input type="text" id="srv" placeholder="غسيل، خياطة">
+        <div id="searchResults" class="result-box" style="display:none;"></div>
+    </div>
 
-        <label>🗄️ مكان التخزين (الرف بالمحل):</label>
-        <select id="shelfLocation">
-            <option value="الرف : أ">الرف : أ</option>
-            <option value="الرف : ب">الرف : ب</option>
-            <option value="الرف : ج">الرف : ج</option>
-            <option value="الرف : د">الرف : د</option>
-            <option value="الرف : هـ">الرف : هـ</option>
-            <option value="الرف : و">الرف : و</option>
-        </select>
-        
-        <label>📷 تصوير القطع قبل الصيانة:</label>
-        <input type="file" id="itemImages" accept="image/*" multiple style="display:none;" onchange="handleImagesSelection(event)">
-        <button type="button" class="btn camera-btn" onclick="document.getElementById('itemImages').click();">📷 تصوير / اختيار عدة صور</button>
-        
-        <div id="previewsContainer"></div>
-        <div id="uploadStatus" class="loading-text">⏳ جاري رفع الصور، انتظر لحظة...</div>
-
-        <div class="row">
-            <div><label>💰 الحساب الكلي:</label><input type="number" id="tot" oninput="calc()"></div>
-            <div><label>💵 المدفوع مقدمًا:</label><input type="number" id="paid" oninput="calc()"></div>
-        </div>
-        
-        <label>🔴 المبلغ المتبقي:</label><input type="number" id="rem" readonly style="color:#ef4444; font-weight:bold; background:#0c0c0c;">
-        
-        <button type="button" class="btn" style="background: linear-gradient(135deg, #16a34a, #15803d); margin-top:15px;" onclick="sendTo('client')">📱 1. إرسال للعميل</button>
-        <button type="button" class="btn" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);" onclick="sendTo('owner')">📋 2. إرسال للمحل</button>
-        <button type="button" class="btn" style="background: linear-gradient(135deg, #dc2626, #b91c1c);" onclick="resetFormForNextInvoice()">➕ فاتورة جديدة (تصفير ورقم جديد)</button>
-        
-        <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color:#000;" onclick="rep('daily')">📊 تحميل التقرير اليومي</button>
-        <button type="button" class="btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); color:#fff;" onclick="rep('monthly')">📅 تحميل التقرير الشهري</button>
-    </form>
-
-    <!-- زر السوشيال ميديا للإدارة فقط -->
-    <a href="https://www.facebook.com/61560847583033" target="_blank" rel="noopener noreferrer" class="btn" id="socialBtn" style="background: linear-gradient(135deg, #1877f2, #0c4a6e); display:none;">
-       🌐 السوشيال ميديا للمحل
-    </a>
-
-    <!-- قسم متابعة التسليمات السريعة (للإدارة) -->
-    <div class="manage-section" id="deliverySection" style="display:none;">
-        <h3 style="color:#38bdf8; text-align:center; margin-top:0;">🚚 متابعة الأوردرات المُسلمة للعملاء</h3>
+    <!-- ================= شاشة الأوردرات المُسلمة الفرعية ================= -->
+    <div id="deliveryScreen" class="sub-screen">
+        <button type="button" class="btn back-btn" onclick="closeScreen()">⬅️ رجوع لوحة التحكم الرئيسية</button>
+        <h3 style="color:#38bdf8; text-align:center; margin-top:0;">🚚 الأوردرات المُسلمة للعملاء</h3>
         <div class="row" style="margin-bottom: 10px;">
             <div>
                 <button type="button" class="btn" style="background: linear-gradient(135deg, #059669, #047857); margin-top:0;" onclick="loadDeliveredInvoices('today')">☀️ مسلمات اليوم فقط</button>
@@ -129,39 +172,19 @@
                 <button type="button" class="btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); margin-top:0;" onclick="loadDeliveredInvoices('all')">📦 كل الأوردرات المسلمة</button>
             </div>
         </div>
-        <div id="deliveryResults" class="result-box"></div>
+        <div id="deliveryResults" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- قسم البحث والتتبع -->
-    <div class="manage-section">
-        <h3 style="color:#bf953f; text-align:center; margin-top:0;">🔍 البحث والتتبع</h3>
+    <!-- ================= شاشة التقارير الفرعية ================= -->
+    <div id="reportsScreen" class="sub-screen">
+        <button type="button" class="btn back-btn" onclick="closeScreen()">⬅️ رجوع لوحة التحكم الرئيسية</button>
+        <h3 style="color:#f3e5ab; text-align:center; margin-top:0;">📊 تقارير المحل الإدارية</h3>
         
-        <label style="text-align: center; margin-bottom: 8px;">🔢 البحث برقم الأوردر (بسط ومقام) أو بالتاريخ منفردًا:</label>
-        <div style="background: #141414; padding: 15px; border: 1px solid #33270a; border-radius: 12px; margin-bottom: 10px; text-align: center;">
-            
-            <div style="display: inline-flex; flex-direction: column; width: 110px; vertical-align: middle; margin-bottom: 10px;">
-                <input type="number" id="searchNumerator" placeholder="رقم" style="text-align: center; padding: 8px; border-bottom: none; font-weight: bold; color: #f3e5ab; font-size: 16px;">
-                <div style="background: #bf953f; height: 3px; width: 100%;"></div>
-                <input type="number" id="searchDenominator" placeholder="اليوم" style="text-align: center; padding: 8px; border-top: none; font-weight: bold; color: #38bdf8; font-size: 16px;">
-            </div>
-
-            <div style="margin-top: 10px; text-align: right;">
-                <label style="font-size: 12px; color: #38bdf8; margin-bottom: 3px;">📅 اختر التاريخ (يمكنك البحث به وحده لجلب فواتير اليوم):</label>
-                <input type="date" id="searchDate" style="text-align: center; font-size: 13px; padding: 8px;">
-            </div>
-
-            <button type="button" class="btn track-btn" style="width: 100%; margin-top: 12px;" onclick="searchByFractionNumber()">بحث في الفواتير</button>
-        </div>
-
-        <div id="nameSearchBox" style="display:none;">
-            <label>👤 أو البحث باسم العميل أو رقم الموبايل:</label>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="searchInput" placeholder="الاسم أو الرقم..." style="margin-top:0; text-align: right;">
-                <button type="button" class="btn track-btn" style="width: auto; margin-top:0; padding: 0 15px;" onclick="searchInvoices()">بحث بالاسم</button>
-            </div>
-        </div>
+        <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color:#000;" onclick="rep('daily')">📊 تحميل التقرير اليومي</button>
+        <button type="button" class="btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); color:#fff;" onclick="rep('monthly')">📅 تحميل التقرير الشهري</button>
+        <button type="button" class="btn" style="background: linear-gradient(135deg, #7c3aed, #4c1d95); color:#fff;" onclick="rep('yearly')">📆 تحميل التقرير السنوي</button>
         
-        <div id="searchResults" class="result-box"></div>
+        <div id="reportPreviewBox" class="result-box" style="display:none;"></div>
     </div>
     
     <div class="notice-box">⚠️ تنبيه: المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد الإستلام .</div>
@@ -195,17 +218,34 @@
         if (isAdmin) {
             document.getElementById('invoiceForm').style.display = 'block';
             document.getElementById('badge').style.display = 'flex';
-            document.getElementById('nameSearchBox').style.display = 'block';
             document.getElementById('socialBtn').style.display = 'flex';
-            document.getElementById('deliverySection').style.display = 'block';
+            document.getElementById('portalMenu').style.display = 'grid';
             fetchNextInvoiceNum();
         } else {
             document.getElementById('invoiceForm').style.display = 'none';
             document.getElementById('badge').style.display = 'none';
-            document.getElementById('nameSearchBox').style.display = 'none';
             document.getElementById('socialBtn').style.display = 'none';
-            document.getElementById('deliverySection').style.display = 'none';
+            document.getElementById('portalMenu').style.display = 'none';
         }
+    }
+
+    // التنقل بين الشاشات الفرعية والرئيسية
+    function openScreen(screenId) {
+        document.getElementById('mainDashboardScreen').style.display = 'none';
+        document.getElementById('searchScreen').style.display = 'none';
+        document.getElementById('deliveryScreen').style.display = 'none';
+        document.getElementById('reportsScreen').style.display = 'none';
+
+        document.getElementById(screenId).style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function closeScreen() {
+        document.getElementById('searchScreen').style.display = 'none';
+        document.getElementById('deliveryScreen').style.display = 'none';
+        document.getElementById('reportsScreen').style.display = 'none';
+        document.getElementById('mainDashboardScreen').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function calc() {
@@ -348,7 +388,6 @@
 
         var baseTxt =
             '👤 *اسم العميل:* ' + n + '\n' +
-            '📱 *رقم الموبايل:* ' + ph + '\n' +
             '📅 *تاريخ الاستلام:* ' + r + '\n' +
             '📦 *تاريخ التسليم:* ' + d + '\n\n' +
             '👟 *كوتشيات:* ' + sk + ' | 🥾 *جزم:* ' + ss + ' | 🩴 *شبشب:* ' + sl + '\n' +
@@ -361,7 +400,19 @@
         if (m === 'client') {
             var cleanPh = ph.replace(/\D/g, '');
             if (cleanPh.startsWith("0")) cleanPh = "2" + cleanPh;
-            var msg = '✨ *ALESKAFY SHOES* ✨\n🧾 *إيصال استلام صيانة*\n\n' + baseTxt + '\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.';
+            var clientTxt =
+                '👤 *اسم العميل:* ' + n + '\n' +
+                '📱 *رقم الموبايل:* ' + ph + '\n' +
+                '📅 *تاريخ الاستلام:* ' + r + '\n' +
+                '📦 *تاريخ التسليم:* ' + d + '\n\n' +
+                '👟 *كوتشيات:* ' + sk + ' | 🥾 *جزم:* ' + ss + ' | 🩴 *شبشب:* ' + sl + '\n' +
+                '👡 *صندل:* ' + sn + ' | 👞 *فردة:* ' + sg + ' | 💼 *شنط:* ' + bg + '\n' +
+                '🛠️ *الخدمة:* ' + sv + '\n\n' +
+                '💰 *الحساب الكلي:* ' + t + ' جنيه\n' +
+                '💵 *المدفوع مقدمًا:* ' + p + ' جنيه\n' +
+                '🔴 *المبلغ المتبقي:* ' + rm + ' جنيه';
+            
+            var msg = '✨ *ALESKAFY SHOES* ✨\n🧾 *إيصال استلام صيانة - رقم (' + currentDailyNum + ')*\n\n' + clientTxt + '\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.';
             window.open("https://wa.me/" + cleanPh + "?text=" + encodeURIComponent(msg), "_blank");
         } else {
             let imagesText = imgUrls.length > 0 ? "\n\n🖼️ *رابط الصور:*\n" + imgUrls.join('\n') : "\n\n🖼️ *رابط الصور:* لا توجد صور.";
@@ -384,20 +435,31 @@
     async function rep(type) {
         const now = new Date();
         const todayStr = now.toISOString().slice(0, 10);
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+
         const { data: list, error } = await supabaseClient.from('invoices').select('*');
         if (error || !list || list.length === 0) { alert("لا توجد فواتير مسجلة!"); return; }
         
-        let totalCreatedPrice = 0, totalCollectedPaid = 0, totalRemainingAll = 0;
-        let txt = 'تقرير الإسكافي شوز\n====================\n\n';
+        let totalRemainingAll = 0;
+        let txt = 'تقرير الإسكافي شوز (' + type.toUpperCase() + ')\n====================\n\n';
+        
         list.forEach(function(x) {
             var price = x.price || 0, paid = x.paid || 0, rem = price - paid;
             totalRemainingAll += rem;
             let invDate = new Date(x.created_at || Date.now());
-            if (type === 'daily' && invDate.toISOString().slice(0, 10) === todayStr) {
-                totalCreatedPrice += price; totalCollectedPaid += paid;
+            let invDateStr = invDate.toISOString().slice(0, 10);
+            
+            let include = false;
+            if (type === 'daily' && invDateStr === todayStr) include = true;
+            if (type === 'monthly' && invDate.getFullYear() === currentYear && invDate.getMonth() === currentMonth) include = true;
+            if (type === 'yearly' && invDate.getFullYear() === currentYear) include = true;
+
+            if (include) {
                 txt += 'أوردر (' + x.daily_number + '/' + invDate.getDate() + ') - ' + x.customer_name + ' | الحساب: ' + price + ' ج | الباقي: ' + rem + ' ج\n';
             }
         });
+
         txt += "\n====================\nإجمالي المتبقي المتراكم: " + totalRemainingAll + ' ج';
         var b = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8" });
         var lnk = document.createElement('a');
@@ -443,7 +505,7 @@
         const resBox = document.getElementById('searchResults');
 
         if (!numVal && !denVal && !dateInput) { 
-            alert('الرجاء إدخال رقم الأوردر (البسط) أو اختيار التاريخ للبحث'); 
+            alert('الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث'); 
             return; 
         }
 
@@ -526,20 +588,6 @@
                 }
             }
 
-            if (!isAdmin) {
-                return '<div style="border-bottom: 1px dashed #33270a; padding-bottom: 12px; margin-bottom: 12px;">' +
-                    '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">' +
-                        '<strong style="color: #f3e5ab; font-size: 15px;">👤 ' + inv.customer_name + '</strong>' +
-                        '<span class="status-badge ' + statusClass + '">' + (inv.status || 'تحت الصيانة') + '</span>' +
-                    '</div>' +
-                    '<div style="font-size: 12px; color: #94a3b8; margin-bottom: 3px;">📅 تاريخ الأوردر: ' + invDate.toISOString().slice(0, 10) + '</div>' +
-                    '<div style="font-size: 13px; color: #38bdf8; margin-bottom: 3px;">🔢 <b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
-                    '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
-                    '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة المطلوبة:</b> ' + (inv.details || '-') + '</div>' +
-                    imageGalleryHtml +
-                '</div>';
-            }
-
             return '<div style="border-bottom: 1px dashed #33270a; padding-bottom: 12px; margin-bottom: 12px;">' +
                 '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">' +
                     '<strong style="color: #f3e5ab; font-size: 15px;">👤 ' + inv.customer_name + '</strong>' +
@@ -571,7 +619,7 @@
     async function updatePaymentStatus(invoiceId, totalPrice, targetRem) {
         let newPaid = (targetRem === 0) ? totalPrice : (totalPrice - targetRem);
         const { error } = await supabaseClient.from('invoices').update({ paid: newPaid }).eq('id', invoiceId);
-        if (!error) { alert("✅ تم تحديث حالة السداد بنجاح 👍"); searchByFractionNumber(); } else { alert("❌ حدث خطأ!"); }
+        if (!error) { alert("✅ تم تحديث حالة السداد بنجاح 👍"); searchByFractionNameOrRefresh(); } else { alert("❌ حدث خطأ!"); }
     }
 
     async function updateStatus(id, newStatus) {
