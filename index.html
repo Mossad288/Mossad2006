@@ -21,14 +21,14 @@
             to { opacity: 1; transform: scale(1); }
         }
 
-        body { font-family: sans-serif; background: #000; margin: 0; padding: 15px; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; background-image: radial-gradient(circle at 50% 50%, #1a1500 0%, #000 80%); }
+        body { font-family: sans-serif; background: #000; margin: 0; padding: 15px; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
         
-        /* شاشة تسجيل الدخول الفخمة باللوجو */
+        /* شاشة تسجيل الدخول بصورتك الشخصية بملء الشاشة */
         #authScreen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(8px);
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('https://freeimage.host/i/CpkSHbf') no-repeat center center;
+            background-size: cover;
             z-index: 9999;
             display: flex;
             align-items: center;
@@ -39,25 +39,17 @@
         .auth-card {
             width: 100%;
             max-width: 380px;
-            background: #0c0c0c;
+            background: rgba(12, 12, 12, 0.85);
+            backdrop-filter: blur(10px);
             padding: 30px 20px;
             border-radius: 20px;
             border: 2px solid #bf953f;
-            box-shadow: 0 15px 40px rgba(191, 149, 63, 0.25);
+            box-shadow: 0 15px 40px rgba(191, 149, 63, 0.4);
             text-align: center;
             animation: fadeIn 0.4s ease-in-out;
         }
-        .auth-logo {
-            width: 110px;
-            height: 110px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 3px solid #bf953f;
-            box-shadow: 0 0 20px rgba(191, 149, 63, 0.4);
-            margin-bottom: 15px;
-        }
         .auth-title {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 900;
             margin-bottom: 5px;
             background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728);
@@ -67,7 +59,7 @@
         .auth-subtitle {
             font-size: 13px;
             color: #94a3b8;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .container { width: 100%; max-width: 450px; background: #0c0c0c; padding: 22px; border-radius: 16px; border: 2px solid #bf953f; animation: goldGlow 4s infinite ease-in-out; box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative; display: none; }
@@ -111,18 +103,16 @@
 </head>
 <body onload="initApp();">
 
-    <!-- شاشة تسجيل الدخول الفخمة باللوجو -->
+    <!-- شاشة تسجيل الدخول بصورتك الشخصية بملء الشاشة -->
     <div id="authScreen">
         <div class="auth-card">
-            <!-- رابط اللوجو الخاص بك -->
-            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=300&auto=format&fit=crop" class="auth-logo" alt="ALESKAFY SHOES LOGO" id="customLogoImg">
             <div class="auth-title">ALESKAFY SHOES</div>
             <div class="auth-subtitle">النظام الذكي لإدارة الصيانة</div>
             
-            <label style="color:#d4af37; text-align:right; margin-bottom:5px;">🔐 أخل كلمة المرور (2020):</label>
+            <label style="color:#d4af37; text-align:right; margin-bottom:5px;">🔐 أدخل كلمة المرور (2020):</label>
             <input type="password" id="passwordInput" placeholder="أدخل الباسورد هنا" style="text-align: center; font-size: 16px; letter-spacing: 2px;" onkeydown="if(event.key === 'Enter') submitPassword()">
             
-            <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color: #000; font-weight: 900; margin-top: 15px;" onclick="submitPassword()">🔓 دجول للنظام</button>
+            <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color: #000; font-weight: 900; margin-top: 15px;" onclick="submitPassword()">🔓 دخول للنظام</button>
         </div>
     </div>
 
@@ -305,10 +295,6 @@
     var formattedOrderCode = "";
     var isCurrentInvoiceSaved = false;
 
-    // وضع اللوجو الخاص بك هنا كمستند مرئي أو رابط مباشر
-    // يمكنك تعديل هذا الرابط بصورة الشوز اللي بعتها لو حابب ترفعها وتربطها
-    const MY_CUSTOM_LOGO_URL = "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=300&auto=format&fit=crop";
-
     function checkIsAdmin() {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('admin') === '2020';
@@ -320,14 +306,12 @@
     }
 
     function initApp() {
-        // فحص إذا كان الباسورد متسجل قبل كده في الجلسة
         if (sessionStorage.getItem('aleskafy_auth') === 'true') {
             grantAccess();
             return;
         }
 
         const urlParams = new URLSearchParams(window.location.search);
-        // لو الرابط فيه الكلمة مباشرة كاختصار
         if (urlParams.get('admin') === '2020' || urlParams.get('worker') === '2020') {
             sessionStorage.setItem('aleskafy_auth', 'true');
             grantAccess();
@@ -349,12 +333,10 @@
         document.getElementById('authScreen').style.display = 'none';
         document.getElementById('mainContainer').style.display = 'block';
 
-        // افتراضي لو مفيش باراميتر نعتبره شغال كصنايعي أو إدارة بناءً على الرابط الافتراضي
         const urlParams = new URLSearchParams(window.location.search);
         const hasAdminParam = urlParams.has('admin');
         const hasWorkerParam = urlParams.has('worker');
 
-        // لو الدخول بالباسورد اليدوي من غير باراميتر، نفتحه لوحة كاملة أو كصنايعي حسب الرغبة (هنا هنفتحه كإدارة افتراضي أو كصنايعي لو تحب، هخليه يظهر الإدارة لو ماحددش)
         let isAdmin = hasAdminParam || (!hasAdminParam && !hasWorkerParam);
         let isWorker = hasWorkerParam;
 
