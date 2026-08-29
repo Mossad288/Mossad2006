@@ -295,35 +295,27 @@
     var formattedOrderCode = "";
     var isCurrentInvoiceSaved = false;
 
-    // تحديد نوع الرابط الحالي (admin أم worker) بناءً على الرابط أو الجلسة
-    function getCurrentMode() {
+    // دالة دقيقة جداً لتحديد هل الرابط المفتوح هو رابط الصنايعي أم لا
+    function isWorkerMode() {
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('admin') || urlParams.get('worker') !== '2030') {
-            // افتراضي أو لو فيه admin في الرابط
-            if (urlParams.get('worker') === '2030') return 'worker';
-            if (urlParams.get('admin') === '2020') return 'admin';
-        }
-        if (urlParams.get('worker') === '2030') return 'worker';
-        return 'admin'; // افتراضي المحل لو الرابط عادي
+        return urlParams.get('worker') === '2030' || window.location.href.includes('worker=2030');
     }
 
     function initApp() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const isWorkerLink = urlParams.has('worker') || window.location.href.includes('worker');
+        const workerActive = isWorkerMode();
         
-        // تظظيت واجهة شاشة الدخول حسب الرابط المفتوح
-        if (isWorkerLink) {
+        if (workerActive) {
             document.getElementById('authSubtitleText').innerText = 'بوابة الصنايعي (استعلام فقط)';
-            document.getElementById('authLabelPrompt').innerText = '🔐 أدخل باسورد الصنايعي المخصص:';
+            document.getElementById('authLabelPrompt').innerText = '🔐 أدخل باسورد الصنايعي المخصص (2030):';
         } else {
             document.getElementById('authSubtitleText').innerText = 'النظام الذكي لإدارة الصيانة (لوحة المحل)';
-            document.getElementById('authLabelPrompt').innerText = '🔐 أدخل باسورد المحل المخصص:';
+            document.getElementById('authLabelPrompt').innerText = '🔐 أدخل باسورد المحل المخصص (2020):';
         }
 
         const savedAuth = sessionStorage.getItem('aleskafy_auth');
         const savedRole = sessionStorage.getItem('aleskafy_role');
         
-        let targetExpectedRole = isWorkerLink ? 'worker' : 'admin';
+        let targetExpectedRole = workerActive ? 'worker' : 'admin';
 
         if (savedAuth === 'true' && savedRole === targetExpectedRole) {
             grantAccess(targetExpectedRole);
@@ -332,17 +324,16 @@
 
     function submitPassword() {
         let pass = document.getElementById('passwordInput').value.trim();
-        const urlParams = new URLSearchParams(window.location.search);
-        const isWorkerLink = urlParams.has('worker') || window.location.href.includes('worker');
+        const workerActive = isWorkerMode();
 
-        if (isWorkerLink) {
+        if (workerActive) {
             // رابط الصنايعي لا يقبل إلا باسورد 2030 فقط
             if (pass === "2030") {
                 sessionStorage.setItem('aleskafy_auth', 'true');
                 sessionStorage.setItem('aleskafy_role', 'worker');
                 grantAccess('worker');
             } else {
-                alert("❌ كلمة مرور الصنايعي غير صحيحة لهذا الرابط!");
+                alert("❌ كلمة مرور الصنايعي غير صحيحة! يرجى إدخال (2030).");
                 document.getElementById('passwordInput').value = "";
             }
         } else {
@@ -352,7 +343,7 @@
                 sessionStorage.setItem('aleskafy_role', 'admin');
                 grantAccess('admin');
             } else {
-                alert("❌ كلمة مرور المحل غير صحيحة لهذا الرابط!");
+                alert("❌ كلمة مرور المحل غير صحيحة! يرجى إدخال (2020).");
                 document.getElementById('passwordInput').value = "";
             }
         }
