@@ -141,8 +141,8 @@
         </a>
     </div>
 
-    <!-- ================= قسم استعلام الصنايعي والبحث (يظهر دائماً للجميع بشكل أساسي) ================= -->
-    <div id="workerQuerySection" style="display: block; margin-top: 10px;">
+    <!-- ================= قسم استعلام الصنايعي والبحث (يظهر فقط في لينك الصنايعي/العميل) ================= -->
+    <div id="workerQuerySection" style="display: none; margin-top: 10px;">
         <h3 style="color:#bf953f; text-align:center; margin-top:5px;">🛠️ استعلام الصنايعي عن الأوردر</h3>
         <label style="text-align: center; margin-bottom: 8px;">🔢 ابحث برقم الأوردر (بسط ومقام) أو بالتاريخ:</label>
         <div style="background: #141414; padding: 15px; border: 1px solid #33270a; border-radius: 12px; margin-bottom: 10px; text-align: center;">
@@ -239,29 +239,58 @@
 
     function checkIsAdmin() {
         const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('admin') === 'masad2026';
+        return urlParams.get('admin') === '2020';
+    }
+
+    function checkIsWorker() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('worker') === '2020';
     }
 
     function initApp() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasAdminParam = urlParams.has('admin');
+        const hasWorkerParam = urlParams.has('worker');
+
+        // نظام الباسورد للينكين
+        if (!hasAdminParam && !hasWorkerParam) {
+            let pass = prompt("الرجاء إدخال كلمة المرور للوصول للنظام (2020):");
+            if (pass === "2020") {
+                // افتراضي لو دخل باسورد عام نسأله أو نفتحه كصنايعي، أو نوجهه للإدارة لو يحب
+                // هنا هنخليه يفتح كصنايعي افتراضياً لو دخل الباسورد العام، أو نقدر نحدد
+                window.location.href = window.location.pathname + "?worker=2020";
+                return;
+            } else {
+                alert("كلمة المرور غير صحيحة!");
+                document.body.innerHTML = "<h2 style='color:red; text-align:center; margin-top:20vh;'>تم رفض الوصول - كلمة المرور خطأ</h2>";
+                return;
+            }
+        }
+
         const isAdmin = checkIsAdmin();
-        
+        const isWorker = checkIsWorker();
+
         if (isAdmin) {
             document.getElementById('invoiceForm').style.display = 'block';
             document.getElementById('badge').style.display = 'flex';
             document.getElementById('socialBtn').style.display = 'flex';
             document.getElementById('portalMenu').style.display = 'grid';
-        } else {
+            document.getElementById('workerQuerySection').style.display = 'none'; // مخفي في الإدارة تماماً
+            fetchNextInvoiceNum();
+        } else if (isWorker) {
             document.getElementById('invoiceForm').style.display = 'none';
             document.getElementById('badge').style.display = 'none';
             document.getElementById('socialBtn').style.display = 'none';
             document.getElementById('portalMenu').style.display = 'none';
+            document.getElementById('workerQuerySection').style.display = 'block'; // يظهر في لينك الصنايعي فقط
+        } else {
+            alert("كلمة مرور الإدارة أو الصنايعي غير صحيحة في الرابط!");
+            document.body.innerHTML = "<h2 style='color:red; text-align:center; margin-top:20vh;'>رابط غير صالح</h2>";
         }
-        fetchNextInvoiceNum();
     }
 
     function openScreen(screenId) {
         document.getElementById('mainDashboardScreen').style.display = 'none';
-        document.getElementById('workerQuerySection').style.display = 'none';
         document.getElementById('portalMenu').style.display = 'none';
         document.getElementById('searchScreen').style.display = 'none';
         document.getElementById('deliveryScreen').style.display = 'none';
@@ -276,7 +305,6 @@
         document.getElementById('deliveryScreen').style.display = 'none';
         document.getElementById('reportsScreen').style.display = 'none';
         document.getElementById('mainDashboardScreen').style.display = 'block';
-        document.getElementById('workerQuerySection').style.display = 'block';
         if (checkIsAdmin()) {
             document.getElementById('portalMenu').style.display = 'grid';
         }
@@ -534,7 +562,7 @@
         renderSearchResults(filteredData, null, resBox, false);
     }
 
-    // بحث الصنايعي (يعمل للعامة بوضوح ودون إخفاء)
+    // بحث الصنايعي (في لينك الصنايعي)
     async function searchByFractionNumber() {
         const numVal = document.getElementById('searchNumerator').value.trim();
         const denVal = document.getElementById('searchDenominator').value.trim();
@@ -573,7 +601,7 @@
             });
         }
 
-        renderSearchResults(finalData, error, resBox, checkIsAdmin());
+        renderSearchResults(finalData, error, resBox, false);
     }
 
     // بحث الإدارة (في شاشة التتبع)
