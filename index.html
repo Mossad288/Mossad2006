@@ -4,29 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ALESKAFY SHOES - النظام الذكي</title>
+
     <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
     <style>
         @keyframes goldGlow {
-            0% { border-color: #bf953f; box-shadow: 0 0 15px rgba(191, 149, 63, 0.3); }
-            50% { border-color: #ffc107; box-shadow: 0 0 25px rgba(255, 193, 7, 0.6); }
-            100% { border-color: #bf953f; box-shadow: 0 0 15px rgba(191, 149, 63, 0.3); }
-        }
-        @keyframes shimmerText {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+            0% {
+                border-color: #bf953f;
+                box-shadow: 0 0 15px rgba(191, 149, 63, 0.3);
+            }
+
+            50% {
+                border-color: #ffc107;
+                box-shadow: 0 0 25px rgba(255, 193, 7, 0.6);
+            }
+
+            100% {
+                border-color: #bf953f;
+                box-shadow: 0 0 15px rgba(191, 149, 63, 0.3);
+            }
         }
 
-        body { font-family: sans-serif; background: #000; margin: 0; padding: 15px; color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box; }
-        
+        @keyframes shimmerText {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        body {
+            font-family: sans-serif;
+            background: #000;
+            margin: 0;
+            padding: 15px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
         #authScreen {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url('https://iili.io/CpkSHbf.jpg') no-repeat center center;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
+                url('https://iili.io/CpkSHbf.jpg') no-repeat center center;
             background-size: cover;
             z-index: 9999;
             display: flex;
@@ -35,137 +81,500 @@
             padding: 20px;
             box-sizing: border-box;
         }
+
         .auth-card {
             width: 100%;
             max-width: 380px;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0,0,0,0.4);
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
             padding: 30px 20px;
             border-radius: 20px;
             border: 2px solid #bf953f;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
             text-align: center;
             animation: fadeIn 0.4s ease-in-out;
         }
+
         .auth-title {
             font-size: 24px;
             font-weight: 900;
             margin-bottom: 5px;
-            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728);
+            background: linear-gradient(135deg,#bf953f,#fcf6ba,#b38728);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
         .auth-subtitle {
             font-size: 13px;
             color: #cbd5e1;
             margin-bottom: 25px;
         }
 
-        .container { width: 100%; max-width: 450px; background: #0c0c0c; padding: 22px; border-radius: 16px; border: 2px solid #bf953f; animation: goldGlow 4s infinite ease-in-out; box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative; display: none; }
-        @media (min-width: 768px) { .container { max-width: 950px; padding: 30px; } }
-        
-        .header-logo-area { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 5px; }
-        .sys-logo { width: 50px; height: 50px; object-fit: cover; border-radius: 50%; border: 2px solid #bf953f; box-shadow: 0 0 10px rgba(191,149,63,0.4); }
-        h1 { text-align: center; margin: 0; font-size: 26px; font-weight: 900; background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: shimmerText 5s linear infinite; }
-        .badge { background: linear-gradient(135deg, #bf953f, #aa771c); color: #000; font-weight: bold; padding: 10px 14px; border-radius: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 12px 0; font-size: 14px; width: 100%; box-sizing: border-box; }
-        .fraction { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; font-weight: bold; line-height: 1.1; }
-        .fraction .numerator { border-bottom: 2px solid currentColor; padding-bottom: 1px; }
-        .fraction .denominator { padding-top: 1px; }
-        label { display: block; margin-top: 12px; font-size: 13px; color: #d4af37; font-weight: 600; }
-        input, select { width: 100%; padding: 11px; margin-top: 5px; border: 1px solid #33270a; border-radius: 8px; background: #141414; color: #fff; box-sizing: border-box; font-size: 14px; text-align: center; }
-        input:focus, select:focus { border-color: #f3e5ab; outline: none; }
-        .row { display: flex; gap: 10px; flex-wrap: wrap; } .row div { flex: 1; min-width: 30%; }
-        .btn { width: 100%; color: #fff; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; box-sizing: border-box; font-size: 14px; }
-        .notice-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 12px; margin-top: 20px; text-align: center; font-size: 13px; color: #fca5a5; }
-        .camera-btn { background: linear-gradient(135deg, #7c3aed, #4c1d95); }
-        .track-btn { background: linear-gradient(135deg, #0891b2, #164e63); }
-        #previewsContainer { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; max-height: 160px; overflow-y: auto; padding: 5px; background: #141414; border-radius: 8px; border: 1px solid #33270a; }
-        .preview-thumb { width: 75px; height: 75px; object-fit: cover; border-radius: 6px; border: 2px solid #bf953f; flex-shrink: 0; }
-        .result-box { margin-top: 10px; padding: 10px; background: #141414; border-radius: 8px; border: 1px solid #33270a; font-size: 13px; max-height: 400px; overflow-y: auto; }
-        .status-badge { padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
-        .bg-pending { background: #d97706; color: white; }
-        .bg-done { background: #16a34a; color: white; }
-        .bg-delivered { background: #0284c7; color: white; }
-        .btn-sm { padding: 6px 10px; font-size: 11px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; margin-top: 4px; }
-        .loading-text { color: #f3e5ab; font-size: 13px; text-align: center; margin-top: 8px; font-weight: bold; display: none; }
-        .footer-credits { text-align: center; margin-top: 22px; padding-top: 14px; border-top: 1px solid #221a05; font-size: 12px; color: #94a3b8; font-weight: 500; }
-        .footer-credits span { background: linear-gradient(135deg, #bf953f, #fcf6ba); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
-        
-        .sub-screen { display: none; animation: fadeIn 0.3s ease-in-out; }
-        .back-btn { background: linear-gradient(135deg, #475569, #1e293b); color: #f8fafc; margin-bottom: 15px; font-size: 14px; }
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: #0c0c0c;
+            padding: 22px;
+            border-radius: 16px;
+            border: 2px solid #bf953f;
+            animation: goldGlow 4s infinite ease-in-out;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            position: relative;
+            display: none;
+        }
 
-        .admin-toolbar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
-        .mini-icon-btn { padding: 10px 5px; border-radius: 8px; font-size: 12px; font-weight: bold; color: #fff; border: 1px solid #33270a; cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: 0.2s; }
-        .mini-icon-btn:hover { transform: translateY(-2px); border-color: #bf953f; }
+        @media (min-width: 768px) {
+            .container {
+                max-width: 950px;
+                padding: 30px;
+            }
+        }
 
-        .worker-thumb { width: 55px; height: 55px; object-fit: cover; border-radius: 6px; border: 1.5px solid #bf953f; transition: transform 0.2s; }
-        .worker-thumb:hover { transform: scale(1.1); }
+        .header-logo-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 5px;
+        }
+
+        .sys-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #bf953f;
+            box-shadow: 0 0 10px rgba(191,149,63,0.4);
+        }
+
+        h1 {
+            text-align: center;
+            margin: 0;
+            font-size: 26px;
+            font-weight: 900;
+            background: linear-gradient(135deg,#bf953f,#fcf6ba,#b38728);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shimmerText 5s linear infinite;
+        }
+
+        .badge {
+            background: linear-gradient(135deg,#bf953f,#aa771c);
+            color: #000;
+            font-weight: bold;
+            padding: 10px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 12px 0;
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            font-weight: bold;
+            line-height: 1.1;
+        }
+
+        .fraction .numerator {
+            border-bottom: 2px solid currentColor;
+            padding-bottom: 1px;
+        }
+
+        .fraction .denominator {
+            padding-top: 1px;
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #d4af37;
+            font-weight: 600;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 11px;
+            margin-top: 5px;
+            border: 1px solid #33270a;
+            border-radius: 8px;
+            background: #141414;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #f3e5ab;
+            outline: none;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .row div {
+            flex: 1;
+            min-width: 30%;
+        }
+
+        .btn {
+            width: 100%;
+            color: #fff;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .notice-box {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 13px;
+            color: #fca5a5;
+        }
+
+        .camera-btn {
+            background: linear-gradient(135deg,#7c3aed,#4c1d95);
+        }
+
+        .track-btn {
+            background: linear-gradient(135deg,#0891b2,#164e63);
+        }
+
+        #previewsContainer {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            max-height: 160px;
+            overflow-y: auto;
+            padding: 5px;
+            background: #141414;
+            border-radius: 8px;
+            border: 1px solid #33270a;
+        }
+
+        .preview-thumb {
+            width: 75px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 2px solid #bf953f;
+            flex-shrink: 0;
+        }
+
+        .result-box {
+            margin-top: 10px;
+            padding: 10px;
+            background: #141414;
+            border-radius: 8px;
+            border: 1px solid #33270a;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .bg-pending {
+            background: #d97706;
+            color: white;
+        }
+
+        .bg-done {
+            background: #16a34a;
+            color: white;
+        }
+
+        .bg-delivered {
+            background: #0284c7;
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 6px 10px;
+            font-size: 11px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .loading-text {
+            color: #f3e5ab;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 8px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-credits {
+            text-align: center;
+            margin-top: 22px;
+            padding-top: 14px;
+            border-top: 1px solid #221a05;
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .footer-credits span {
+            background: linear-gradient(135deg,#bf953f,#fcf6ba);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+
+        .sub-screen {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg,#475569,#1e293b);
+            color: #f8fafc;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .admin-toolbar {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .mini-icon-btn {
+            padding: 10px 5px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            border: 1px solid #33270a;
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: 0.2s;
+        }
+
+        .mini-icon-btn:hover {
+            transform: translateY(-2px);
+            border-color: #bf953f;
+        }
+
+        .worker-thumb {
+            width: 55px;
+            height: 55px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1.5px solid #bf953f;
+            transition: transform 0.2s;
+        }
+
+        .worker-thumb:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
+
 <body onload="initApp();">
 
-    <div id="authScreen" style="display:none;">
-        <div class="auth-card">
-            <div class="auth-title">ALESKAFY SHOES</div>
-            <div class="auth-subtitle" id="authSubtitleText">النظام الذكي لإدارة الصيانة</div>
-            
-            <input type="password" id="passwordInput" placeholder="أدخل الباسورد هنا" style="text-align: center; font-size: 16px; letter-spacing: 2px;" onkeydown="if(event.key === 'Enter') submitPassword()">
-            
-            <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color: #000; font-weight: 900; margin-top: 15px;" onclick="submitPassword()">🔓 دخول للنظام</button>
-            <button type="button" class="btn" style="background: transparent; color: #ef4444; border: 1px solid #ef4444; font-size: 12px; margin-top: 10px;" onclick="logoutApp()">🔒 مسح الجلسة وتسجيل الخروج</button>
+<div id="authScreen" style="display:none;">
+    <div class="auth-card">
+        <div class="auth-title">ALESKAFY SHOES</div>
+
+        <div class="auth-subtitle" id="authSubtitleText">
+            النظام الذكي لإدارة الصيانة
         </div>
+
+        <input
+            type="password"
+            id="passwordInput"
+            placeholder="أدخل الباسورد هنا"
+            style="text-align:center;font-size:16px;letter-spacing:2px;"
+            onkeydown="if(event.key === 'Enter') submitPassword()"
+        >
+
+        <button
+            type="button"
+            class="btn"
+            style="background:linear-gradient(135deg,#bf953f,#aa771c);color:#000;font-weight:900;margin-top:15px;"
+            onclick="submitPassword()"
+        >
+            🔓 دخول للنظام
+        </button>
+
+        <button
+            type="button"
+            class="btn"
+            style="background:transparent;color:#ef4444;border:1px solid #ef4444;font-size:12px;margin-top:10px;"
+            onclick="logoutApp()"
+        >
+            🔒 مسح الجلسة وتسجيل الخروج
+        </button>
     </div>
+</div>
 
 <div class="container" id="mainContainer" style="display:none;">
+
     <div style="text-align:center;">
         <div class="header-logo-area">
-            <img src="https://iili.io/CpkSHbf.jpg" class="sys-logo" alt="Logo">
+            <img
+                src="https://iili.io/CpkSHbf.jpg"
+                class="sys-logo"
+                alt="Logo"
+            >
+
             <h1>ALESKAFY SHOES</h1>
         </div>
-        <div class="badge" id="badge" style="display:none;">رقم الأوردر: جاري التحميل...</div>
+
+        <div class="badge" id="badge" style="display:none;">
+            رقم الأوردر: جاري التحميل...
+        </div>
     </div>
 
     <div class="admin-toolbar" id="portalMenu" style="display:none;">
-        <button type="button" class="mini-icon-btn track-btn" onclick="openScreen('searchScreen')">
-            <span style="font-size: 16px;">🔍</span>
+
+        <button
+            type="button"
+            class="mini-icon-btn track-btn"
+            onclick="openScreen('searchScreen')"
+        >
+            <span style="font-size:16px;">🔍</span>
             <span>البحث والتتبع</span>
         </button>
-        <button type="button" class="mini-icon-btn" style="background: linear-gradient(135deg, #059669, #047857);" onclick="openScreen('deliveryScreen')">
-            <span style="font-size: 16px;">🚚</span>
+
+        <button
+            type="button"
+            class="mini-icon-btn"
+            style="background:linear-gradient(135deg,#059669,#047857);"
+            onclick="openScreen('deliveryScreen')"
+        >
+            <span style="font-size:16px;">🚚</span>
             <span>المُسلمة</span>
         </button>
-        <button type="button" class="mini-icon-btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color:#000;" onclick="openScreen('reportsScreen')">
-            <span style="font-size: 16px;">📊</span>
+
+        <button
+            type="button"
+            class="mini-icon-btn"
+            style="background:linear-gradient(135deg,#bf953f,#aa771c);color:#000;"
+            onclick="openScreen('reportsScreen')"
+        >
+            <span style="font-size:16px;">📊</span>
             <span>التقارير</span>
         </button>
+
     </div>
 
     <div id="mainDashboardScreen">
+
         <form id="invoiceForm" style="display:none;">
-            <label>👤 اسم العميل:</label><input type="text" id="name" placeholder="اسم العميل">
-            <label>📱 واتساب العميل:</label><input type="text" id="phone" placeholder="01012345678">
-            
+
+            <label>👤 اسم العميل:</label>
+            <input type="text" id="name" placeholder="اسم العميل">
+
+            <label>📱 واتساب العميل:</label>
+            <input type="text" id="phone" placeholder="01012345678">
+
             <div class="row">
-                <div><label>📅 تاريخ الاستلام:</label><input type="date" id="rDate"></div>
-                <div><label>📦 تاريخ التسليم:</label><input type="date" id="dDate"></div>
+                <div>
+                    <label>📅 تاريخ الاستلام:</label>
+                    <input type="date" id="rDate">
+                </div>
+
+                <div>
+                    <label>📦 تاريخ التسليم:</label>
+                    <input type="date" id="dDate">
+                </div>
             </div>
-            
+
             <div class="row">
-                <div><label>👟 كوتشيات:</label><input type="number" id="snk" value="0"></div>
-                <div><label>🥾 جزم:</label><input type="number" id="shs" value="0"></div>
-                <div><label>🩴 شبشب:</label><input type="number" id="slp" value="0"></div>
+
+                <div>
+                    <label>👟 كوتشيات:</label>
+                    <input type="number" id="snk" value="0">
+                </div>
+
+                <div>
+                    <label>🥾 جزم:</label>
+                    <input type="number" id="shs" value="0">
+                </div>
+
+                <div>
+                    <label>🩴 شبشب:</label>
+                    <input type="number" id="slp" value="0">
+                </div>
+
             </div>
-            
+
             <div class="row">
-                <div><label>👡 صندل:</label><input type="number" id="snd" value="0"></div>
-                <div><label>👞 فردة:</label><input type="number" id="sng" value="0"></div>
-                <div><label>💼 شنط:</label><input type="number" id="bags" value="0"></div>
+
+                <div>
+                    <label>👡 صندل:</label>
+                    <input type="number" id="snd" value="0">
+                </div>
+
+                <div>
+                    <label>👞 فردة:</label>
+                    <input type="number" id="sng" value="0">
+                </div>
+
+                <div>
+                    <label>💼 شنط:</label>
+                    <input type="number" id="bags" value="0">
+                </div>
+
             </div>
-            
-            <label>🛠️ الخدمة المطلوبة:</label><input type="text" id="srv" placeholder="غسيل، خياطة">
+
+            <label>🛠️ الخدمة المطلوبة:</label>
+            <input
+                type="text"
+                id="srv"
+                placeholder="غسيل، خياطة"
+            >
 
             <label>🗄️ مكان التخزين (الرف بالمحل):</label>
+
             <select id="shelfLocation">
                 <option value="الرف : أ">الرف : أ</option>
                 <option value="الرف : ب">الرف : ب</option>
@@ -174,897 +583,2481 @@
                 <option value="الرف : هـ">الرف : هـ</option>
                 <option value="الرف : و">الرف : و</option>
             </select>
-            
+
             <label>📷 تصوير القطع قبل الصيانة:</label>
-            <input type="file" id="itemImages" accept="image/*" multiple style="display:none;" onchange="handleImagesSelection(event)">
-            <button type="button" class="btn camera-btn" onclick="document.getElementById('itemImages').click();">📷 تصوير / اختيار عدة صور</button>
-            
+
+            <input
+                type="file"
+                id="itemImages"
+                accept="image/*"
+                multiple
+                style="display:none;"
+                onchange="handleImagesSelection(event)"
+            >
+
+            <button
+                type="button"
+                class="btn camera-btn"
+                onclick="document.getElementById('itemImages').click();"
+            >
+                📷 تصوير / اختيار عدة صور
+            </button>
+
             <div id="previewsContainer"></div>
-            <div id="uploadStatus" class="loading-text">⏳ جاري رفع الصور، انتظر لحظة...</div>
+
+            <div id="uploadStatus" class="loading-text">
+                ⏳ جاري رفع الصور، انتظر لحظة...
+            </div>
 
             <div class="row">
-                <div><label>💰 الحساب الكلي:</label><input type="number" id="tot" oninput="calc()"></div>
-                <div><label>💵 المدفوع مقدمًا:</label><input type="number" id="paid" oninput="calc()"></div>
+
+                <div>
+                    <label>💰 الحساب الكلي:</label>
+                    <input
+                        type="number"
+                        id="tot"
+                        oninput="calc()"
+                    >
+                </div>
+
+                <div>
+                    <label>💵 المدفوع مقدمًا:</label>
+                    <input
+                        type="number"
+                        id="paid"
+                        oninput="calc()"
+                    >
+                </div>
+
             </div>
-            
-            <label>🔴 المبلغ المتبقي:</label><input type="number" id="rem" readonly style="color:#ef4444; font-weight:bold; background:#0c0c0c;">
-            
-            <button type="button" class="btn" style="background: linear-gradient(135deg, #16a34a, #15803d); margin-top:15px;" onclick="sendTo('client')">📱 1. إرسال للعميل</button>
-            <button type="button" class="btn" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);" onclick="sendTo('owner')">📋 2. إرسال للمحل</button>
+
+            <label>🔴 المبلغ المتبقي:</label>
+
+            <input
+                type="number"
+                id="rem"
+                readonly
+                style="color:#ef4444;font-weight:bold;background:#0c0c0c;"
+            >
+
+            <button
+                type="button"
+                class="btn"
+                style="background:linear-gradient(135deg,#16a34a,#15803d);margin-top:15px;"
+                onclick="sendTo('client')"
+            >
+                📱 1. إرسال للعميل
+            </button>
+
+            <button
+                type="button"
+                class="btn"
+                style="background:linear-gradient(135deg,#2563eb,#1d4ed8);"
+                onclick="sendTo('owner')"
+            >
+                📋 2. إرسال للمحل
+            </button>
+
         </form>
 
-        <a href="https://www.facebook.com/61560847583033" target="_blank" rel="noopener noreferrer" class="btn" id="socialBtn" style="background: linear-gradient(135deg, #1877f2, #0c4a6e); display:none;">
-           🌐 السوشيال ميديا للمحل
+        <a
+            href="https://www.facebook.com/61560847583033"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn"
+            id="socialBtn"
+            style="background:linear-gradient(135deg,#1877f2,#0c4a6e);display:none;"
+        >
+            🌐 السوشيال ميديا للمحل
         </a>
+
     </div>
 
-    <div id="workerQuerySection" style="display: none; margin-top: 10px;">
-        <h3 style="color:#bf953f; text-align:center; margin-top:5px;">🛠️ استعلام الصنايعي عن الأوردر</h3>
-        <label style="text-align: center; margin-bottom: 8px;">🔢 ابحث برقم الأوردر (بسط ومقام) أو بالتاريخ:</label>
-        <div style="background: #141414; padding: 15px; border: 1px solid #33270a; border-radius: 12px; margin-bottom: 10px; text-align: center;">
-            <div style="display: inline-flex; flex-direction: column; width: 110px; vertical-align: middle; margin-bottom: 10px;">
-                <input type="number" id="searchNumerator" placeholder="رقم" style="text-align: center; padding: 8px; border-bottom: none; font-weight: bold; color: #f3e5ab; font-size: 16px;">
-                <div style="background: #bf953f; height: 3px; width: 100%;"></div>
-                <input type="number" id="searchDenominator" placeholder="اليوم" style="text-align: center; padding: 8px; border-top: none; font-weight: bold; color: #38bdf8; font-size: 16px;">
+    <div id="workerQuerySection" style="display:none;margin-top:10px;">
+
+        <h3 style="color:#bf953f;text-align:center;margin-top:5px;">
+            🛠️ استعلام الصنايعي عن الأوردر
+        </h3>
+
+        <label style="text-align:center;margin-bottom:8px;">
+            🔢 ابحث برقم الأوردر (بسط ومقام) أو بالتاريخ:
+        </label>
+
+        <div
+            style="background:#141414;padding:15px;border:1px solid #33270a;border-radius:12px;margin-bottom:10px;text-align:center;"
+        >
+
+            <div
+                style="display:inline-flex;flex-direction:column;width:110px;vertical-align:middle;margin-bottom:10px;"
+            >
+
+                <input
+                    type="number"
+                    id="searchNumerator"
+                    placeholder="رقم"
+                    style="text-align:center;padding:8px;border-bottom:none;font-weight:bold;color:#f3e5ab;font-size:16px;"
+                >
+
+                <div style="background:#bf953f;height:3px;width:100%;"></div>
+
+                <input
+                    type="number"
+                    id="searchDenominator"
+                    placeholder="اليوم"
+                    style="text-align:center;padding:8px;border-top:none;font-weight:bold;color:#38bdf8;font-size:16px;"
+                >
+
             </div>
 
-            <div style="margin-top: 10px; text-align: right;">
-                <label style="font-size: 12px; color: #38bdf8; margin-bottom: 3px;">📅 اختر التاريخ:</label>
-                <input type="date" id="searchDate" style="text-align: center; font-size: 13px; padding: 8px;">
+            <div style="margin-top:10px;text-align:right;">
+
+                <label style="font-size:12px;color:#38bdf8;margin-bottom:3px;">
+                    📅 اختر التاريخ:
+                </label>
+
+                <input
+                    type="date"
+                    id="searchDate"
+                    style="text-align:center;font-size:13px;padding:8px;"
+                >
+
             </div>
 
-            <button type="button" class="btn track-btn" style="width: 100%; margin-top: 12px;" onclick="searchByFractionNumber()">بحث الصنايعي</button>
+            <button
+                type="button"
+                class="btn track-btn"
+                style="width:100%;margin-top:12px;"
+                onclick="searchByFractionNumber()"
+            >
+                بحث الصنايعي
+            </button>
+
         </div>
-        <div id="workerSearchResults" class="result-box" style="display:none;"></div>
+
+        <div
+            id="workerSearchResults"
+            class="result-box"
+            style="display:none;"
+        ></div>
+
     </div>
 
     <div id="searchScreen" class="sub-screen">
-        <button type="button" class="btn back-btn" onclick="closeScreen()">⬅️ رجوع لوحة التحكم الرئيسية</button>
-        <h3 style="color:#bf953f; text-align:center; margin-top:0;">🔍 البحث والتتبع الشامل</h3>
-        
-        <label style="text-align: center; margin-bottom: 8px;">🔢 البحث برقم الأوردر أو التاريخ:</label>
-        <div style="background: #141414; padding: 15px; border: 1px solid #33270a; border-radius: 12px; margin-bottom: 10px; text-align: center;">
-            <div style="display: inline-flex; flex-direction: column; width: 110px; vertical-align: middle; margin-bottom: 10px;">
-                <input type="number" id="adminSearchNumerator" placeholder="رقم" style="text-align: center; padding: 8px; border-bottom: none; font-weight: bold; color: #f3e5ab; font-size: 16px;">
-                <div style="background: #bf953f; height: 3px; width: 100%;"></div>
-                <input type="number" id="adminSearchDenominator" placeholder="اليوم" style="text-align: center; padding: 8px; border-top: none; font-weight: bold; color: #38bdf8; font-size: 16px;">
+
+        <button
+            type="button"
+            class="btn back-btn"
+            onclick="closeScreen()"
+        >
+            ⬅️ رجوع لوحة التحكم الرئيسية
+        </button>
+
+        <h3 style="color:#bf953f;text-align:center;margin-top:0;">
+            🔍 البحث والتتبع الشامل
+        </h3>
+
+        <label style="text-align:center;margin-bottom:8px;">
+            🔢 البحث برقم الأوردر أو التاريخ:
+        </label>
+
+        <div
+            style="background:#141414;padding:15px;border:1px solid #33270a;border-radius:12px;margin-bottom:10px;text-align:center;"
+        >
+
+            <div
+                style="display:inline-flex;flex-direction:column;width:110px;vertical-align:middle;margin-bottom:10px;"
+            >
+
+                <input
+                    type="number"
+                    id="adminSearchNumerator"
+                    placeholder="رقم"
+                    style="text-align:center;padding:8px;border-bottom:none;font-weight:bold;color:#f3e5ab;font-size:16px;"
+                >
+
+                <div style="background:#bf953f;height:3px;width:100%;"></div>
+
+                <input
+                    type="number"
+                    id="adminSearchDenominator"
+                    placeholder="اليوم"
+                    style="text-align:center;padding:8px;border-top:none;font-weight:bold;color:#38bdf8;font-size:16px;"
+                >
+
             </div>
 
-            <div style="margin-top: 10px; text-align: right;">
-                <label style="font-size: 12px; color: #38bdf8; margin-bottom: 3px;">📅 اختر التاريخ:</label>
-                <input type="date" id="adminSearchDate" style="text-align: center; font-size: 13px; padding: 8px;">
+            <div style="margin-top:10px;text-align:right;">
+
+                <label style="font-size:12px;color:#38bdf8;margin-bottom:3px;">
+                    📅 اختر التاريخ:
+                </label>
+
+                <input
+                    type="date"
+                    id="adminSearchDate"
+                    style="text-align:center;font-size:13px;padding:8px;"
+                >
+
             </div>
 
-            <button type="button" class="btn track-btn" style="width: 100%; margin-top: 12px;" onclick="adminSearchByFractionNumber()">بحث برقم الأوردر أو التاريخ</button>
+            <button
+                type="button"
+                class="btn track-btn"
+                style="width:100%;margin-top:12px;"
+                onclick="adminSearchByFractionNumber()"
+            >
+                بحث برقم الأوردر أو التاريخ
+            </button>
+
         </div>
 
         <div>
-            <label>👤 أو البحث باسم العميل أو رقم الموبايل:</label>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="searchInput" placeholder="الاسم أو الرقم..." style="margin-top:0; text-align: right;">
-                <button type="button" class="btn track-btn" style="width: auto; margin-top:0; padding: 0 15px;" onclick="searchInvoices()">بحث بالاسم</button>
+
+            <label>
+                👤 أو البحث باسم العميل أو رقم الموبايل:
+            </label>
+
+            <div style="display:flex;gap:5px;">
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="الاسم أو الرقم..."
+                    style="margin-top:0;text-align:right;"
+                >
+
+                <button
+                    type="button"
+                    class="btn track-btn"
+                    style="width:auto;margin-top:0;padding:0 15px;"
+                    onclick="searchInvoices()"
+                >
+                    بحث بالاسم
+                </button>
+
             </div>
+
         </div>
-        
-        <div id="searchResults" class="result-box" style="display:none;"></div>
+
+        <div
+            id="searchResults"
+            class="result-box"
+            style="display:none;"
+        ></div>
+
     </div>
 
     <div id="deliveryScreen" class="sub-screen">
-        <button type="button" class="btn back-btn" onclick="closeScreen()">⬅️ رجوع لوحة التحكم الرئيسية</button>
-        <h3 style="color:#38bdf8; text-align:center; margin-top:0;">🚚 الأوردرات المُسلمة للعملاء</h3>
-        <div class="row" style="margin-bottom: 10px;">
-            <div><button type="button" class="btn" style="background: linear-gradient(135deg, #059669, #047857); margin-top:0;" onclick="loadDeliveredInvoices('today')">☀️ مسلمات اليوم فقط</button></div>
-            <div><button type="button" class="btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); margin-top:0;" onclick="loadDeliveredInvoices('all')">📦 كل الأوردرات المسلمة</button></div>
+
+        <button
+            type="button"
+            class="btn back-btn"
+            onclick="closeScreen()"
+        >
+            ⬅️ رجوع لوحة التحكم الرئيسية
+        </button>
+
+        <h3 style="color:#38bdf8;text-align:center;margin-top:0;">
+            🚚 الأوردرات المُسلمة للعملاء
+        </h3>
+
+        <div class="row" style="margin-bottom:10px;">
+
+            <div>
+                <button
+                    type="button"
+                    class="btn"
+                    style="background:linear-gradient(135deg,#059669,#047857);margin-top:0;"
+                    onclick="loadDeliveredInvoices('today')"
+                >
+                    ☀️ مسلمات اليوم فقط
+                </button>
+            </div>
+
+            <div>
+                <button
+                    type="button"
+                    class="btn"
+                    style="background:linear-gradient(135deg,#0284c7,#0369a1);margin-top:0;"
+                    onclick="loadDeliveredInvoices('all')"
+                >
+                    📦 كل الأوردرات المسلمة
+                </button>
+            </div>
+
         </div>
-        <div id="deliveryResults" class="result-box" style="display:none;"></div>
+
+        <div
+            id="deliveryResults"
+            class="result-box"
+            style="display:none;"
+        ></div>
+
     </div>
 
     <div id="reportsScreen" class="sub-screen">
-        <button type="button" class="btn back-btn" onclick="closeScreen()">⬅️ رجوع لوحة التحكم الرئيسية</button>
-        <h3 style="color:#f3e5ab; text-align:center; margin-top:0;">📊 تقارير المحل الإدارية</h3>
-        
-        <button type="button" class="btn" style="background: linear-gradient(135deg, #bf953f, #aa771c); color:#000;" onclick="rep('daily')">📊 تحميل التقرير اليومي</button>
-        <button type="button" class="btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); color:#fff;" onclick="rep('monthly')">📅 تحميل التقرير الشهري</button>
-        <button type="button" class="btn" style="background: linear-gradient(135deg, #7c3aed, #4c1d95); color:#fff;" onclick="rep('yearly')">📆 تحميل التقرير السنوي</button>
-        
-        <div id="reportPreviewBox" class="result-box" style="display:none;"></div>
+
+        <button
+            type="button"
+            class="btn back-btn"
+            onclick="closeScreen()"
+        >
+            ⬅️ رجوع لوحة التحكم الرئيسية
+        </button>
+
+        <h3 style="color:#f3e5ab;text-align:center;margin-top:0;">
+            📊 تقارير المحل الإدارية
+        </h3>
+
+        <button
+            type="button"
+            class="btn"
+            style="background:linear-gradient(135deg,#bf953f,#aa771c);color:#000;"
+            onclick="rep('daily')"
+        >
+            📊 تحميل التقرير اليومي
+        </button>
+
+        <button
+            type="button"
+            class="btn"
+            style="background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;"
+            onclick="rep('monthly')"
+        >
+            📅 تحميل التقرير الشهري
+        </button>
+
+        <button
+            type="button"
+            class="btn"
+            style="background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;"
+            onclick="rep('yearly')"
+        >
+            📆 تحميل التقرير السنوي
+        </button>
+
+        <div
+            id="reportPreviewBox"
+            class="result-box"
+            style="display:none;"
+        ></div>
+
     </div>
-    
-    <div class="notice-box">⚠️ تنبيه: المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد الإستلام .</div>
+
+    <div class="notice-box">
+        ⚠️ تنبيه: المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد الإستلام .
+    </div>
 
     <div class="footer-credits">
-        جميع الحقوق محفوظه لي <span>المهندس مسعد سالم _ الاسكافي شوز</span>
+        جميع الحقوق محفوظه لي
+        <span>المهندس مسعد سالم _ الاسكافي شوز</span>
     </div>
+
 </div>
 
 <script>
-    const SUPABASE_URL = 'https://ekozcfasqvuuikdjwmtj.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_qfv5sexqStJWEOJY0RxGkA_6iOiVVjf';
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    var OWNER_PHONE = "201090274601"; 
-    var uploadedImageUrls = [];
-    var selectedFilesList = [];
-    var currentDailyNum = 1;
-    var currentDayNum = 1;
-    var formattedOrderCode = "";
-    var isCurrentInvoiceSaved = false;
+const SUPABASE_URL =
+    'https://ekozcfasqvuuikdjwmtj.supabase.co';
 
-    /* =========================
-       تعديل التاريخ فقط - توقيت مصر
-       ========================= */
+const SUPABASE_KEY =
+    'sb_publishable_qfv5sexqStJWEOJY0RxGkA_6iOiVVjf';
 
-    function getEgyptNow() {
-        return new Date(
-            new Date().toLocaleString('en-US', {
-                timeZone: 'Africa/Cairo'
-            })
-        );
-    }
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
 
-    function getEgyptDateString(dateValue) {
-        const d = new Date(dateValue);
-        return d.toLocaleDateString('en-CA', {
-            timeZone: 'Africa/Cairo'
-        });
-    }
+var OWNER_PHONE = "201090274601";
 
-    function getEgyptDay(dateValue) {
-        const d = new Date(dateValue);
-        return Number(
-            d.toLocaleDateString('en-US', {
+/* =====================================================
+   لينك فيسبوك المحل
+   ===================================================== */
+
+const FACEBOOK_PAGE =
+    "https://www.facebook.com/61560847583033";
+
+
+var uploadedImageUrls = [];
+var selectedFilesList = [];
+
+var currentDailyNum = 1;
+var currentDayNum = 1;
+
+var formattedOrderCode = "";
+
+var isCurrentInvoiceSaved = false;
+
+
+/* =====================================================
+   توقيت مصر - النسخة المصححة
+   ===================================================== */
+
+/*
+   مهم جداً:
+   ممنوع استخدام:
+   new Date().toLocaleString(...)
+   ثم new Date(...)
+   
+   لأن الطريقة دي كانت بتخلي اللابتوب يفسر التاريخ
+   حسب توقيته المحلي، وده سبب مشكلة 30 / 31.
+*/
+
+
+function getEgyptParts(dateValue = new Date()) {
+
+    const parts =
+        new Intl.DateTimeFormat(
+            'en-US',
+            {
                 timeZone: 'Africa/Cairo',
-                day: 'numeric'
-            })
-        );
-    }
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hourCycle: 'h23'
+            }
+        ).formatToParts(new Date(dateValue));
 
-    function getEgyptYear(dateValue) {
-        const d = new Date(dateValue);
-        return Number(
-            d.toLocaleDateString('en-US', {
+    const result = {};
+
+    parts.forEach(function(part) {
+        if (part.type !== 'literal') {
+            result[part.type] = part.value;
+        }
+    });
+
+    return result;
+}
+
+
+function getEgyptDateString(dateValue = new Date()) {
+
+    const p = getEgyptParts(dateValue);
+
+    return (
+        p.year +
+        '-' +
+        p.month +
+        '-' +
+        p.day
+    );
+}
+
+
+function getEgyptDay(dateValue = new Date()) {
+
+    return Number(
+        getEgyptParts(dateValue).day
+    );
+}
+
+
+function getEgyptYear(dateValue = new Date()) {
+
+    return Number(
+        getEgyptParts(dateValue).year
+    );
+}
+
+
+function getEgyptMonth(dateValue = new Date()) {
+
+    return (
+        Number(
+            getEgyptParts(dateValue).month
+        ) - 1
+    );
+}
+
+
+function getEgyptOffset(dateValue = new Date()) {
+
+    const parts =
+        new Intl.DateTimeFormat(
+            'en-US',
+            {
                 timeZone: 'Africa/Cairo',
-                year: 'numeric'
-            })
+                timeZoneName: 'longOffset'
+            }
+        ).formatToParts(new Date(dateValue));
+
+    const zone =
+        parts.find(
+            p => p.type === 'timeZoneName'
         );
+
+    if (!zone || !zone.value) {
+        return '+03:00';
     }
 
-    function getEgyptMonth(dateValue) {
-        return Number(
-            new Date(dateValue).toLocaleDateString('en-US', {
-                timeZone: 'Africa/Cairo',
-                month: 'numeric'
-            })
-        ) - 1;
+    const match =
+        zone.value.match(
+            /GMT([+-])(\d{1,2})(?::(\d{2}))?/
+        );
+
+    if (!match) {
+        return '+03:00';
     }
 
-    function getEgyptStartOfDayISO() {
-        const egyptNow = getEgyptNow();
+    const sign = match[1];
+    const hour =
+        String(match[2]).padStart(2, '0');
 
-        const year = egyptNow.getFullYear();
-        const month = String(egyptNow.getMonth() + 1).padStart(2, '0');
-        const day = String(egyptNow.getDate()).padStart(2, '0');
+    const minute =
+        match[3] || '00';
 
-        return new Date(
-            `${year}-${month}-${day}T00:00:00+03:00`
-        ).toISOString();
+    return sign + hour + ':' + minute;
+}
+
+
+function getEgyptStartOfDayISO(dateInput = null) {
+
+    let dateString;
+
+    if (dateInput) {
+
+        dateString = dateInput;
+
+    } else {
+
+        dateString =
+            getEgyptDateString(new Date());
+
     }
 
-    function getEgyptEndOfDayISO() {
-        const egyptNow = getEgyptNow();
+    const testDate =
+        new Date(
+            dateString + "T12:00:00Z"
+        );
 
-        const year = egyptNow.getFullYear();
-        const month = String(egyptNow.getMonth() + 1).padStart(2, '0');
-        const day = String(egyptNow.getDate()).padStart(2, '0');
+    const offset =
+        getEgyptOffset(testDate);
 
-        return new Date(
-            `${year}-${month}-${day}T23:59:59+03:00`
-        ).toISOString();
+    return new Date(
+        dateString +
+        "T00:00:00" +
+        offset
+    ).toISOString();
+}
+
+
+function getEgyptEndOfDayISO(dateInput = null) {
+
+    let dateString;
+
+    if (dateInput) {
+
+        dateString = dateInput;
+
+    } else {
+
+        dateString =
+            getEgyptDateString(new Date());
+
     }
 
-    function getDateRangeISO(dateInput) {
-        const start = new Date(`${dateInput}T00:00:00+03:00`);
-        const end = new Date(`${dateInput}T23:59:59+03:00`);
+    const testDate =
+        new Date(
+            dateString + "T12:00:00Z"
+        );
 
-        return {
-            start: start.toISOString(),
-            end: end.toISOString()
-        };
-    }
+    const offset =
+        getEgyptOffset(testDate);
 
-    /* ========================= */
+    return new Date(
+        dateString +
+        "T23:59:59.999" +
+        offset
+    ).toISOString();
+}
 
-    function initApp() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const isAdminLink = urlParams.get('admin') === 'masad2026';
-        
-        if (isAdminLink) {
-            document.getElementById('authSubtitleText').innerText = "تسجيل دخول الإدارة (المحل)";
-            if (sessionStorage.getItem('aleskafy_admin_logged') === 'true') {
-                grantAccess('admin');
-                return;
-            }
-        } else {
-            document.getElementById('authSubtitleText').innerText = "تسجيل دخول الصنايعي";
-            if (sessionStorage.getItem('aleskafy_worker_logged') === 'true') {
-                grantAccess('worker');
-                return;
-            }
-        }
 
-        document.getElementById('authScreen').style.display = 'flex';
-        document.getElementById('mainContainer').style.display = 'none';
-    }
+function getDateRangeISO(dateInput) {
 
-    function submitPassword() {
-        let pass = document.getElementById('passwordInput').value.trim();
-        const urlParams = new URLSearchParams(window.location.search);
-        const isAdminLink = urlParams.get('admin') === 'masad2026';
+    return {
+        start:
+            getEgyptStartOfDayISO(dateInput),
 
-        if (isAdminLink) {
-            if (pass === "2020") {
-                sessionStorage.setItem('aleskafy_admin_logged', 'true');
-                grantAccess('admin');
-            } else {
-                alert("❌ كلمة مرور الإدارة غير صحيحة!");
-                document.getElementById('passwordInput').value = "";
-            }
-        } else {
-            if (pass === "3030") {
-                sessionStorage.setItem('aleskafy_worker_logged', 'true');
-                grantAccess('worker');
-            } else {
-                alert("❌ كلمة مرور الصنايعي غير صحيحة!");
-                document.getElementById('passwordInput').value = "";
-            }
-        }
-    }
+        end:
+            getEgyptEndOfDayISO(dateInput)
+    };
+}
 
-    function logoutApp() {
-        sessionStorage.removeItem('aleskafy_admin_logged');
-        sessionStorage.removeItem('aleskafy_worker_logged');
-        location.reload();
-    }
 
-    function grantAccess(role) {
-        document.getElementById('authScreen').style.display = 'none';
-        document.getElementById('mainContainer').style.display = 'block';
+/* =====================================================
+   تشغيل السيستم
+   ===================================================== */
 
-        if (role === 'admin') {
-            document.getElementById('invoiceForm').style.display = 'block';
-            document.getElementById('badge').style.display = 'flex';
-            document.getElementById('socialBtn').style.display = 'flex';
-            document.getElementById('portalMenu').style.display = 'grid';
-            document.getElementById('workerQuerySection').style.display = 'none';
-            fetchNextInvoiceNum();
-        } else {
-            document.getElementById('invoiceForm').style.display = 'none';
-            document.getElementById('badge').style.display = 'none';
-            document.getElementById('socialBtn').style.display = 'none';
-            document.getElementById('portalMenu').style.display = 'none';
-            document.getElementById('workerQuerySection').style.display = 'block';
-        }
-    }
+function initApp() {
 
-    function openScreen(screenId) {
-        document.getElementById('mainDashboardScreen').style.display = 'none';
-        document.getElementById('portalMenu').style.display = 'none';
-        document.getElementById('searchScreen').style.display = 'none';
-        document.getElementById('deliveryScreen').style.display = 'none';
-        document.getElementById('reportsScreen').style.display = 'none';
+    const urlParams =
+        new URLSearchParams(
+            window.location.search
+        );
 
-        document.getElementById(screenId).style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    const isAdminLink =
+        urlParams.get('admin') === 'masad2026';
 
-    function closeScreen() {
-        document.getElementById('searchScreen').style.display = 'none';
-        document.getElementById('deliveryScreen').style.display = 'none';
-        document.getElementById('reportsScreen').style.display = 'none';
-        document.getElementById('mainDashboardScreen').style.display = 'block';
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('admin') === 'masad2026' || sessionStorage.getItem('aleskafy_admin_logged') === 'true') {
-            document.getElementById('portalMenu').style.display = 'grid';
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
 
-    function calc() {
-        var t = parseFloat(document.getElementById('tot').value) || 0;
-        var p = parseFloat(document.getElementById('paid').value) || 0;
-        document.getElementById('rem').value = t - p;
-    }
+    if (isAdminLink) {
 
-    async function fetchNextInvoiceNum() {
-        try {
-            const egyptNow = getEgyptNow();
+        document.getElementById(
+            'authSubtitleText'
+        ).innerText =
+            "تسجيل دخول الإدارة (المحل)";
 
-            currentDayNum = egyptNow.getDate();
 
-            const todayStartISO = getEgyptStartOfDayISO();
+        if (
+            sessionStorage.getItem(
+                'aleskafy_admin_logged'
+            ) === 'true'
+        ) {
 
-            const { data, error } = await supabaseClient
-                .from('invoices')
-                .select('daily_number, created_at')
-                .gte('created_at', todayStartISO)
-                .order('daily_number', { ascending: false })
-                .limit(1);
+            grantAccess('admin');
 
-            if (!error && data && data.length > 0 && data[0].daily_number) {
-                currentDailyNum = parseInt(data[0].daily_number) + 1;
-            } else {
-                const { data: allToday } = await supabaseClient
-                    .from('invoices')
-                    .select('id, created_at')
-                    .gte('created_at', todayStartISO);
-                
-                currentDailyNum = (allToday ? allToday.length : 0) + 1;
-            }
-        } catch (e) {
-            currentDailyNum = 1;
-            currentDayNum = getEgyptNow().getDate();
-        }
-
-        formattedOrderCode = currentDailyNum + '/' + currentDayNum;
-
-        const badgeEl = document.getElementById('badge');
-
-        if (badgeEl) {
-            badgeEl.innerHTML = 
-                '<span>رقم أوردر اليوم الثابت:</span>' +
-                '<span class="fraction" style="font-size: 16px;">' +
-                    '<span class="numerator">' + currentDailyNum + '</span>' +
-                    '<span class="denominator">' + currentDayNum + '</span>' +
-                '</span>';
-        }
-    }
-
-    function handleImagesSelection(event) {
-        const files = event.target.files;
-        if (files && files.length > 0) {
-            const previewContainer = document.getElementById('previewsContainer');
-            previewContainer.innerHTML = '';
-            selectedFilesList = [];
-            for (let i = 0; i < files.length; i++) {
-                selectedFilesList.push(files[i]);
-            }
-            uploadedImageUrls = [];
-
-            selectedFilesList.forEach(function(file) {
-                const img = document.createElement('img');
-                img.className = 'preview-thumb';
-                img.src = URL.createObjectURL(file);
-                previewContainer.appendChild(img);
-            });
-        }
-    }
-
-    async function uploadAllImages() {
-        if (selectedFilesList.length === 0) return [];
-
-        const statusEl = document.getElementById('uploadStatus');
-        statusEl.innerText = '⏳ جاري رفع الصور، انتظر لحظة...';
-        statusEl.style.display = 'block';
-
-        let urls = [];
-
-        try {
-            for (let i = 0; i < selectedFilesList.length; i++) {
-                const file = selectedFilesList[i];
-
-                const fileName =
-                    'inv_' +
-                    Date.now() +
-                    '_' +
-                    i +
-                    '_' +
-                    Math.random().toString(36).substring(2, 7) +
-                    '.jpg';
-
-                const { data, error: uploadError } =
-                    await supabaseClient.storage
-                        .from('images')
-                        .upload(
-                            fileName,
-                            file,
-                            {
-                                cacheControl: '3600',
-                                upsert: true
-                            }
-                        );
-
-                if (uploadError) throw new Error(uploadError.message);
-
-                const { data: publicUrlData } =
-                    supabaseClient.storage
-                        .from('images')
-                        .getPublicUrl(fileName);
-
-                urls.push(publicUrlData.publicUrl);
-            }
-
-            uploadedImageUrls = urls;
-            statusEl.style.display = 'none';
-
-            return uploadedImageUrls;
-
-        } catch (err) {
-            statusEl.style.display = 'none';
-            alert("❌ خطأ أثناء رفع الصور:\n" + err.message);
-            return [];
-        }
-    }
-
-    function getItemsSummary() {
-        let items = [];
-
-        const sk = document.getElementById('snk').value;
-        const ss = document.getElementById('shs').value;
-        const sl = document.getElementById('slp').value;
-        const sn = document.getElementById('snd').value;
-        const sg = document.getElementById('sng').value;
-        const bg = document.getElementById('bags').value;
-        
-        if (parseInt(sk) > 0) items.push('كوتشيات: ' + sk);
-        if (parseInt(ss) > 0) items.push('جزم: ' + ss);
-        if (parseInt(sl) > 0) items.push('شبشب: ' + sl);
-        if (parseInt(sn) > 0) items.push('صندل: ' + sn);
-        if (parseInt(sg) > 0) items.push('فردة: ' + sg);
-        if (parseInt(bg) > 0) items.push('شنط: ' + bg);
-        
-        return items.join(' | ') || 'أصناف متعددة';
-    }
-
-    async function sendTo(m) {
-        var n = document.getElementById('name').value.trim();
-        var t = document.getElementById('tot').value.trim();
-        var ph = document.getElementById('phone').value.trim();
-        var shelf = document.getElementById('shelfLocation').value;
-
-        if(!n || !t || (m === 'client' && !ph)) {
-            alert("يرجى ملء كافة البيانات المطلوبة!");
             return;
         }
 
-        var imgUrls = await uploadAllImages();
-        var imagesForDatabase = imgUrls.join('\n');
+    } else {
 
-        var r = document.getElementById('rDate').value || 'غير محدد',
-            d = document.getElementById('dDate').value || 'غير محدد',
-            sk = document.getElementById('snk').value,
-            ss = document.getElementById('shs').value,
-            sl = document.getElementById('slp').value,
-            sn = document.getElementById('snd').value,
-            sg = document.getElementById('sng').value,
-            bg = document.getElementById('bags').value,
-            sv = document.getElementById('srv').value,
-            p = document.getElementById('paid').value,
-            rm = document.getElementById('rem').value;
+        document.getElementById(
+            'authSubtitleText'
+        ).innerText =
+            "تسجيل دخول الصنايعي";
 
-        if (!isCurrentInvoiceSaved) {
-            const { error } = await supabaseClient
-                .from('invoices')
-                .insert([{
-                    customer_name: n,
-                    phone: ph,
-                    item_type: getItemsSummary(),
-                    details: sv + ' | ' + shelf,
-                    price: parseFloat(t) || 0,
-                    paid: parseFloat(p) || 0,
-                    image_url: imagesForDatabase,
-                    status: 'تحت الصيانة',
-                    daily_number: currentDailyNum
-                }]);
 
-            if (error) {
-                alert("خطأ في حفظ الفاتورة: " + error.message);
-                return;
-            }
+        if (
+            sessionStorage.getItem(
+                'aleskafy_worker_logged'
+            ) === 'true'
+        ) {
 
-            isCurrentInvoiceSaved = true;
+            grantAccess('worker');
+
+            return;
         }
+    }
 
-        var baseTxt =
-            '👤 *اسم العميل:* ' + n + '\n' +
-            '📅 *تاريخ الاستلام:* ' + r + '\n' +
-            '📦 *تاريخ التسليم:* ' + d + '\n' +
-            '🗄️ *مكان التخزين:* ' + shelf + '\n\n' +
-            '👟 *كوتشيات:* ' + sk + ' | 🥾 *جزم:* ' + ss + ' | 🩴 *شبشب:* ' + sl + '\n' +
-            '👡 *صندل:* ' + sn + ' | 👞 *فردة:* ' + sg + ' | 💼 *شنط:* ' + bg + '\n' +
-            '🛠️ *الخدمة:* ' + sv + '\n\n' +
-            '💰 *الحساب الكلي:* ' + t + ' جنيه\n' +
-            '💵 *المدفوع مقدمًا:* ' + p + ' جنيه\n' +
-            '🔴 *المبلغ المتبقي:* ' + rm + ' جنيه';
 
-        if (m === 'client') {
-            var cleanPh = ph.replace(/\D/g, '');
+    document.getElementById(
+        'authScreen'
+    ).style.display = 'flex';
 
-            if (cleanPh.startsWith("0")) cleanPh = "2" + cleanPh;
 
-            var clientTxt =
-                '👤 *اسم العميل:* ' + n + '\n' +
-                '📅 *تاريخ الاستلام:* ' + r + '\n' +
-                '📦 *تاريخ التسليم:* ' + d + '\n' +
-                '🗄️ *مكان التخزين:* ' + shelf + '\n\n' +
-                '👟 *كوتشيات:* ' + sk + ' | 🥾 *جزم:* ' + ss + ' | 🩴 *شبشب:* ' + sl + '\n' +
-                '👡 *صندل:* ' + sn + ' | 👞 *فردة:* ' + sg + ' | 💼 *شنط:* ' + bg + '\n' +
-                '🛠️ *الخدمة:* ' + sv + '\n\n' +
-                '💰 *الحساب الكلي:* ' + t + ' جنيه\n' +
-                '💵 *المدفوع مقدمًا:* ' + p + ' جنيه\n' +
-                '🔴 *المبلغ المتبقي:* ' + rm + ' جنيه';
-            
-            var msg =
-                '✨ *ALESKAFY SHOES* ✨\n' +
-                '🧾 *إيصال استلام صيانة - رقم (' + currentDailyNum + ')*\n\n' +
-                clientTxt +
-                '\n\n⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.';
+    document.getElementById(
+        'mainContainer'
+    ).style.display = 'none';
+}
 
-            window.open(
-                "https://wa.me/" +
-                cleanPh +
-                "?text=" +
-                encodeURIComponent(msg),
-                "_blank"
+
+/* =====================================================
+   تسجيل الدخول
+   ===================================================== */
+
+function submitPassword() {
+
+    let pass =
+        document.getElementById(
+            'passwordInput'
+        ).value.trim();
+
+
+    const urlParams =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const isAdminLink =
+        urlParams.get('admin') === 'masad2026';
+
+
+    if (isAdminLink) {
+
+        if (pass === "2020") {
+
+            sessionStorage.setItem(
+                'aleskafy_admin_logged',
+                'true'
             );
+
+            grantAccess('admin');
 
         } else {
-            var oMsg =
-                '📥 *[ALESKAFY SHOES - نسخة المحل]*\n' +
-                '🧾 *أرشيف أوردر رقم (' + formattedOrderCode + ') على (' + shelf + ')*\n\n' +
-                baseTxt;
 
-            window.open(
-                "https://wa.me/" +
-                OWNER_PHONE +
-                "?text=" +
-                encodeURIComponent(oMsg),
-                "_blank"
+            alert(
+                "❌ كلمة مرور الإدارة غير صحيحة!"
             );
+
+            document.getElementById(
+                'passwordInput'
+            ).value = "";
+        }
+
+    } else {
+
+        if (pass === "3030") {
+
+            sessionStorage.setItem(
+                'aleskafy_worker_logged',
+                'true'
+            );
+
+            grantAccess('worker');
+
+        } else {
+
+            alert(
+                "❌ كلمة مرور الصنايعي غير صحيحة!"
+            );
+
+            document.getElementById(
+                'passwordInput'
+            ).value = "";
         }
     }
+}
 
-    async function resetFormForNextInvoice() {
-        document.getElementById('invoiceForm').reset();
-        document.getElementById('previewsContainer').innerHTML = '';
-        document.getElementById('uploadStatus').style.display = 'none';
 
-        uploadedImageUrls = [];
-        selectedFilesList = [];
-        isCurrentInvoiceSaved = false;
+/* =====================================================
+   تسجيل الخروج
+   ===================================================== */
 
-        await fetchNextInvoiceNum();
+function logoutApp() {
 
-        alert("جاهز للفاتورة الجديدة 👍");
+    sessionStorage.removeItem(
+        'aleskafy_admin_logged'
+    );
+
+    sessionStorage.removeItem(
+        'aleskafy_worker_logged'
+    );
+
+    location.reload();
+}
+
+
+/* =====================================================
+   صلاحيات المستخدم
+   ===================================================== */
+
+function grantAccess(role) {
+
+    document.getElementById(
+        'authScreen'
+    ).style.display = 'none';
+
+
+    document.getElementById(
+        'mainContainer'
+    ).style.display = 'block';
+
+
+    if (role === 'admin') {
+
+        document.getElementById(
+            'invoiceForm'
+        ).style.display = 'block';
+
+
+        document.getElementById(
+            'badge'
+        ).style.display = 'flex';
+
+
+        document.getElementById(
+            'socialBtn'
+        ).style.display = 'flex';
+
+
+        document.getElementById(
+            'portalMenu'
+        ).style.display = 'grid';
+
+
+        document.getElementById(
+            'workerQuerySection'
+        ).style.display = 'none';
+
+
+        fetchNextInvoiceNum();
+
+
+    } else {
+
+        document.getElementById(
+            'invoiceForm'
+        ).style.display = 'none';
+
+
+        document.getElementById(
+            'badge'
+        ).style.display = 'none';
+
+
+        document.getElementById(
+            'socialBtn'
+        ).style.display = 'none';
+
+
+        document.getElementById(
+            'portalMenu'
+        ).style.display = 'none';
+
+
+        document.getElementById(
+            'workerQuerySection'
+        ).style.display = 'block';
+    }
+}
+
+
+/* =====================================================
+   فتح الشاشات
+   ===================================================== */
+
+function openScreen(screenId) {
+
+    document.getElementById(
+        'mainDashboardScreen'
+    ).style.display = 'none';
+
+
+    document.getElementById(
+        'portalMenu'
+    ).style.display = 'none';
+
+
+    document.getElementById(
+        'searchScreen'
+    ).style.display = 'none';
+
+
+    document.getElementById(
+        'deliveryScreen'
+    ).style.display = 'none';
+
+
+    document.getElementById(
+        'reportsScreen'
+    ).style.display = 'none';
+
+
+    document.getElementById(
+        screenId
+    ).style.display = 'block';
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+
+/* =====================================================
+   رجوع
+   ===================================================== */
+
+function closeScreen() {
+
+    document.getElementById(
+        'searchScreen'
+    ).style.display = 'none';
+
+
+    document.getElementById(
+        'deliveryScreen'
+    ).style.display = 'none';
+
+
+    document.getElementById(
+        'reportsScreen'
+    ).style.display = 'none';
+
+
+    document.getElementById(
+        'mainDashboardScreen'
+    ).style.display = 'block';
+
+
+    const urlParams =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    if (
+        urlParams.get('admin') === 'masad2026' ||
+        sessionStorage.getItem(
+            'aleskafy_admin_logged'
+        ) === 'true'
+    ) {
+
+        document.getElementById(
+            'portalMenu'
+        ).style.display = 'grid';
     }
 
-    async function rep(type) {
-        const egyptNow = getEgyptNow();
 
-        const currentYear = egyptNow.getFullYear();
-        const currentMonth = egyptNow.getMonth();
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+
+/* =====================================================
+   الحساب
+   ===================================================== */
+
+function calc() {
+
+    var t =
+        parseFloat(
+            document.getElementById(
+                'tot'
+            ).value
+        ) || 0;
+
+
+    var p =
+        parseFloat(
+            document.getElementById(
+                'paid'
+            ).value
+        ) || 0;
+
+
+    document.getElementById(
+        'rem'
+    ).value = t - p;
+}
+
+
+/* =====================================================
+   رقم الأوردر
+   ===================================================== */
+
+async function fetchNextInvoiceNum() {
+
+    try {
+
         const todayStr =
-            egyptNow.getFullYear() +
-            '-' +
-            String(egyptNow.getMonth() + 1).padStart(2, '0') +
-            '-' +
-            String(egyptNow.getDate()).padStart(2, '0');
+            getEgyptDateString(
+                new Date()
+            );
 
-        const { data: list, error } =
+
+        currentDayNum =
+            getEgyptDay(
+                new Date()
+            );
+
+
+        const { data, error } =
             await supabaseClient
                 .from('invoices')
-                .select('*');
+                .select(
+                    'daily_number, created_at'
+                )
+                .order(
+                    'daily_number',
+                    {
+                        ascending: false
+                    }
+                )
+                .limit(1000);
 
-        if (error || !list || list.length === 0) {
-            alert("لا توجد فواتير مسجلة!");
+
+        if (
+            !error &&
+            data &&
+            data.length > 0
+        ) {
+
+            const todayInvoices =
+                data.filter(function(inv) {
+
+                    return (
+                        getEgyptDateString(
+                            inv.created_at
+                        ) === todayStr
+                    );
+
+                });
+
+
+            if (
+                todayInvoices.length > 0
+            ) {
+
+                const numbers =
+                    todayInvoices
+                        .map(
+                            inv =>
+                                parseInt(
+                                    inv.daily_number
+                                )
+                        )
+                        .filter(
+                            n =>
+                                !isNaN(n)
+                        );
+
+
+                currentDailyNum =
+                    numbers.length > 0
+                        ? Math.max(...numbers) + 1
+                        : todayInvoices.length + 1;
+
+            } else {
+
+                currentDailyNum = 1;
+            }
+
+        } else {
+
+            currentDailyNum = 1;
+        }
+
+
+    } catch (e) {
+
+        currentDailyNum = 1;
+
+        currentDayNum =
+            getEgyptDay(
+                new Date()
+            );
+    }
+
+
+    formattedOrderCode =
+        currentDailyNum +
+        '/' +
+        currentDayNum;
+
+
+    const badgeEl =
+        document.getElementById(
+            'badge'
+        );
+
+
+    if (badgeEl) {
+
+        badgeEl.innerHTML =
+
+            '<span>رقم أوردر اليوم:</span>' +
+
+            '<span class="fraction" style="font-size:16px;">' +
+
+                '<span class="numerator">' +
+                    currentDailyNum +
+                '</span>' +
+
+                '<span class="denominator">' +
+                    currentDayNum +
+                '</span>' +
+
+            '</span>';
+    }
+}
+
+
+/* =====================================================
+   الصور
+   ===================================================== */
+
+function handleImagesSelection(event) {
+
+    const files =
+        event.target.files;
+
+
+    if (
+        files &&
+        files.length > 0
+    ) {
+
+        const previewContainer =
+            document.getElementById(
+                'previewsContainer'
+            );
+
+
+        previewContainer.innerHTML = '';
+
+        selectedFilesList = [];
+
+
+        for (
+            let i = 0;
+            i < files.length;
+            i++
+        ) {
+
+            selectedFilesList.push(
+                files[i]
+            );
+        }
+
+
+        uploadedImageUrls = [];
+
+
+        selectedFilesList.forEach(
+            function(file) {
+
+                const img =
+                    document.createElement(
+                        'img'
+                    );
+
+
+                img.className =
+                    'preview-thumb';
+
+
+                img.src =
+                    URL.createObjectURL(
+                        file
+                    );
+
+
+                previewContainer.appendChild(
+                    img
+                );
+            }
+        );
+    }
+}
+
+
+/* =====================================================
+   رفع الصور
+   ===================================================== */
+
+async function uploadAllImages() {
+
+    if (
+        selectedFilesList.length === 0
+    ) {
+        return [];
+    }
+
+
+    const statusEl =
+        document.getElementById(
+            'uploadStatus'
+        );
+
+
+    statusEl.innerText =
+        '⏳ جاري رفع الصور، انتظر لحظة...';
+
+
+    statusEl.style.display =
+        'block';
+
+
+    let urls = [];
+
+
+    try {
+
+        for (
+            let i = 0;
+            i < selectedFilesList.length;
+            i++
+        ) {
+
+            const file =
+                selectedFilesList[i];
+
+
+            const fileName =
+                'inv_' +
+                Date.now() +
+                '_' +
+                i +
+                '_' +
+                Math.random()
+                    .toString(36)
+                    .substring(2,7) +
+                '.jpg';
+
+
+            const {
+                data,
+                error: uploadError
+            } =
+                await supabaseClient.storage
+                    .from('images')
+                    .upload(
+                        fileName,
+                        file,
+                        {
+                            cacheControl: '3600',
+                            upsert: true
+                        }
+                    );
+
+
+            if (uploadError) {
+
+                throw new Error(
+                    uploadError.message
+                );
+            }
+
+
+            const {
+                data: publicUrlData
+            } =
+                supabaseClient.storage
+                    .from('images')
+                    .getPublicUrl(
+                        fileName
+                    );
+
+
+            urls.push(
+                publicUrlData.publicUrl
+            );
+        }
+
+
+        uploadedImageUrls =
+            urls;
+
+
+        statusEl.style.display =
+            'none';
+
+
+        return uploadedImageUrls;
+
+
+    } catch (err) {
+
+        statusEl.style.display =
+            'none';
+
+
+        alert(
+            "❌ خطأ أثناء رفع الصور:\n" +
+            err.message
+        );
+
+
+        return [];
+    }
+}
+
+
+/* =====================================================
+   ملخص الأصناف
+   ===================================================== */
+
+function getItemsSummary() {
+
+    let items = [];
+
+
+    const sk =
+        document.getElementById(
+            'snk'
+        ).value;
+
+
+    const ss =
+        document.getElementById(
+            'shs'
+        ).value;
+
+
+    const sl =
+        document.getElementById(
+            'slp'
+        ).value;
+
+
+    const sn =
+        document.getElementById(
+            'snd'
+        ).value;
+
+
+    const sg =
+        document.getElementById(
+            'sng'
+        ).value;
+
+
+    const bg =
+        document.getElementById(
+            'bags'
+        ).value;
+
+
+    if (parseInt(sk) > 0)
+        items.push(
+            'كوتشيات: ' + sk
+        );
+
+
+    if (parseInt(ss) > 0)
+        items.push(
+            'جزم: ' + ss
+        );
+
+
+    if (parseInt(sl) > 0)
+        items.push(
+            'شبشب: ' + sl
+        );
+
+
+    if (parseInt(sn) > 0)
+        items.push(
+            'صندل: ' + sn
+        );
+
+
+    if (parseInt(sg) > 0)
+        items.push(
+            'فردة: ' + sg
+        );
+
+
+    if (parseInt(bg) > 0)
+        items.push(
+            'شنط: ' + bg
+        );
+
+
+    return (
+        items.join(' | ') ||
+        'أصناف متعددة'
+    );
+}
+
+
+/* =====================================================
+   إرسال الفاتورة
+   ===================================================== */
+
+async function sendTo(m) {
+
+    var n =
+        document.getElementById(
+            'name'
+        ).value.trim();
+
+
+    var t =
+        document.getElementById(
+            'tot'
+        ).value.trim();
+
+
+    var ph =
+        document.getElementById(
+            'phone'
+        ).value.trim();
+
+
+    var shelf =
+        document.getElementById(
+            'shelfLocation'
+        ).value;
+
+
+    if (
+        !n ||
+        !t ||
+        (m === 'client' && !ph)
+    ) {
+
+        alert(
+            "يرجى ملء كافة البيانات المطلوبة!"
+        );
+
+        return;
+    }
+
+
+    var imgUrls =
+        await uploadAllImages();
+
+
+    var imagesForDatabase =
+        imgUrls.join('\n');
+
+
+    var r =
+        document.getElementById(
+            'rDate'
+        ).value ||
+        'غير محدد';
+
+
+    var d =
+        document.getElementById(
+            'dDate'
+        ).value ||
+        'غير محدد';
+
+
+    var sk =
+        document.getElementById(
+            'snk'
+        ).value;
+
+
+    var ss =
+        document.getElementById(
+            'shs'
+        ).value;
+
+
+    var sl =
+        document.getElementById(
+            'slp'
+        ).value;
+
+
+    var sn =
+        document.getElementById(
+            'snd'
+        ).value;
+
+
+    var sg =
+        document.getElementById(
+            'sng'
+        ).value;
+
+
+    var bg =
+        document.getElementById(
+            'bags'
+        ).value;
+
+
+    var sv =
+        document.getElementById(
+            'srv'
+        ).value;
+
+
+    var p =
+        document.getElementById(
+            'paid'
+        ).value;
+
+
+    var rm =
+        document.getElementById(
+            'rem'
+        ).value;
+
+
+    /* =================================================
+       حفظ الفاتورة مرة واحدة فقط
+       ================================================= */
+
+    if (!isCurrentInvoiceSaved) {
+
+        const { error } =
+            await supabaseClient
+                .from('invoices')
+                .insert([
+                    {
+                        customer_name: n,
+                        phone: ph,
+                        item_type:
+                            getItemsSummary(),
+
+                        details:
+                            sv +
+                            ' | ' +
+                            shelf,
+
+                        price:
+                            parseFloat(t) || 0,
+
+                        paid:
+                            parseFloat(p) || 0,
+
+                        image_url:
+                            imagesForDatabase,
+
+                        status:
+                            'تحت الصيانة',
+
+                        daily_number:
+                            currentDailyNum
+                    }
+                ]);
+
+
+        if (error) {
+
+            alert(
+                "خطأ في حفظ الفاتورة: " +
+                error.message
+            );
+
             return;
         }
-        
-        let totalRemainingAll = 0;
 
-        let txt =
-            'تقرير الإسكافي شوز (' +
-            type.toUpperCase() +
-            ')\n====================\n\n';
-        
-        list.forEach(function(x) {
-            var price = x.price || 0;
-            var paid = x.paid || 0;
-            var rem = price - paid;
 
-            totalRemainingAll += rem;
+        isCurrentInvoiceSaved = true;
+    }
 
-            let invDate = new Date(x.created_at || Date.now());
 
-            let invYear = getEgyptYear(invDate);
-            let invMonth = getEgyptMonth(invDate);
+    /* =================================================
+       رسالة أساسية
+       ================================================= */
 
-            let invDateStr = getEgyptDateString(invDate);
+    var baseTxt =
+
+        '👤 *اسم العميل:* ' +
+        n +
+        '\n' +
+
+        '📅 *تاريخ الاستلام:* ' +
+        r +
+        '\n' +
+
+        '📦 *تاريخ التسليم:* ' +
+        d +
+        '\n' +
+
+        '🗄️ *مكان التخزين:* ' +
+        shelf +
+        '\n\n' +
+
+        '👟 *كوتشيات:* ' +
+        sk +
+        ' | 🥾 *جزم:* ' +
+        ss +
+        ' | 🩴 *شبشب:* ' +
+        sl +
+        '\n' +
+
+        '👡 *صندل:* ' +
+        sn +
+        ' | 👞 *فردة:* ' +
+        sg +
+        ' | 💼 *شنط:* ' +
+        bg +
+        '\n' +
+
+        '🛠️ *الخدمة:* ' +
+        sv +
+        '\n\n' +
+
+        '💰 *الحساب الكلي:* ' +
+        t +
+        ' جنيه\n' +
+
+        '💵 *المدفوع مقدمًا:* ' +
+        p +
+        ' جنيه\n' +
+
+        '🔴 *المبلغ المتبقي:* ' +
+        rm +
+        ' جنيه';
+
+
+    /* =================================================
+       رسالة العميل
+       ================================================= */
+
+    if (m === 'client') {
+
+        var cleanPh =
+            ph.replace(
+                /\D/g,
+                ''
+            );
+
+
+        if (
+            cleanPh.startsWith("0")
+        ) {
+
+            cleanPh =
+                "2" +
+                cleanPh;
+        }
+
+
+        var clientTxt =
+
+            '👤 *اسم العميل:* ' +
+            n +
+            '\n' +
+
+            '📅 *تاريخ الاستلام:* ' +
+            r +
+            '\n' +
+
+            '📦 *تاريخ التسليم:* ' +
+            d +
+            '\n' +
+
+            '🗄️ *مكان التخزين:* ' +
+            shelf +
+            '\n\n' +
+
+            '👟 *كوتشيات:* ' +
+            sk +
+            ' | 🥾 *جزم:* ' +
+            ss +
+            ' | 🩴 *شبشب:* ' +
+            sl +
+            '\n' +
+
+            '👡 *صندل:* ' +
+            sn +
+            ' | 👞 *فردة:* ' +
+            sg +
+            ' | 💼 *شنط:* ' +
+            bg +
+            '\n' +
+
+            '🛠️ *الخدمة:* ' +
+            sv +
+            '\n\n' +
+
+            '💰 *الحساب الكلي:* ' +
+            t +
+            ' جنيه\n' +
+
+            '💵 *المدفوع مقدمًا:* ' +
+            p +
+            ' جنيه\n' +
+
+            '🔴 *المبلغ المتبقي:* ' +
+            rm +
+            ' جنيه';
+
+
+        var msg =
+
+            '✨ *ALESKAFY SHOES* ✨\n' +
+
+            '🧾 *إيصال استلام صيانة - رقم (' +
+            formattedOrderCode +
+            ')*\n\n' +
+
+            clientTxt +
+
+            '\n\n' +
+
+            '🔔 *لمتابعة أخبار وعروض المحل:*' +
+            '\n' +
+
+            FACEBOOK_PAGE +
+
+            '\n\n' +
+
+            '⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.' +
+
+            '\n\n' +
+
+            '❤️ *نرحب بكم دائمًا في الاسكافي شوز*';
+
+
+        window.open(
+
+            "https://wa.me/" +
+            cleanPh +
+            "?text=" +
+            encodeURIComponent(msg),
+
+            "_blank"
+        );
+
+
+    } else {
+
+        var oMsg =
+
+            '📥 *[ALESKAFY SHOES - نسخة المحل]*\n' +
+
+            '🧾 *أرشيف أوردر رقم (' +
+            formattedOrderCode +
+            ') على (' +
+            shelf +
+            ')*\n\n' +
+
+            baseTxt;
+
+
+        window.open(
+
+            "https://wa.me/" +
+            OWNER_PHONE +
+            "?text=" +
+            encodeURIComponent(oMsg),
+
+            "_blank"
+        );
+    }
+}
+
+
+/* =====================================================
+   فاتورة جديدة
+   ===================================================== */
+
+async function resetFormForNextInvoice() {
+
+    document.getElementById(
+        'invoiceForm'
+    ).reset();
+
+
+    document.getElementById(
+        'previewsContainer'
+    ).innerHTML = '';
+
+
+    document.getElementById(
+        'uploadStatus'
+    ).style.display = 'none';
+
+
+    uploadedImageUrls = [];
+
+    selectedFilesList = [];
+
+    isCurrentInvoiceSaved = false;
+
+
+    await fetchNextInvoiceNum();
+
+
+    alert(
+        "جاهز للفاتورة الجديدة 👍"
+    );
+}
+
+
+/* =====================================================
+   التقارير
+   ===================================================== */
+
+async function rep(type) {
+
+    const egyptNow =
+        new Date();
+
+
+    const currentYear =
+        getEgyptYear(
+            egyptNow
+        );
+
+
+    const currentMonth =
+        getEgyptMonth(
+            egyptNow
+        );
+
+
+    const todayStr =
+        getEgyptDateString(
+            egyptNow
+        );
+
+
+    const {
+        data: list,
+        error
+    } =
+        await supabaseClient
+            .from('invoices')
+            .select('*');
+
+
+    if (
+        error ||
+        !list ||
+        list.length === 0
+    ) {
+
+        alert(
+            "لا توجد فواتير مسجلة!"
+        );
+
+        return;
+    }
+
+
+    let totalRemainingAll = 0;
+
+
+    let txt =
+
+        'تقرير الإسكافي شوز (' +
+        type.toUpperCase() +
+        ')\n' +
+
+        '====================\n\n';
+
+
+    list.forEach(
+        function(x) {
+
+            var price =
+                x.price || 0;
+
+
+            var paid =
+                x.paid || 0;
+
+
+            var rem =
+                price - paid;
+
+
+            totalRemainingAll +=
+                rem;
+
+
+            let invDate =
+                new Date(
+                    x.created_at ||
+                    Date.now()
+                );
+
+
+            let invYear =
+                getEgyptYear(
+                    invDate
+                );
+
+
+            let invMonth =
+                getEgyptMonth(
+                    invDate
+                );
+
+
+            let invDateStr =
+                getEgyptDateString(
+                    invDate
+                );
+
 
             let include = false;
 
-            if (type === 'daily' && invDateStr === todayStr) {
+
+            if (
+                type === 'daily' &&
+                invDateStr === todayStr
+            ) {
+
                 include = true;
             }
+
 
             if (
                 type === 'monthly' &&
                 invYear === currentYear &&
                 invMonth === currentMonth
             ) {
+
                 include = true;
             }
+
 
             if (
                 type === 'yearly' &&
                 invYear === currentYear
             ) {
+
                 include = true;
             }
 
+
             if (include) {
+
                 txt +=
+
                     'أوردر (' +
                     x.daily_number +
                     '/' +
                     getEgyptDay(invDate) +
                     ') - ' +
+
                     x.customer_name +
+
                     ' | الحساب: ' +
+
                     price +
+
                     ' ج | الباقي: ' +
+
                     rem +
+
                     ' ج\n';
             }
-        });
 
-        txt +=
-            "\n====================\nإجمالي المتبقي المتراكم: " +
-            totalRemainingAll +
-            ' ج';
+        }
+    );
 
-        var b = new Blob(
+
+    txt +=
+
+        "\n====================\n" +
+
+        "إجمالي المتبقي المتراكم: " +
+
+        totalRemainingAll +
+
+        ' ج';
+
+
+    var b =
+        new Blob(
             ["\uFEFF" + txt],
             {
-                type: "text/plain;charset=utf-8"
+                type:
+                    "text/plain;charset=utf-8"
             }
         );
 
-        var lnk = document.createElement('a');
 
-        lnk.href = URL.createObjectURL(b);
-        lnk.download = "Report_" + type + ".txt";
-        lnk.click();
+    var lnk =
+        document.createElement(
+            'a'
+        );
+
+
+    lnk.href =
+        URL.createObjectURL(
+            b
+        );
+
+
+    lnk.download =
+        "Report_" +
+        type +
+        ".txt";
+
+
+    lnk.click();
+}
+
+
+/* =====================================================
+   الأوردرات المسلمة
+   ===================================================== */
+
+async function loadDeliveredInvoices(
+    filterType
+) {
+
+    const resBox =
+        document.getElementById(
+            'deliveryResults'
+        );
+
+
+    resBox.style.display =
+        'block';
+
+
+    resBox.innerHTML =
+        'جاري التحميل... ⏳';
+
+
+    let query =
+        supabaseClient
+            .from('invoices')
+            .select('*')
+            .eq(
+                'status',
+                'تم التسليم 🚚'
+            )
+            .order(
+                'created_at',
+                {
+                    ascending: false
+                }
+            );
+
+
+    const {
+        data,
+        error
+    } =
+        await query;
+
+
+    if (
+        error ||
+        !data ||
+        data.length === 0
+    ) {
+
+        resBox.innerHTML =
+
+            '<div style="color:#38bdf8;text-align:center;padding:10px;">' +
+
+            'لا توجد أوردرات مسلمة مسجلة حالياً!' +
+
+            '</div>';
+
+        return;
     }
 
-    async function loadDeliveredInvoices(filterType) {
-        const resBox = document.getElementById('deliveryResults');
 
-        resBox.style.display = 'block';
-        resBox.innerHTML = 'جاري التحميل... ⏳';
+    let filteredData =
+        data;
 
-        let query =
-            supabaseClient
-                .from('invoices')
-                .select('*')
-                .eq('status', 'تم التسليم 🚚')
-                .order('created_at', { ascending: false });
 
-        const { data, error } = await query;
+    if (
+        filterType === 'today'
+    ) {
 
-        if (error || !data || data.length === 0) {
+        const todayStr =
+            getEgyptDateString(
+                new Date()
+            );
+
+
+        filteredData =
+            data.filter(
+                inv =>
+                    getEgyptDateString(
+                        inv.created_at
+                    ) === todayStr
+            );
+
+
+        if (
+            filteredData.length === 0
+        ) {
+
             resBox.innerHTML =
-                '<div style="color: #38bdf8; text-align: center; padding: 10px;">لا توجد أوردرات مسلمة مسجلة حالياً!</div>';
+
+                '<div style="color:#38bdf8;text-align:center;padding:10px;">' +
+
+                'لم يتم تسليم أي أوردرات اليوم حتى الآن!' +
+
+                '</div>';
+
             return;
         }
-
-        let filteredData = data;
-
-        if (filterType === 'today') {
-            const todayStr = getEgyptDateString(new Date());
-
-            filteredData = data.filter(inv => {
-                return getEgyptDateString(inv.created_at) === todayStr;
-            });
-
-            if (filteredData.length === 0) {
-                resBox.innerHTML =
-                    '<div style="color: #38bdf8; text-align: center; padding: 10px;">لم يتم تسليم أي أوردرات اليوم حتى الآن!</div>';
-                return;
-            }
-        }
-
-        renderSearchResults(
-            filteredData,
-            null,
-            resBox,
-            false
-        );
     }
 
-    async function searchByFractionNumber() {
-        const numVal =
-            document.getElementById('searchNumerator').value.trim();
 
-        const denVal =
-            document.getElementById('searchDenominator').value.trim();
+    renderSearchResults(
+        filteredData,
+        null,
+        resBox,
+        false
+    );
+}
 
-        const dateInput =
-            document.getElementById('searchDate').value;
 
-        const resBox =
-            document.getElementById('workerSearchResults');
+/* =====================================================
+   بحث الصنايعي
+   ===================================================== */
 
-        if (!numVal && !denVal && !dateInput) { 
-            alert('الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث'); 
-            return; 
-        }
+async function searchByFractionNumber() {
 
-        resBox.style.display = 'block';
-        resBox.innerHTML = 'جاري التحميل... ⏳';
+    const numVal =
+        document.getElementById(
+            'searchNumerator'
+        ).value.trim();
 
-        let query =
-            supabaseClient
-                .from('invoices')
-                .select('*')
-                .order('created_at', { ascending: false });
 
-        if (numVal) {
-            query = query.eq(
+    const denVal =
+        document.getElementById(
+            'searchDenominator'
+        ).value.trim();
+
+
+    const dateInput =
+        document.getElementById(
+            'searchDate'
+        ).value;
+
+
+    const resBox =
+        document.getElementById(
+            'workerSearchResults'
+        );
+
+
+    if (
+        !numVal &&
+        !denVal &&
+        !dateInput
+    ) {
+
+        alert(
+            'الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث'
+        );
+
+        return;
+    }
+
+
+    resBox.style.display =
+        'block';
+
+
+    resBox.innerHTML =
+        'جاري التحميل... ⏳';
+
+
+    let query =
+        supabaseClient
+            .from('invoices')
+            .select('*')
+            .order(
+                'created_at',
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (numVal) {
+
+        query =
+            query.eq(
                 'daily_number',
                 parseInt(numVal)
             );
-        }
-
-        if (dateInput) {
-            const range = getDateRangeISO(dateInput);
-
-            query =
-                query
-                    .gte('created_at', range.start)
-                    .lte('created_at', range.end);
-        }
-
-        const { data, error } = await query;
-
-        let finalData = data;
-
-        if (!dateInput && denVal && data) {
-            const dNum = parseInt(denVal);
-
-            finalData = data.filter(inv => {
-                return getEgyptDay(inv.created_at) === dNum;
-            });
-        }
-
-        renderSearchResults(
-            finalData,
-            error,
-            resBox,
-            false
-        );
     }
 
-    async function adminSearchByFractionNumber() {
-        const numVal =
-            document.getElementById('adminSearchNumerator').value.trim();
 
-        const denVal =
-            document.getElementById('adminSearchDenominator').value.trim();
+    if (dateInput) {
 
-        const dateInput =
-            document.getElementById('adminSearchDate').value;
+        const range =
+            getDateRangeISO(
+                dateInput
+            );
 
-        const resBox =
-            document.getElementById('searchResults');
 
-        if (!numVal && !denVal && !dateInput) { 
-            alert('الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث'); 
-            return; 
-        }
-
-        resBox.style.display = 'block';
-        resBox.innerHTML = 'جاري التحميل... ⏳';
-
-        let query =
-            supabaseClient
-                .from('invoices')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-        if (numVal) {
-            query =
-                query.eq(
-                    'daily_number',
-                    parseInt(numVal)
-                );
-        }
-
-        if (dateInput) {
-            const range = getDateRangeISO(dateInput);
-
-            query =
-                query
-                    .gte('created_at', range.start)
-                    .lte('created_at', range.end);
-        }
-
-        const { data, error } = await query;
-
-        let finalData = data;
-
-        if (!dateInput && denVal && data) {
-            const dNum = parseInt(denVal);
-
-            finalData = data.filter(inv => {
-                return getEgyptDay(inv.created_at) === dNum;
-            });
-        }
-
-        renderSearchResults(
-            finalData,
-            error,
-            resBox,
-            true
-        );
-    }
-
-    async function searchInvoices() {
-        const query =
-            document.getElementById('searchInput').value.trim();
-
-        const resBox =
-            document.getElementById('searchResults');
-
-        if (!query) {
-            alert('أدخل اسم العميل أو رقم الموبايل');
-            return;
-        }
-
-        resBox.style.display = 'block';
-        resBox.innerHTML = 'جاري التحميل... ⏳';
-
-        const { data, error } =
-            await supabaseClient
-                .from('invoices')
-                .select('*')
-                .or(
-                    'customer_name.ilike.%' +
-                    query +
-                    '%,phone.ilike.%' +
-                    query +
-                    '%'
+        query =
+            query
+                .gte(
+                    'created_at',
+                    range.start
                 )
-                .order('created_at', { ascending: false });
-
-        renderSearchResults(
-            data,
-            error,
-            resBox,
-            true
-        );
+                .lte(
+                    'created_at',
+                    range.end
+                );
     }
 
-    function renderSearchResults(
+
+    const {
+        data,
+        error
+    } =
+        await query;
+
+
+    let finalData =
+        data;
+
+
+    if (
+        !dateInput &&
+        denVal &&
+        data
+    ) {
+
+        const dNum =
+            parseInt(
+                denVal
+            );
+
+
+        finalData =
+            data.filter(
+                inv =>
+                    getEgyptDay(
+                        inv.created_at
+                    ) === dNum
+            );
+    }
+
+
+    renderSearchResults(
+        finalData,
+        error,
+        resBox,
+        false
+    );
+}
+
+
+/* =====================================================
+   بحث الإدارة
+   ===================================================== */
+
+async function adminSearchByFractionNumber() {
+
+    const numVal =
+        document.getElementById(
+            'adminSearchNumerator'
+        ).value.trim();
+
+
+    const denVal =
+        document.getElementById(
+            'adminSearchDenominator'
+        ).value.trim();
+
+
+    const dateInput =
+        document.getElementById(
+            'adminSearchDate'
+        ).value;
+
+
+    const resBox =
+        document.getElementById(
+            'searchResults'
+        );
+
+
+    if (
+        !numVal &&
+        !denVal &&
+        !dateInput
+    ) {
+
+        alert(
+            'الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث'
+        );
+
+        return;
+    }
+
+
+    resBox.style.display =
+        'block';
+
+
+    resBox.innerHTML =
+        'جاري التحميل... ⏳';
+
+
+    let query =
+        supabaseClient
+            .from('invoices')
+            .select('*')
+            .order(
+                'created_at',
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (numVal) {
+
+        query =
+            query.eq(
+                'daily_number',
+                parseInt(numVal)
+            );
+    }
+
+
+    if (dateInput) {
+
+        const range =
+            getDateRangeISO(
+                dateInput
+            );
+
+
+        query =
+            query
+                .gte(
+                    'created_at',
+                    range.start
+                )
+                .lte(
+                    'created_at',
+                    range.end
+                );
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await query;
+
+
+    let finalData =
+        data;
+
+
+    if (
+        !dateInput &&
+        denVal &&
+        data
+    ) {
+
+        const dNum =
+            parseInt(
+                denVal
+            );
+
+
+        finalData =
+            data.filter(
+                inv =>
+                    getEgyptDay(
+                        inv.created_at
+                    ) === dNum
+            );
+    }
+
+
+    renderSearchResults(
+        finalData,
+        error,
+        resBox,
+        true
+    );
+}
+
+
+/* =====================================================
+   البحث بالاسم أو الموبايل
+   ===================================================== */
+
+async function searchInvoices() {
+
+    const query =
+        document.getElementById(
+            'searchInput'
+        ).value.trim();
+
+
+    const resBox =
+        document.getElementById(
+            'searchResults'
+        );
+
+
+    if (!query) {
+
+        alert(
+            'أدخل اسم العميل أو رقم الموبايل'
+        );
+
+        return;
+    }
+
+
+    resBox.style.display =
+        'block';
+
+
+    resBox.innerHTML =
+        'جاري التحميل... ⏳';
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from('invoices')
+            .select('*')
+            .or(
+                'customer_name.ilike.%' +
+                query +
+                '%,phone.ilike.%' +
+                query +
+                '%'
+            )
+            .order(
+                'created_at',
+                {
+                    ascending: false
+                }
+            );
+
+
+    renderSearchResults(
         data,
         error,
         resBox,
-        showAdminControls
+        true
+    );
+}
+
+
+/* =====================================================
+   عرض النتائج
+   ===================================================== */
+
+function renderSearchResults(
+    data,
+    error,
+    resBox,
+    showAdminControls
+) {
+
+    if (
+        error ||
+        !data ||
+        data.length === 0
     ) {
-        if (error || !data || data.length === 0) {
-            resBox.innerHTML =
-                '<div style="color: #ef4444; text-align: center;">لا توجد فواتير مطابقة لهذا البحث!</div>';
-            return;
-        }
 
         resBox.innerHTML =
-            data.map(function(inv) {
+
+            '<div style="color:#ef4444;text-align:center;">' +
+
+            'لا توجد فواتير مطابقة لهذا البحث!' +
+
+            '</div>';
+
+        return;
+    }
+
+
+    resBox.innerHTML =
+
+        data.map(
+            function(inv) {
 
                 const isDone =
-                    inv.status === 'تم الانتهاء من الصيانة';
+                    inv.status ===
+                    'تم الانتهاء من الصيانة';
+
 
                 const isDelivered =
-                    inv.status === 'تم التسليم 🚚';
+                    inv.status ===
+                    'تم التسليم 🚚';
+
 
                 const statusClass =
                     isDelivered
@@ -1075,98 +3068,155 @@
                                 : 'bg-pending'
                         );
 
-                const price = inv.price || 0;
-                const paid = inv.paid || 0;
-                const rem = price - paid;
+
+                const price =
+                    inv.price || 0;
+
+
+                const paid =
+                    inv.paid || 0;
+
+
+                const rem =
+                    price - paid;
+
 
                 let invDate =
                     new Date(
-                        inv.created_at || Date.now()
+                        inv.created_at ||
+                        Date.now()
                     );
 
+
                 let numTop =
-                    inv.daily_number || '#';
+                    inv.daily_number ||
+                    '#';
+
 
                 let numBottom =
-                    getEgyptDay(invDate);
+                    getEgyptDay(
+                        invDate
+                    );
+
 
                 let fractionHtml =
-                    '<span class="fraction" style="font-size: 14px;">' +
+
+                    '<span class="fraction" style="font-size:14px;">' +
+
                         '<span class="numerator">' +
                             numTop +
                         '</span>' +
+
                         '<span class="denominator">' +
                             numBottom +
                         '</span>' +
+
                     '</span>';
 
-                let imageGalleryHtml = '';
+
+                let imageGalleryHtml =
+                    '';
+
 
                 if (inv.image_url) {
-                    const imageUrls =
-                        String(inv.image_url)
-                            .split(/\r?\n/)
-                            .map(u => u.trim())
-                            .filter(u => u.length > 1);
 
-                    if (imageUrls.length > 0) {
+                    const imageUrls =
+                        String(
+                            inv.image_url
+                        )
+                        .split(/\r?\n/)
+                        .map(
+                            u => u.trim()
+                        )
+                        .filter(
+                            u => u.length > 1
+                        );
+
+
+                    if (
+                        imageUrls.length > 0
+                    ) {
+
                         imageGalleryHtml =
-                            '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">' +
+
+                            '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">' +
+
                             imageUrls
-                                .map(url =>
-                                    '<a href="' +
-                                    url +
-                                    '" target="_blank">' +
-                                    '<img src="' +
-                                    url +
-                                    '" class="worker-thumb">' +
-                                    '</a>'
+                                .map(
+                                    url =>
+
+                                        '<a href="' +
+                                        url +
+                                        '" target="_blank">' +
+
+                                        '<img src="' +
+                                        url +
+                                        '" class="worker-thumb">' +
+
+                                        '</a>'
                                 )
                                 .join('') +
+
                             '</div>';
                     }
                 }
 
-                let adminControlsHtml = '';
+
+                let adminControlsHtml =
+                    '';
+
 
                 if (showAdminControls) {
+
                     adminControlsHtml =
-                        '<div style="margin-top: 10px; padding: 10px; background: #1a1500; border: 1px solid #bf953f; border-radius: 8px;">' +
-                            '<div style="font-size: 13px; color: #f3e5ab; margin-bottom: 6px; font-weight: bold;">💳 حالة الدفع: ' +
+
+                        '<div style="margin-top:10px;padding:10px;background:#1a1500;border:1px solid #bf953f;border-radius:8px;">' +
+
+                            '<div style="font-size:13px;color:#f3e5ab;margin-bottom:6px;font-weight:bold;">💳 حالة الدفع: ' +
+
                                 (
                                     rem > 0
+
                                         ? '<span style="color:#ef4444;">متبقي (' +
                                             rem +
                                             ' ج)</span>'
+
                                         : '<span style="color:#16a34a;">تم السداد ✅</span>'
                                 ) +
+
                             '</div>' +
 
-                            '<div style="display:flex; gap:6px; margin-bottom: 8px;">' +
-                                '<button type="button" class="btn-sm" style="background:#16a34a; color:#fff; flex:1;" onclick="updatePaymentStatus(' +
-                                    inv.id +
-                                    ', ' +
-                                    price +
-                                    ', 0)">✅ تم سداد المبلغ</button>' +
+                            '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
 
-                                '<button type="button" class="btn-sm" style="background:#d97706; color:#fff; flex:1;" onclick="updatePaymentStatus(' +
+                                '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updatePaymentStatus(' +
                                     inv.id +
                                     ', ' +
                                     price +
+                                    ',0)">✅ تم سداد المبلغ</button>' +
+
+                                '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updatePaymentStatus(' +
+                                    inv.id +
                                     ', ' +
-                                    (rem > 0 ? rem : price) +
+                                    price +
+                                    ',' +
+                                    (
+                                        rem > 0
+                                            ? rem
+                                            : price
+                                    ) +
                                     ')">⏳ لم يتم السداد</button>' +
 
                             '</div>' +
 
-                            '<div style="margin-top: 6px;">' +
-                                '<label style="font-size:11px; color:#d4af37; margin-bottom:2px;">🗄️ تعديل مكان التخزين (الرف):</label>' +
+                            '<div style="margin-top:6px;">' +
 
-                                '<div style="display:flex; gap:5px;">' +
+                                '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">🗄️ تعديل مكان التخزين (الرف):</label>' +
+
+                                '<div style="display:flex;gap:5px;">' +
 
                                     '<select id="shelf_edit_' +
                                         inv.id +
-                                        '" style="padding:6px; font-size:12px; margin-top:0;">' +
+                                        '" style="padding:6px;font-size:12px;margin-top:0;">' +
 
                                         '<option value="الرف : أ">الرف : أ</option>' +
                                         '<option value="الرف : ب">الرف : ب</option>' +
@@ -1177,183 +3227,298 @@
 
                                     '</select>' +
 
-                                    '<button type="button" class="btn-sm" style="background:#bf953f; color:#000; padding: 6px 12px; margin-top:0;" onclick="updateShelfLocation(' +
+                                    '<button type="button" class="btn-sm" style="background:#bf953f;color:#000;padding:6px 12px;margin-top:0;" onclick="updateShelfLocation(' +
                                         inv.id +
                                         ')">تحديث الرف</button>' +
 
                                 '</div>' +
+
                             '</div>' +
+
                         '</div>' +
 
-                        '<div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">' +
+                        '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
 
-                            '<button type="button" class="btn-sm" style="background:#0284c7; color:#fff; flex:1;" onclick="updateStatus(' +
+                            '<button type="button" class="btn-sm" style="background:#0284c7;color:#fff;flex:1;" onclick="updateStatus(' +
                                 inv.id +
                                 ', \'تم التسليم 🚚\')">🚚 تم التسليم</button>' +
 
-                            '<button type="button" class="btn-sm" style="background:#16a34a; color:#fff; flex:1;" onclick="updateStatus(' +
+                            '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updateStatus(' +
                                 inv.id +
                                 ', \'تم الانتهاء من الصيانة\')">✅ تم الانتهاء</button>' +
 
-                            '<button type="button" class="btn-sm" style="background:#d97706; color:#fff; flex:1;" onclick="updateStatus(' +
+                            '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updateStatus(' +
                                 inv.id +
                                 ', \'تحت الصيانة\')">⏳ تحت الصيانة</button>' +
 
                         '</div>';
                 }
 
+
                 return (
-                    '<div style="border-bottom: 1px dashed #33270a; padding-bottom: 12px; margin-bottom: 12px;">' +
 
-                        '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">' +
+                    '<div style="border-bottom:1px dashed #33270a;padding-bottom:12px;margin-bottom:12px;">' +
 
-                            '<strong style="color: #f3e5ab; font-size: 15px;">👤 ' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+
+                            '<strong style="color:#f3e5ab;font-size:15px;">👤 ' +
+
                                 inv.customer_name +
+
                             '</strong>' +
 
                             '<span class="status-badge ' +
                                 statusClass +
                             '">' +
-                                (inv.status || 'تحت الصيانة') +
+
+                                (
+                                    inv.status ||
+                                    'تحت الصيانة'
+                                ) +
+
                             '</span>' +
 
                         '</div>' +
 
-                        '<div style="font-size: 12px; color: #94a3b8; margin-bottom: 3px;">📅 التاريخ: ' +
-                            getEgyptDateString(inv.created_at || Date.now()) +
+                        '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">📅 التاريخ: ' +
+
+                            getEgyptDateString(
+                                inv.created_at ||
+                                Date.now()
+                            ) +
+
                         '</div>' +
 
-                        '<div style="font-size: 13px; color: #38bdf8; margin-bottom: 3px;">🔢 <b>رقم الأوردر:</b> ' +
+                        '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;">🔢 <b>رقم الأوردر:</b> ' +
+
                             fractionHtml +
+
                         '</div>' +
 
-                        '<div style="font-size: 13px; color: #cbd5e1; margin-bottom: 3px;">📱 الموبايل: ' +
+                        '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">📱 الموبايل: ' +
+
                             (inv.phone || '-') +
+
                         '</div>' +
 
-                        '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">👟 <b>الأصناف:</b> ' +
+                        '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">👟 <b>الأصناف:</b> ' +
+
                             (inv.item_type || '-') +
+
                         '</div>' +
 
-                        '<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 3px;">🛠️ <b>الخدمة:</b> ' +
+                        '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">🛠️ <b>الخدمة:</b> ' +
+
                             (inv.details || '-') +
+
                         '</div>' +
 
-                        '<div style="font-size: 13px; margin-bottom: 4px;">💰 الحساب: ' +
+                        '<div style="font-size:13px;margin-bottom:4px;">💰 الحساب: ' +
+
                             price +
+
                             ' ج | 💵 المدفوع: ' +
+
                             paid +
-                            ' ج | 🔴 المتبقي: <span style="color:#ef4444; font-weight:bold;">' +
+
+                            ' ج | 🔴 المتبقي: <span style="color:#ef4444;font-weight:bold;">' +
+
                             rem +
+
                             ' ج</span></div>' +
 
                         imageGalleryHtml +
+
                         adminControlsHtml +
 
                     '</div>'
                 );
-
-            }).join('');
-    }
-
-    async function updatePaymentStatus(
-        invoiceId,
-        totalPrice,
-        targetRem
-    ) {
-        let newPaid =
-            (targetRem === 0)
-                ? totalPrice
-                : (totalPrice - targetRem);
-
-        const { error } =
-            await supabaseClient
-                .from('invoices')
-                .update({ paid: newPaid })
-                .eq('id', invoiceId);
-
-        if (!error) {
-            alert("✅ تم تحديث حالة السداد بنجاح 👍");
-            searchByFractionNumber();
-        } else {
-            alert("❌ حدث خطأ!");
-        }
-    }
-
-    async function updateShelfLocation(id) {
-        const newShelf =
-            document.getElementById(
-                'shelf_edit_' + id
-            ).value;
-
-        const { data: invData } =
-            await supabaseClient
-                .from('invoices')
-                .select('details')
-                .eq('id', id)
-                .single();
-
-        if(invData) {
-            let currentDetails =
-                invData.details || '';
-
-            let parts =
-                currentDetails
-                    .split('|')
-                    .map(p => p.trim());
-
-            let cleanDetails =
-                parts
-                    .filter(
-                        p => !p.startsWith('الرف')
-                    )
-                    .join(' | ');
-
-            let updatedDetails =
-                cleanDetails
-                    ? (cleanDetails + ' | ' + newShelf)
-                    : newShelf;
-
-            const { error } =
-                await supabaseClient
-                    .from('invoices')
-                    .update({
-                        details: updatedDetails
-                    })
-                    .eq('id', id);
-
-            if (!error) {
-                alert(
-                    '✅ تم تحديث الرف بنجاح إلى (' +
-                    newShelf +
-                    ') 👍'
-                );
-
-                adminSearchByFractionNumber();
-
-            } else {
-                alert(
-                    '❌ حدث خطأ أثناء تحديث الرف!'
-                );
             }
-        }
-    }
+        ).join('');
+}
 
-    async function updateStatus(id, newStatus) {
-        const { error } =
+
+/* =====================================================
+   تحديث الدفع
+   ===================================================== */
+
+async function updatePaymentStatus(
+    invoiceId,
+    totalPrice,
+    targetRem
+) {
+
+    let newPaid =
+        targetRem === 0
+            ? totalPrice
+            : totalPrice - targetRem;
+
+
+    const { error } =
+        await supabaseClient
+            .from('invoices')
+            .update({
+                paid: newPaid
+            })
+            .eq(
+                'id',
+                invoiceId
+            );
+
+
+    if (!error) {
+
+        alert(
+            "✅ تم تحديث حالة السداد بنجاح 👍"
+        );
+
+
+        adminSearchByFractionNumber();
+
+    } else {
+
+        alert(
+            "❌ حدث خطأ!"
+        );
+    }
+}
+
+
+/* =====================================================
+   تحديث الرف
+   ===================================================== */
+
+async function updateShelfLocation(id) {
+
+    const newShelf =
+        document.getElementById(
+            'shelf_edit_' + id
+        ).value;
+
+
+    const {
+        data: invData
+    } =
+        await supabaseClient
+            .from('invoices')
+            .select('details')
+            .eq(
+                'id',
+                id
+            )
+            .single();
+
+
+    if (invData) {
+
+        let currentDetails =
+            invData.details || '';
+
+
+        let parts =
+            currentDetails
+                .split('|')
+                .map(
+                    p => p.trim()
+                );
+
+
+        let cleanDetails =
+            parts
+                .filter(
+                    p =>
+                        !p.startsWith(
+                            'الرف'
+                        )
+                )
+                .join(' | ');
+
+
+        let updatedDetails =
+            cleanDetails
+                ? (
+                    cleanDetails +
+                    ' | ' +
+                    newShelf
+                )
+                : newShelf;
+
+
+        const {
+            error
+        } =
             await supabaseClient
                 .from('invoices')
                 .update({
-                    status: newStatus
+                    details:
+                        updatedDetails
                 })
-                .eq('id', id);
+                .eq(
+                    'id',
+                    id
+                );
 
-        if (!error) { 
-            alert('تم تغيير الحالة بنجاح 👍'); 
-            searchByFractionNumber(); 
-        } else { 
-            alert('حدث خطأ!'); 
+
+        if (!error) {
+
+            alert(
+                '✅ تم تحديث الرف بنجاح إلى (' +
+                newShelf +
+                ') 👍'
+            );
+
+
+            adminSearchByFractionNumber();
+
+        } else {
+
+            alert(
+                '❌ حدث خطأ أثناء تحديث الرف!'
+            );
         }
     }
+}
+
+
+/* =====================================================
+   تحديث الحالة
+   ===================================================== */
+
+async function updateStatus(
+    id,
+    newStatus
+) {
+
+    const { error } =
+        await supabaseClient
+            .from('invoices')
+            .update({
+                status:
+                    newStatus
+            })
+            .eq(
+                'id',
+                id
+            );
+
+
+    if (!error) {
+
+        alert(
+            'تم تغيير الحالة بنجاح 👍'
+        );
+
+
+        adminSearchByFractionNumber();
+
+    } else {
+
+        alert(
+            'حدث خطأ!'
+        );
+    }
+}
+
 </script>
+
 </html>
