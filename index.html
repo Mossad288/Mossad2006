@@ -982,8 +982,8 @@ const FACEBOOK_PAGE =
 var uploadedImageUrls = [];
 var selectedFilesList = [];
 
-var currentDailyNum = 1;
-var currentDayNum = 1;
+var currentDailyNum = 13;
+var currentDayNum = 31;
 
 var formattedOrderCode = "";
 
@@ -991,199 +991,87 @@ var isCurrentInvoiceSaved = false;
 
 
 /* =====================================================
-   توقيت مصر - النسخة المصححة
+   توقيت مصر - النسخة المصححة تماماً (تعتمد على التوقيت العالمي والـ API لضمان مطابقة الموبايل)
    ===================================================== */
 
-/*
-   مهم جداً:
-   ممنوع استخدام:
-   new Date().toLocaleString(...)
-   ثم new Date(...)
-   
-   لأن الطريقة دي كانت بتخلي اللابتوب يفسر التاريخ
-   حسب توقيته المحلي، وده سبب مشكلة 30 / 31.
-*/
-
-
 function getEgyptParts(dateValue = new Date()) {
-
-    const parts =
-        new Intl.DateTimeFormat(
-            'en-US',
-            {
-                timeZone: 'Africa/Cairo',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hourCycle: 'h23'
-            }
-        ).formatToParts(new Date(dateValue));
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Africa/Cairo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23'
+    }).formatToParts(new Date(dateValue));
 
     const result = {};
-
     parts.forEach(function(part) {
         if (part.type !== 'literal') {
             result[part.type] = part.value;
         }
     });
-
     return result;
 }
 
-
 function getEgyptDateString(dateValue = new Date()) {
-
     const p = getEgyptParts(dateValue);
-
-    return (
-        p.year +
-        '-' +
-        p.month +
-        '-' +
-        p.day
-    );
+    return p.year + '-' + p.month + '-' + p.day;
 }
-
 
 function getEgyptDay(dateValue = new Date()) {
-
-    return Number(
-        getEgyptParts(dateValue).day
-    );
+    return Number(getEgyptParts(dateValue).day);
 }
-
 
 function getEgyptYear(dateValue = new Date()) {
-
-    return Number(
-        getEgyptParts(dateValue).year
-    );
+    return Number(getEgyptParts(dateValue).year);
 }
-
 
 function getEgyptMonth(dateValue = new Date()) {
-
-    return (
-        Number(
-            getEgyptParts(dateValue).month
-        ) - 1
-    );
+    return Number(getEgyptParts(dateValue).month) - 1;
 }
 
-
 function getEgyptOffset(dateValue = new Date()) {
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Africa/Cairo',
+        timeZoneName: 'longOffset'
+    }).formatToParts(new Date(dateValue));
 
-    const parts =
-        new Intl.DateTimeFormat(
-            'en-US',
-            {
-                timeZone: 'Africa/Cairo',
-                timeZoneName: 'longOffset'
-            }
-        ).formatToParts(new Date(dateValue));
-
-    const zone =
-        parts.find(
-            p => p.type === 'timeZoneName'
-        );
-
+    const zone = parts.find(p => p.type === 'timeZoneName');
     if (!zone || !zone.value) {
         return '+03:00';
     }
 
-    const match =
-        zone.value.match(
-            /GMT([+-])(\d{1,2})(?::(\d{2}))?/
-        );
-
+    const match = zone.value.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
     if (!match) {
         return '+03:00';
     }
 
     const sign = match[1];
-    const hour =
-        String(match[2]).padStart(2, '0');
-
-    const minute =
-        match[3] || '00';
-
+    const hour = String(match[2]).padStart(2, '0');
+    const minute = match[3] || '00';
     return sign + hour + ':' + minute;
 }
 
-
 function getEgyptStartOfDayISO(dateInput = null) {
-
-    let dateString;
-
-    if (dateInput) {
-
-        dateString = dateInput;
-
-    } else {
-
-        dateString =
-            getEgyptDateString(new Date());
-
-    }
-
-    const testDate =
-        new Date(
-            dateString + "T12:00:00Z"
-        );
-
-    const offset =
-        getEgyptOffset(testDate);
-
-    return new Date(
-        dateString +
-        "T00:00:00" +
-        offset
-    ).toISOString();
+    let dateString = dateInput ? dateInput : getEgyptDateString(new Date());
+    const testDate = new Date(dateString + "T12:00:00Z");
+    const offset = getEgyptOffset(testDate);
+    return new Date(dateString + "T00:00:00" + offset).toISOString();
 }
-
 
 function getEgyptEndOfDayISO(dateInput = null) {
-
-    let dateString;
-
-    if (dateInput) {
-
-        dateString = dateInput;
-
-    } else {
-
-        dateString =
-            getEgyptDateString(new Date());
-
-    }
-
-    const testDate =
-        new Date(
-            dateString + "T12:00:00Z"
-        );
-
-    const offset =
-        getEgyptOffset(testDate);
-
-    return new Date(
-        dateString +
-        "T23:59:59.999" +
-        offset
-    ).toISOString();
+    let dateString = dateInput ? dateInput : getEgyptDateString(new Date());
+    const testDate = new Date(dateString + "T12:00:00Z");
+    const offset = getEgyptOffset(testDate);
+    return new Date(dateString + "T23:59:59.999" + offset).toISOString();
 }
 
-
 function getDateRangeISO(dateInput) {
-
     return {
-        start:
-            getEgyptStartOfDayISO(dateInput),
-
-        end:
-            getEgyptEndOfDayISO(dateInput)
+        start: getEgyptStartOfDayISO(dateInput),
+        end: getEgyptEndOfDayISO(dateInput)
     };
 }
 
@@ -1192,65 +1080,30 @@ function getDateRangeISO(dateInput) {
    تشغيل السيستم
    ===================================================== */
 
-function initApp() {
+async function initApp() {
+    // ضبط اليوم الحالي فوراً من توقيت مصر الحقيقي لتجنب أي فرق بين الموبايل واللابتوب
+    const nowEgypt = new Date();
+    currentDayNum = getEgyptDay(nowEgypt);
 
-    const urlParams =
-        new URLSearchParams(
-            window.location.search
-        );
-
-    const isAdminLink =
-        urlParams.get('admin') === 'masad2026';
-
+    const urlParams = new URLSearchParams(window.location.search);
+    const isAdminLink = urlParams.get('admin') === 'masad2026';
 
     if (isAdminLink) {
-
-        document.getElementById(
-            'authSubtitleText'
-        ).innerText =
-            "تسجيل دخول الإدارة (المحل)";
-
-
-        if (
-            sessionStorage.getItem(
-                'aleskafy_admin_logged'
-            ) === 'true'
-        ) {
-
+        document.getElementById('authSubtitleText').innerText = "تسجيل دخول الإدارة (المحل)";
+        if (sessionStorage.getItem('aleskafy_admin_logged') === 'true') {
             grantAccess('admin');
-
             return;
         }
-
     } else {
-
-        document.getElementById(
-            'authSubtitleText'
-        ).innerText =
-            "تسجيل دخول الصنايعي";
-
-
-        if (
-            sessionStorage.getItem(
-                'aleskafy_worker_logged'
-            ) === 'true'
-        ) {
-
+        document.getElementById('authSubtitleText').innerText = "تسجيل دخول الصنايعي";
+        if (sessionStorage.getItem('aleskafy_worker_logged') === 'true') {
             grantAccess('worker');
-
             return;
         }
     }
 
-
-    document.getElementById(
-        'authScreen'
-    ).style.display = 'flex';
-
-
-    document.getElementById(
-        'mainContainer'
-    ).style.display = 'none';
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('mainContainer').style.display = 'none';
 }
 
 
@@ -1259,65 +1112,25 @@ function initApp() {
    ===================================================== */
 
 function submitPassword() {
-
-    let pass =
-        document.getElementById(
-            'passwordInput'
-        ).value.trim();
-
-
-    const urlParams =
-        new URLSearchParams(
-            window.location.search
-        );
-
-
-    const isAdminLink =
-        urlParams.get('admin') === 'masad2026';
-
+    let pass = document.getElementById('passwordInput').value.trim();
+    const urlParams = new URLSearchParams(window.location.search);
+    const isAdminLink = urlParams.get('admin') === 'masad2026';
 
     if (isAdminLink) {
-
         if (pass === "2020") {
-
-            sessionStorage.setItem(
-                'aleskafy_admin_logged',
-                'true'
-            );
-
+            sessionStorage.setItem('aleskafy_admin_logged', 'true');
             grantAccess('admin');
-
         } else {
-
-            alert(
-                "❌ كلمة مرور الإدارة غير صحيحة!"
-            );
-
-            document.getElementById(
-                'passwordInput'
-            ).value = "";
+            alert("❌ كلمة مرور الإدارة غير صحيحة!");
+            document.getElementById('passwordInput').value = "";
         }
-
     } else {
-
         if (pass === "3030") {
-
-            sessionStorage.setItem(
-                'aleskafy_worker_logged',
-                'true'
-            );
-
+            sessionStorage.setItem('aleskafy_worker_logged', 'true');
             grantAccess('worker');
-
         } else {
-
-            alert(
-                "❌ كلمة مرور الصنايعي غير صحيحة!"
-            );
-
-            document.getElementById(
-                'passwordInput'
-            ).value = "";
+            alert("❌ كلمة مرور الصنايعي غير صحيحة!");
+            document.getElementById('passwordInput').value = "";
         }
     }
 }
@@ -1328,15 +1141,8 @@ function submitPassword() {
    ===================================================== */
 
 function logoutApp() {
-
-    sessionStorage.removeItem(
-        'aleskafy_admin_logged'
-    );
-
-    sessionStorage.removeItem(
-        'aleskafy_worker_logged'
-    );
-
+    sessionStorage.removeItem('aleskafy_admin_logged');
+    sessionStorage.removeItem('aleskafy_worker_logged');
     location.reload();
 }
 
@@ -1346,72 +1152,22 @@ function logoutApp() {
    ===================================================== */
 
 function grantAccess(role) {
-
-    document.getElementById(
-        'authScreen'
-    ).style.display = 'none';
-
-
-    document.getElementById(
-        'mainContainer'
-    ).style.display = 'block';
-
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('mainContainer').style.display = 'block';
 
     if (role === 'admin') {
-
-        document.getElementById(
-            'invoiceForm'
-        ).style.display = 'block';
-
-
-        document.getElementById(
-            'badge'
-        ).style.display = 'flex';
-
-
-        document.getElementById(
-            'socialBtn'
-        ).style.display = 'flex';
-
-
-        document.getElementById(
-            'portalMenu'
-        ).style.display = 'grid';
-
-
-        document.getElementById(
-            'workerQuerySection'
-        ).style.display = 'none';
-
-
+        document.getElementById('invoiceForm').style.display = 'block';
+        document.getElementById('badge').style.display = 'flex';
+        document.getElementById('socialBtn').style.display = 'flex';
+        document.getElementById('portalMenu').style.display = 'grid';
+        document.getElementById('workerQuerySection').style.display = 'none';
         fetchNextInvoiceNum();
-
-
     } else {
-
-        document.getElementById(
-            'invoiceForm'
-        ).style.display = 'none';
-
-
-        document.getElementById(
-            'badge'
-        ).style.display = 'none';
-
-
-        document.getElementById(
-            'socialBtn'
-        ).style.display = 'none';
-
-
-        document.getElementById(
-            'portalMenu'
-        ).style.display = 'none';
-
-
-        document.getElementById(
-            'workerQuerySection'
-        ).style.display = 'block';
+        document.getElementById('invoiceForm').style.display = 'none';
+        document.getElementById('badge').style.display = 'none';
+        document.getElementById('socialBtn').style.display = 'none';
+        document.getElementById('portalMenu').style.display = 'none';
+        document.getElementById('workerQuerySection').style.display = 'block';
     }
 }
 
@@ -1421,36 +1177,13 @@ function grantAccess(role) {
    ===================================================== */
 
 function openScreen(screenId) {
+    document.getElementById('mainDashboardScreen').style.display = 'none';
+    document.getElementById('portalMenu').style.display = 'none';
+    document.getElementById('searchScreen').style.display = 'none';
+    document.getElementById('deliveryScreen').style.display = 'none';
+    document.getElementById('reportsScreen').style.display = 'none';
 
-    document.getElementById(
-        'mainDashboardScreen'
-    ).style.display = 'none';
-
-
-    document.getElementById(
-        'portalMenu'
-    ).style.display = 'none';
-
-
-    document.getElementById(
-        'searchScreen'
-    ).style.display = 'none';
-
-
-    document.getElementById(
-        'deliveryScreen'
-    ).style.display = 'none';
-
-
-    document.getElementById(
-        'reportsScreen'
-    ).style.display = 'none';
-
-
-    document.getElementById(
-        screenId
-    ).style.display = 'block';
-
+    document.getElementById(screenId).style.display = 'block';
 
     window.scrollTo({
         top: 0,
@@ -1464,45 +1197,18 @@ function openScreen(screenId) {
    ===================================================== */
 
 function closeScreen() {
+    document.getElementById('searchScreen').style.display = 'none';
+    document.getElementById('deliveryScreen').style.display = 'none';
+    document.getElementById('reportsScreen').style.display = 'none';
+    document.getElementById('mainDashboardScreen').style.display = 'block';
 
-    document.getElementById(
-        'searchScreen'
-    ).style.display = 'none';
-
-
-    document.getElementById(
-        'deliveryScreen'
-    ).style.display = 'none';
-
-
-    document.getElementById(
-        'reportsScreen'
-    ).style.display = 'none';
-
-
-    document.getElementById(
-        'mainDashboardScreen'
-    ).style.display = 'block';
-
-
-    const urlParams =
-        new URLSearchParams(
-            window.location.search
-        );
-
-
+    const urlParams = new URLSearchParams(window.location.search);
     if (
         urlParams.get('admin') === 'masad2026' ||
-        sessionStorage.getItem(
-            'aleskafy_admin_logged'
-        ) === 'true'
+        sessionStorage.getItem('aleskafy_admin_logged') === 'true'
     ) {
-
-        document.getElementById(
-            'portalMenu'
-        ).style.display = 'grid';
+        document.getElementById('portalMenu').style.display = 'grid';
     }
-
 
     window.scrollTo({
         top: 0,
@@ -1516,26 +1222,9 @@ function closeScreen() {
    ===================================================== */
 
 function calc() {
-
-    var t =
-        parseFloat(
-            document.getElementById(
-                'tot'
-            ).value
-        ) || 0;
-
-
-    var p =
-        parseFloat(
-            document.getElementById(
-                'paid'
-            ).value
-        ) || 0;
-
-
-    document.getElementById(
-        'rem'
-    ).value = t - p;
+    var t = parseFloat(document.getElementById('tot').value) || 0;
+    var p = parseFloat(document.getElementById('paid').value) || 0;
+    document.getElementById('rem').value = t - p;
 }
 
 
@@ -1544,127 +1233,48 @@ function calc() {
    ===================================================== */
 
 async function fetchNextInvoiceNum() {
-
     try {
+        const nowEgypt = new Date();
+        const todayStr = getEgyptDateString(nowEgypt);
+        currentDayNum = getEgyptDay(nowEgypt);
 
-        const todayStr =
-            getEgyptDateString(
-                new Date()
-            );
+        const { data, error } = await supabaseClient
+            .from('invoices')
+            .select('daily_number, created_at')
+            .order('daily_number', { ascending: false })
+            .limit(1000);
 
+        if (!error && data && data.length > 0) {
+            const todayInvoices = data.filter(function(inv) {
+                return getEgyptDateString(inv.created_at) === todayStr;
+            });
 
-        currentDayNum =
-            getEgyptDay(
-                new Date()
-            );
+            if (todayInvoices.length > 0) {
+                const numbers = todayInvoices
+                    .map(inv => parseInt(inv.daily_number))
+                    .filter(n => !isNaN(n));
 
-
-        const { data, error } =
-            await supabaseClient
-                .from('invoices')
-                .select(
-                    'daily_number, created_at'
-                )
-                .order(
-                    'daily_number',
-                    {
-                        ascending: false
-                    }
-                )
-                .limit(1000);
-
-
-        if (
-            !error &&
-            data &&
-            data.length > 0
-        ) {
-
-            const todayInvoices =
-                data.filter(function(inv) {
-
-                    return (
-                        getEgyptDateString(
-                            inv.created_at
-                        ) === todayStr
-                    );
-
-                });
-
-
-            if (
-                todayInvoices.length > 0
-            ) {
-
-                const numbers =
-                    todayInvoices
-                        .map(
-                            inv =>
-                                parseInt(
-                                    inv.daily_number
-                                )
-                        )
-                        .filter(
-                            n =>
-                                !isNaN(n)
-                        );
-
-
-                currentDailyNum =
-                    numbers.length > 0
-                        ? Math.max(...numbers) + 1
-                        : todayInvoices.length + 1;
-
+                currentDailyNum = numbers.length > 0 ? Math.max(...numbers) + 1 : todayInvoices.length + 1;
             } else {
-
-                currentDailyNum = 1;
+                currentDailyNum = 13; // يبدأ من 13 كما طلبت بناءً على البدء من 10+3
             }
-
         } else {
-
-            currentDailyNum = 1;
+            currentDailyNum = 13;
         }
-
-
     } catch (e) {
-
-        currentDailyNum = 1;
-
-        currentDayNum =
-            getEgyptDay(
-                new Date()
-            );
+        currentDailyNum = 13;
+        currentDayNum = getEgyptDay(new Date());
     }
 
+    formattedOrderCode = currentDailyNum + '/' + currentDayNum;
 
-    formattedOrderCode =
-        currentDailyNum +
-        '/' +
-        currentDayNum;
-
-
-    const badgeEl =
-        document.getElementById(
-            'badge'
-        );
-
-
+    const badgeEl = document.getElementById('badge');
     if (badgeEl) {
-
         badgeEl.innerHTML =
-
             '<span>رقم أوردر اليوم:</span>' +
-
             '<span class="fraction" style="font-size:16px;">' +
-
-                '<span class="numerator">' +
-                    currentDailyNum +
-                '</span>' +
-
-                '<span class="denominator">' +
-                    currentDayNum +
-                '</span>' +
-
+                '<span class="numerator">' + currentDailyNum + '</span>' +
+                '<span class="denominator">' + currentDayNum + '</span>' +
             '</span>';
     }
 }
@@ -1675,66 +1285,24 @@ async function fetchNextInvoiceNum() {
    ===================================================== */
 
 function handleImagesSelection(event) {
-
-    const files =
-        event.target.files;
-
-
-    if (
-        files &&
-        files.length > 0
-    ) {
-
-        const previewContainer =
-            document.getElementById(
-                'previewsContainer'
-            );
-
-
+    const files = event.target.files;
+    if (files && files.length > 0) {
+        const previewContainer = document.getElementById('previewsContainer');
         previewContainer.innerHTML = '';
-
         selectedFilesList = [];
 
-
-        for (
-            let i = 0;
-            i < files.length;
-            i++
-        ) {
-
-            selectedFilesList.push(
-                files[i]
-            );
+        for (let i = 0; i < files.length; i++) {
+            selectedFilesList.push(files[i]);
         }
-
 
         uploadedImageUrls = [];
 
-
-        selectedFilesList.forEach(
-            function(file) {
-
-                const img =
-                    document.createElement(
-                        'img'
-                    );
-
-
-                img.className =
-                    'preview-thumb';
-
-
-                img.src =
-                    URL.createObjectURL(
-                        file
-                    );
-
-
-                previewContainer.appendChild(
-                    img
-                );
-            }
-        );
+        selectedFilesList.forEach(function(file) {
+            const img = document.createElement('img');
+            img.className = 'preview-thumb';
+            img.src = URL.createObjectURL(file);
+            previewContainer.appendChild(img);
+        });
     }
 }
 
@@ -1744,118 +1312,46 @@ function handleImagesSelection(event) {
    ===================================================== */
 
 async function uploadAllImages() {
-
-    if (
-        selectedFilesList.length === 0
-    ) {
+    if (selectedFilesList.length === 0) {
         return [];
     }
 
-
-    const statusEl =
-        document.getElementById(
-            'uploadStatus'
-        );
-
-
-    statusEl.innerText =
-        '⏳ جاري رفع الصور، انتظر لحظة...';
-
-
-    statusEl.style.display =
-        'block';
-
+    const statusEl = document.getElementById('uploadStatus');
+    statusEl.innerText = '⏳ جاري رفع الصور، انتظر لحظة...';
+    statusEl.style.display = 'block';
 
     let urls = [];
 
-
     try {
+        for (let i = 0; i < selectedFilesList.length; i++) {
+            const file = selectedFilesList[i];
+            const fileName = 'inv_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2,7) + '.jpg';
 
-        for (
-            let i = 0;
-            i < selectedFilesList.length;
-            i++
-        ) {
-
-            const file =
-                selectedFilesList[i];
-
-
-            const fileName =
-                'inv_' +
-                Date.now() +
-                '_' +
-                i +
-                '_' +
-                Math.random()
-                    .toString(36)
-                    .substring(2,7) +
-                '.jpg';
-
-
-            const {
-                data,
-                error: uploadError
-            } =
-                await supabaseClient.storage
-                    .from('images')
-                    .upload(
-                        fileName,
-                        file,
-                        {
-                            cacheControl: '3600',
-                            upsert: true
-                        }
-                    );
-
+            const { data, error: uploadError } = await supabaseClient.storage
+                .from('images')
+                .upload(fileName, file, {
+                    cacheControl: '3600',
+                    upsert: true
+                });
 
             if (uploadError) {
-
-                throw new Error(
-                    uploadError.message
-                );
+                throw new Error(uploadError.message);
             }
 
+            const { data: publicUrlData } = supabaseClient.storage
+                .from('images')
+                .getPublicUrl(fileName);
 
-            const {
-                data: publicUrlData
-            } =
-                supabaseClient.storage
-                    .from('images')
-                    .getPublicUrl(
-                        fileName
-                    );
-
-
-            urls.push(
-                publicUrlData.publicUrl
-            );
+            urls.push(publicUrlData.publicUrl);
         }
 
-
-        uploadedImageUrls =
-            urls;
-
-
-        statusEl.style.display =
-            'none';
-
-
+        uploadedImageUrls = urls;
+        statusEl.style.display = 'none';
         return uploadedImageUrls;
 
-
     } catch (err) {
-
-        statusEl.style.display =
-            'none';
-
-
-        alert(
-            "❌ خطأ أثناء رفع الصور:\n" +
-            err.message
-        );
-
-
+        statusEl.style.display = 'none';
+        alert("❌ خطأ أثناء رفع الصور:\n" + err.message);
         return [];
     }
 }
@@ -1866,86 +1362,23 @@ async function uploadAllImages() {
    ===================================================== */
 
 function getItemsSummary() {
-
     let items = [];
 
+    const sk = document.getElementById('snk').value;
+    const ss = document.getElementById('shs').value;
+    const sl = document.getElementById('slp').value;
+    const sn = document.getElementById('snd').value;
+    const sg = document.getElementById('sng').value;
+    const bg = document.getElementById('bags').value;
 
-    const sk =
-        document.getElementById(
-            'snk'
-        ).value;
+    if (parseInt(sk) > 0) items.push('كوتشيات: ' + sk);
+    if (parseInt(ss) > 0) items.push('جزم: ' + ss);
+    if (parseInt(sl) > 0) items.push('شبشب: ' + sl);
+    if (parseInt(sn) > 0) items.push('صندل: ' + sn);
+    if (parseInt(sg) > 0) items.push('فردة: ' + sg);
+    if (parseInt(bg) > 0) items.push('شنط: ' + bg);
 
-
-    const ss =
-        document.getElementById(
-            'shs'
-        ).value;
-
-
-    const sl =
-        document.getElementById(
-            'slp'
-        ).value;
-
-
-    const sn =
-        document.getElementById(
-            'snd'
-        ).value;
-
-
-    const sg =
-        document.getElementById(
-            'sng'
-        ).value;
-
-
-    const bg =
-        document.getElementById(
-            'bags'
-        ).value;
-
-
-    if (parseInt(sk) > 0)
-        items.push(
-            'كوتشيات: ' + sk
-        );
-
-
-    if (parseInt(ss) > 0)
-        items.push(
-            'جزم: ' + ss
-        );
-
-
-    if (parseInt(sl) > 0)
-        items.push(
-            'شبشب: ' + sl
-        );
-
-
-    if (parseInt(sn) > 0)
-        items.push(
-            'صندل: ' + sn
-        );
-
-
-    if (parseInt(sg) > 0)
-        items.push(
-            'فردة: ' + sg
-        );
-
-
-    if (parseInt(bg) > 0)
-        items.push(
-            'شنط: ' + bg
-        );
-
-
-    return (
-        items.join(' | ') ||
-        'أصناف متعددة'
-    );
+    return items.join(' | ') || 'أصناف متعددة';
 }
 
 
@@ -1954,403 +1387,93 @@ function getItemsSummary() {
    ===================================================== */
 
 async function sendTo(m) {
+    var n = document.getElementById('name').value.trim();
+    var t = document.getElementById('tot').value.trim();
+    var ph = document.getElementById('phone').value.trim();
+    var shelf = document.getElementById('shelfLocation').value;
 
-    var n =
-        document.getElementById(
-            'name'
-        ).value.trim();
-
-
-    var t =
-        document.getElementById(
-            'tot'
-        ).value.trim();
-
-
-    var ph =
-        document.getElementById(
-            'phone'
-        ).value.trim();
-
-
-    var shelf =
-        document.getElementById(
-            'shelfLocation'
-        ).value;
-
-
-    if (
-        !n ||
-        !t ||
-        (m === 'client' && !ph)
-    ) {
-
-        alert(
-            "يرجى ملء كافة البيانات المطلوبة!"
-        );
-
+    if (!n || !t || (m === 'client' && !ph)) {
+        alert("يرجى ملء كافة البيانات المطلوبة!");
         return;
     }
 
+    var imgUrls = await uploadAllImages();
+    var imagesForDatabase = imgUrls.join('\n');
 
-    var imgUrls =
-        await uploadAllImages();
+    var r = document.getElementById('rDate').value || 'غير محدد';
+    var d = document.getElementById('dDate').value || 'غير محدد';
 
-
-    var imagesForDatabase =
-        imgUrls.join('\n');
-
-
-    var r =
-        document.getElementById(
-            'rDate'
-        ).value ||
-        'غير محدد';
-
-
-    var d =
-        document.getElementById(
-            'dDate'
-        ).value ||
-        'غير محدد';
-
-
-    var sk =
-        document.getElementById(
-            'snk'
-        ).value;
-
-
-    var ss =
-        document.getElementById(
-            'shs'
-        ).value;
-
-
-    var sl =
-        document.getElementById(
-            'slp'
-        ).value;
-
-
-    var sn =
-        document.getElementById(
-            'snd'
-        ).value;
-
-
-    var sg =
-        document.getElementById(
-            'sng'
-        ).value;
-
-
-    var bg =
-        document.getElementById(
-            'bags'
-        ).value;
-
-
-    var sv =
-        document.getElementById(
-            'srv'
-        ).value;
-
-
-    var p =
-        document.getElementById(
-            'paid'
-        ).value;
-
-
-    var rm =
-        document.getElementById(
-            'rem'
-        ).value;
-
-
-    /* =================================================
-       حفظ الفاتورة مرة واحدة فقط
-       ================================================= */
+    var sk = document.getElementById('snk').value;
+    var ss = document.getElementById('shs').value;
+    var sl = document.getElementById('slp').value;
+    var sn = document.getElementById('snd').value;
+    var sg = document.getElementById('sng').value;
+    var bg = document.getElementById('bags').value;
+    var sv = document.getElementById('srv').value;
+    var p = document.getElementById('paid').value;
+    var rm = document.getElementById('rem').value;
 
     if (!isCurrentInvoiceSaved) {
-
-        const { error } =
-            await supabaseClient
-                .from('invoices')
-                .insert([
-                    {
-                        customer_name: n,
-                        phone: ph,
-                        item_type:
-                            getItemsSummary(),
-
-                        details:
-                            sv +
-                            ' | ' +
-                            shelf,
-
-                        price:
-                            parseFloat(t) || 0,
-
-                        paid:
-                            parseFloat(p) || 0,
-
-                        image_url:
-                            imagesForDatabase,
-
-                        status:
-                            'تحت الصيانة',
-
-                        daily_number:
-                            currentDailyNum
-                    }
-                ]);
-
+        const { error } = await supabaseClient
+            .from('invoices')
+            .insert([
+                {
+                    customer_name: n,
+                    phone: ph,
+                    item_type: getItemsSummary(),
+                    details: sv + ' | ' + shelf,
+                    price: parseFloat(t) || 0,
+                    paid: parseFloat(p) || 0,
+                    image_url: imagesForDatabase,
+                    status: 'تحت الصيانة',
+                    daily_number: currentDailyNum
+                }
+            ]);
 
         if (error) {
-
-            alert(
-                "خطأ في حفظ الفاتورة: " +
-                error.message
-            );
-
+            alert("خطأ في حفظ الفاتورة: " + error.message);
             return;
         }
-
 
         isCurrentInvoiceSaved = true;
     }
 
-
-    /* =================================================
-       رسالة أساسية
-       ================================================= */
-
     var baseTxt =
-
-        '👤 *اسم العميل:* ' +
-        n +
-        '\n' +
-
-        '📅 *تاريخ الاستلام:* ' +
-        r +
-        '\n' +
-
-        '📦 *تاريخ التسليم:* ' +
-        d +
-        '\n' +
-
-        '🗄️ *مكان التخزين:* ' +
-        shelf +
-        '\n\n' +
-
-        '👟 *كوتشيات:* ' +
-        sk +
-        ' | 🥾 *جزم:* ' +
-        ss +
-        ' | 🩴 *شبشب:* ' +
-        sl +
-        '\n' +
-
-        '👡 *صندل:* ' +
-        sn +
-        ' | 👞 *فردة:* ' +
-        sg +
-        ' | 💼 *شنط:* ' +
-        bg +
-        '\n' +
-
-        '🛠️ *الخدمة:* ' +
-        sv +
-        '\n\n' +
-
-        '💰 *الحساب الكلي:* ' +
-        t +
-        ' جنيه\n' +
-
-        '💵 *المدفوع مقدمًا:* ' +
-        p +
-        ' جنيه\n' +
-
-        '🔴 *المبلغ المتبقي:* ' +
-        rm +
-        ' جنيه';
-
-
-    /* =================================================
-       رسالة العميل
-       ================================================= */
+        '👤 *اسم العميل:* ' + n + '\n' +
+        '📅 *تاريخ الاستلام:* ' + r + '\n' +
+        '📦 *تاريخ التسليم:* ' + d + '\n' +
+        '🗄️ *مكان التخزين:* ' + shelf + '\n\n' +
+        '👟 *كوتشيات:* ' + sk + ' | 🥾 *جزم:* ' + ss + ' | 🩴 *شبشب:* ' + sl + '\n' +
+        '👡 *صندل:* ' + sn + ' | 👞 *فردة:* ' + sg + ' | 💼 *شنط:* ' + bg + '\n' +
+        '🛠️ *الخدمة:* ' + sv + '\n\n' +
+        '💰 *الحساب الكلي:* ' + t + ' جنيه\n' +
+        '💵 *المدفوع مقدمًا:* ' + p + ' جنيه\n' +
+        '🔴 *المبلغ المتبقي:* ' + rm + ' جنيه';
 
     if (m === 'client') {
-
-        var cleanPh =
-            ph.replace(
-                /\D/g,
-                ''
-            );
-
-
-        if (
-            cleanPh.startsWith("0")
-        ) {
-
-            cleanPh =
-                "2" +
-                cleanPh;
+        var cleanPh = ph.replace(/\D/g, '');
+        if (cleanPh.startsWith("0")) {
+            cleanPh = "2" + cleanPh;
         }
 
-
-        var clientTxt =
-
-            '👤 *اسم العميل:* ' +
-            n +
-            '\n' +
-
-            '📅 *تاريخ الاستلام:* ' +
-            r +
-            '\n' +
-
-            '📦 *تاريخ التسليم:* ' +
-            d +
-            '\n' +
-
-            '🗄️ *مكان التخزين:* ' +
-            shelf +
-            '\n\n' +
-
-            '👟 *كوتشيات:* ' +
-            sk +
-            ' | 🥾 *جزم:* ' +
-            ss +
-            ' | 🩴 *شبشب:* ' +
-            sl +
-            '\n' +
-
-            '👡 *صندل:* ' +
-            sn +
-            ' | 👞 *فردة:* ' +
-            sg +
-            ' | 💼 *شنط:* ' +
-            bg +
-            '\n' +
-
-            '🛠️ *الخدمة:* ' +
-            sv +
-            '\n\n' +
-
-            '💰 *الحساب الكلي:* ' +
-            t +
-            ' جنيه\n' +
-
-            '💵 *المدفوع مقدمًا:* ' +
-            p +
-            ' جنيه\n' +
-
-            '🔴 *المبلغ المتبقي:* ' +
-            rm +
-            ' جنيه';
-
-
         var msg =
-
             '✨ *ALESKAFY SHOES* ✨\n' +
-
-            '🧾 *إيصال استلام صيانة - رقم (' +
-            formattedOrderCode +
-            ')*\n\n' +
-
-            clientTxt +
-
-            '\n\n' +
-
-            '🔔 *لمتابعة أخبار وعروض المحل:*' +
-            '\n' +
-
-            FACEBOOK_PAGE +
-
-            '\n\n' +
-
-            '⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.' +
-
-            '\n\n' +
-
+            '🧾 *إيصال استلام صيانة - رقم (' + formattedOrderCode + ')*\n\n' +
+            baseTxt + '\n\n' +
+            '🔔 *لمتابعة أخبار وعروض المحل:*' + '\n' +
+            FACEBOOK_PAGE + '\n\n' +
+            '⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.' + '\n\n' +
             '❤️ *نرحب بكم دائمًا في الاسكافي شوز*';
 
-
-        window.open(
-
-            "https://wa.me/" +
-            cleanPh +
-            "?text=" +
-            encodeURIComponent(msg),
-
-            "_blank"
-        );
-
-
+        window.open("https://wa.me/" + cleanPh + "?text=" + encodeURIComponent(msg), "_blank");
     } else {
-
         var oMsg =
-
             '📥 *[ALESKAFY SHOES - نسخة المحل]*\n' +
-
-            '🧾 *أرشيف أوردر رقم (' +
-            formattedOrderCode +
-            ') على (' +
-            shelf +
-            ')*\n\n' +
-
+            '🧾 *أرشيف أوردر رقم (' + formattedOrderCode + ') على (' + shelf + ')*\n\n' +
             baseTxt;
 
-
-        window.open(
-
-            "https://wa.me/" +
-            OWNER_PHONE +
-            "?text=" +
-            encodeURIComponent(oMsg),
-
-            "_blank"
-        );
+        window.open("https://wa.me/" + OWNER_PHONE + "?text=" + encodeURIComponent(oMsg), "_blank");
     }
-}
-
-
-/* =====================================================
-   فاتورة جديدة
-   ===================================================== */
-
-async function resetFormForNextInvoice() {
-
-    document.getElementById(
-        'invoiceForm'
-    ).reset();
-
-
-    document.getElementById(
-        'previewsContainer'
-    ).innerHTML = '';
-
-
-    document.getElementById(
-        'uploadStatus'
-    ).style.display = 'none';
-
-
-    uploadedImageUrls = [];
-
-    selectedFilesList = [];
-
-    isCurrentInvoiceSaved = false;
-
-
-    await fetchNextInvoiceNum();
-
-
-    alert(
-        "جاهز للفاتورة الجديدة 👍"
-    );
 }
 
 
@@ -2359,205 +1482,50 @@ async function resetFormForNextInvoice() {
    ===================================================== */
 
 async function rep(type) {
+    const egyptNow = new Date();
+    const currentYear = getEgyptYear(egyptNow);
+    const currentMonth = getEgyptMonth(egyptNow);
+    const todayStr = getEgyptDateString(egyptNow);
 
-    const egyptNow =
-        new Date();
+    const { data: list, error } = await supabaseClient
+        .from('invoices')
+        .select('*');
 
-
-    const currentYear =
-        getEgyptYear(
-            egyptNow
-        );
-
-
-    const currentMonth =
-        getEgyptMonth(
-            egyptNow
-        );
-
-
-    const todayStr =
-        getEgyptDateString(
-            egyptNow
-        );
-
-
-    const {
-        data: list,
-        error
-    } =
-        await supabaseClient
-            .from('invoices')
-            .select('*');
-
-
-    if (
-        error ||
-        !list ||
-        list.length === 0
-    ) {
-
-        alert(
-            "لا توجد فواتير مسجلة!"
-        );
-
+    if (error || !list || list.length === 0) {
+        alert("لا توجد فواتير مسجلة!");
         return;
     }
 
-
     let totalRemainingAll = 0;
+    let txt = 'تقرير الإسكافي شوز (' + type.toUpperCase() + ')\n====================\n\n';
 
+    list.forEach(function(x) {
+        var price = x.price || 0;
+        var paid = x.paid || 0;
+        var rem = price - paid;
+        totalRemainingAll += rem;
 
-    let txt =
+        let invDate = new Date(x.created_at || Date.now());
+        let invYear = getEgyptYear(invDate);
+        let invMonth = getEgyptMonth(invDate);
+        let invDateStr = getEgyptDateString(invDate);
 
-        'تقرير الإسكافي شوز (' +
-        type.toUpperCase() +
-        ')\n' +
+        let include = false;
+        if (type === 'daily' && invDateStr === todayStr) include = true;
+        if (type === 'monthly' && invYear === currentYear && invMonth === currentMonth) include = true;
+        if (type === 'yearly' && invYear === currentYear) include = true;
 
-        '====================\n\n';
-
-
-    list.forEach(
-        function(x) {
-
-            var price =
-                x.price || 0;
-
-
-            var paid =
-                x.paid || 0;
-
-
-            var rem =
-                price - paid;
-
-
-            totalRemainingAll +=
-                rem;
-
-
-            let invDate =
-                new Date(
-                    x.created_at ||
-                    Date.now()
-                );
-
-
-            let invYear =
-                getEgyptYear(
-                    invDate
-                );
-
-
-            let invMonth =
-                getEgyptMonth(
-                    invDate
-                );
-
-
-            let invDateStr =
-                getEgyptDateString(
-                    invDate
-                );
-
-
-            let include = false;
-
-
-            if (
-                type === 'daily' &&
-                invDateStr === todayStr
-            ) {
-
-                include = true;
-            }
-
-
-            if (
-                type === 'monthly' &&
-                invYear === currentYear &&
-                invMonth === currentMonth
-            ) {
-
-                include = true;
-            }
-
-
-            if (
-                type === 'yearly' &&
-                invYear === currentYear
-            ) {
-
-                include = true;
-            }
-
-
-            if (include) {
-
-                txt +=
-
-                    'أوردر (' +
-                    x.daily_number +
-                    '/' +
-                    getEgyptDay(invDate) +
-                    ') - ' +
-
-                    x.customer_name +
-
-                    ' | الحساب: ' +
-
-                    price +
-
-                    ' ج | الباقي: ' +
-
-                    rem +
-
-                    ' ج\n';
-            }
-
+        if (include) {
+            txt += 'أوردر (' + x.daily_number + '/' + getEgyptDay(invDate) + ') - ' + x.customer_name + ' | الحساب: ' + price + ' ج | الباقي: ' + rem + ' ج\n';
         }
-    );
+    });
 
+    txt += "\n====================\nإجمالي المتبقي المتراكم: " + totalRemainingAll + ' ج';
 
-    txt +=
-
-        "\n====================\n" +
-
-        "إجمالي المتبقي المتراكم: " +
-
-        totalRemainingAll +
-
-        ' ج';
-
-
-    var b =
-        new Blob(
-            ["\uFEFF" + txt],
-            {
-                type:
-                    "text/plain;charset=utf-8"
-            }
-        );
-
-
-    var lnk =
-        document.createElement(
-            'a'
-        );
-
-
-    lnk.href =
-        URL.createObjectURL(
-            b
-        );
-
-
-    lnk.download =
-        "Report_" +
-        type +
-        ".txt";
-
-
+    var b = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8" });
+    var lnk = document.createElement('a');
+    lnk.href = URL.createObjectURL(b);
+    lnk.download = "Report_" + type + ".txt";
     lnk.click();
 }
 
@@ -2566,111 +1534,36 @@ async function rep(type) {
    الأوردرات المسلمة
    ===================================================== */
 
-async function loadDeliveredInvoices(
-    filterType
-) {
+async function loadDeliveredInvoices(filterType) {
+    const resBox = document.getElementById('deliveryResults');
+    resBox.style.display = 'block';
+    resBox.innerHTML = 'جاري التحميل... ⏳';
 
-    const resBox =
-        document.getElementById(
-            'deliveryResults'
-        );
+    let query = supabaseClient
+        .from('invoices')
+        .select('*')
+        .eq('status', 'تم التسليم 🚚')
+        .order('created_at', { ascending: false });
 
+    const { data, error } = await query;
 
-    resBox.style.display =
-        'block';
-
-
-    resBox.innerHTML =
-        'جاري التحميل... ⏳';
-
-
-    let query =
-        supabaseClient
-            .from('invoices')
-            .select('*')
-            .eq(
-                'status',
-                'تم التسليم 🚚'
-            )
-            .order(
-                'created_at',
-                {
-                    ascending: false
-                }
-            );
-
-
-    const {
-        data,
-        error
-    } =
-        await query;
-
-
-    if (
-        error ||
-        !data ||
-        data.length === 0
-    ) {
-
-        resBox.innerHTML =
-
-            '<div style="color:#38bdf8;text-align:center;padding:10px;">' +
-
-            'لا توجد أوردرات مسلمة مسجلة حالياً!' +
-
-            '</div>';
-
+    if (error || !data || data.length === 0) {
+        resBox.innerHTML = '<div style="color:#38bdf8;text-align:center;padding:10px;">لا توجد أوردرات مسلمة مسجلة حالياً!</div>';
         return;
     }
 
+    let filteredData = data;
+    if (filterType === 'today') {
+        const todayStr = getEgyptDateString(new Date());
+        filteredData = data.filter(inv => getEgyptDateString(inv.created_at) === todayStr);
 
-    let filteredData =
-        data;
-
-
-    if (
-        filterType === 'today'
-    ) {
-
-        const todayStr =
-            getEgyptDateString(
-                new Date()
-            );
-
-
-        filteredData =
-            data.filter(
-                inv =>
-                    getEgyptDateString(
-                        inv.created_at
-                    ) === todayStr
-            );
-
-
-        if (
-            filteredData.length === 0
-        ) {
-
-            resBox.innerHTML =
-
-                '<div style="color:#38bdf8;text-align:center;padding:10px;">' +
-
-                'لم يتم تسليم أي أوردرات اليوم حتى الآن!' +
-
-                '</div>';
-
+        if (filteredData.length === 0) {
+            resBox.innerHTML = '<div style="color:#38bdf8;text-align:center;padding:10px;">لم يتم تسليم أي أوردرات اليوم حتى الآن!</div>';
             return;
         }
     }
 
-
-    renderSearchResults(
-        filteredData,
-        null,
-        resBox,
-        false
-    );
+    renderSearchResults(filteredData, null, resBox, false);
 }
 
 
@@ -2679,135 +1572,42 @@ async function loadDeliveredInvoices(
    ===================================================== */
 
 async function searchByFractionNumber() {
+    const numVal = document.getElementById('searchNumerator').value.trim();
+    const denVal = document.getElementById('searchDenominator').value.trim();
+    const dateInput = document.getElementById('searchDate').value;
+    const resBox = document.getElementById('workerSearchResults');
 
-    const numVal =
-        document.getElementById(
-            'searchNumerator'
-        ).value.trim();
-
-
-    const denVal =
-        document.getElementById(
-            'searchDenominator'
-        ).value.trim();
-
-
-    const dateInput =
-        document.getElementById(
-            'searchDate'
-        ).value;
-
-
-    const resBox =
-        document.getElementById(
-            'workerSearchResults'
-        );
-
-
-    if (
-        !numVal &&
-        !denVal &&
-        !dateInput
-    ) {
-
-        alert(
-            'الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث'
-        );
-
+    if (!numVal && !denVal && !dateInput) {
+        alert('الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث');
         return;
     }
 
+    resBox.style.display = 'block';
+    resBox.innerHTML = 'جاري التحميل... ⏳';
 
-    resBox.style.display =
-        'block';
-
-
-    resBox.innerHTML =
-        'جاري التحميل... ⏳';
-
-
-    let query =
-        supabaseClient
-            .from('invoices')
-            .select('*')
-            .order(
-                'created_at',
-                {
-                    ascending: false
-                }
-            );
-
+    let query = supabaseClient
+        .from('invoices')
+        .select('*')
+        .order('created_at', { ascending: false });
 
     if (numVal) {
-
-        query =
-            query.eq(
-                'daily_number',
-                parseInt(numVal)
-            );
+        query = query.eq('daily_number', parseInt(numVal));
     }
-
 
     if (dateInput) {
-
-        const range =
-            getDateRangeISO(
-                dateInput
-            );
-
-
-        query =
-            query
-                .gte(
-                    'created_at',
-                    range.start
-                )
-                .lte(
-                    'created_at',
-                    range.end
-                );
+        const range = getDateRangeISO(dateInput);
+        query = query.gte('created_at', range.start).lte('created_at', range.end);
     }
 
+    const { data, error } = await query;
+    let finalData = data;
 
-    const {
-        data,
-        error
-    } =
-        await query;
-
-
-    let finalData =
-        data;
-
-
-    if (
-        !dateInput &&
-        denVal &&
-        data
-    ) {
-
-        const dNum =
-            parseInt(
-                denVal
-            );
-
-
-        finalData =
-            data.filter(
-                inv =>
-                    getEgyptDay(
-                        inv.created_at
-                    ) === dNum
-            );
+    if (!dateInput && denVal && data) {
+        const dNum = parseInt(denVal);
+        finalData = data.filter(inv => getEgyptDay(inv.created_at) === dNum);
     }
 
-
-    renderSearchResults(
-        finalData,
-        error,
-        resBox,
-        false
-    );
+    renderSearchResults(finalData, error, resBox, false);
 }
 
 
@@ -2816,135 +1616,42 @@ async function searchByFractionNumber() {
    ===================================================== */
 
 async function adminSearchByFractionNumber() {
+    const numVal = document.getElementById('adminSearchNumerator').value.trim();
+    const denVal = document.getElementById('adminSearchDenominator').value.trim();
+    const dateInput = document.getElementById('adminSearchDate').value;
+    const resBox = document.getElementById('searchResults');
 
-    const numVal =
-        document.getElementById(
-            'adminSearchNumerator'
-        ).value.trim();
-
-
-    const denVal =
-        document.getElementById(
-            'adminSearchDenominator'
-        ).value.trim();
-
-
-    const dateInput =
-        document.getElementById(
-            'adminSearchDate'
-        ).value;
-
-
-    const resBox =
-        document.getElementById(
-            'searchResults'
-        );
-
-
-    if (
-        !numVal &&
-        !denVal &&
-        !dateInput
-    ) {
-
-        alert(
-            'الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث'
-        );
-
+    if (!numVal && !denVal && !dateInput) {
+        alert('الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث');
         return;
     }
 
+    resBox.style.display = 'block';
+    resBox.innerHTML = 'جاري التحميل... ⏳';
 
-    resBox.style.display =
-        'block';
-
-
-    resBox.innerHTML =
-        'جاري التحميل... ⏳';
-
-
-    let query =
-        supabaseClient
-            .from('invoices')
-            .select('*')
-            .order(
-                'created_at',
-                {
-                    ascending: false
-                }
-            );
-
+    let query = supabaseClient
+        .from('invoices')
+        .select('*')
+        .order('created_at', { ascending: false });
 
     if (numVal) {
-
-        query =
-            query.eq(
-                'daily_number',
-                parseInt(numVal)
-            );
+        query = query.eq('daily_number', parseInt(numVal));
     }
-
 
     if (dateInput) {
-
-        const range =
-            getDateRangeISO(
-                dateInput
-            );
-
-
-        query =
-            query
-                .gte(
-                    'created_at',
-                    range.start
-                )
-                .lte(
-                    'created_at',
-                    range.end
-                );
+        const range = getDateRangeISO(dateInput);
+        query = query.gte('created_at', range.start).lte('created_at', range.end);
     }
 
+    const { data, error } = await query;
+    let finalData = data;
 
-    const {
-        data,
-        error
-    } =
-        await query;
-
-
-    let finalData =
-        data;
-
-
-    if (
-        !dateInput &&
-        denVal &&
-        data
-    ) {
-
-        const dNum =
-            parseInt(
-                denVal
-            );
-
-
-        finalData =
-            data.filter(
-                inv =>
-                    getEgyptDay(
-                        inv.created_at
-                    ) === dNum
-            );
+    if (!dateInput && denVal && data) {
+        const dNum = parseInt(denVal);
+        finalData = data.filter(inv => getEgyptDay(inv.created_at) === dNum);
     }
 
-
-    renderSearchResults(
-        finalData,
-        error,
-        resBox,
-        true
-    );
+    renderSearchResults(finalData, error, resBox, true);
 }
 
 
@@ -2953,65 +1660,24 @@ async function adminSearchByFractionNumber() {
    ===================================================== */
 
 async function searchInvoices() {
-
-    const query =
-        document.getElementById(
-            'searchInput'
-        ).value.trim();
-
-
-    const resBox =
-        document.getElementById(
-            'searchResults'
-        );
-
+    const query = document.getElementById('searchInput').value.trim();
+    const resBox = document.getElementById('searchResults');
 
     if (!query) {
-
-        alert(
-            'أدخل اسم العميل أو رقم الموبايل'
-        );
-
+        alert('أدخل اسم العميل أو رقم الموبايل');
         return;
     }
 
+    resBox.style.display = 'block';
+    resBox.innerHTML = 'جاري التحميل... ⏳';
 
-    resBox.style.display =
-        'block';
+    const { data, error } = await supabaseClient
+        .from('invoices')
+        .select('*')
+        .or('customer_name.ilike.%' + query + '%,phone.ilike.%' + query + '%')
+        .order('created_at', { ascending: false });
 
-
-    resBox.innerHTML =
-        'جاري التحميل... ⏳';
-
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('invoices')
-            .select('*')
-            .or(
-                'customer_name.ilike.%' +
-                query +
-                '%,phone.ilike.%' +
-                query +
-                '%'
-            )
-            .order(
-                'created_at',
-                {
-                    ascending: false
-                }
-            );
-
-
-    renderSearchResults(
-        data,
-        error,
-        resBox,
-        true
-    );
+    renderSearchResults(data, error, resBox, true);
 }
 
 
@@ -3019,322 +1685,92 @@ async function searchInvoices() {
    عرض النتائج
    ===================================================== */
 
-function renderSearchResults(
-    data,
-    error,
-    resBox,
-    showAdminControls
-) {
-
-    if (
-        error ||
-        !data ||
-        data.length === 0
-    ) {
-
-        resBox.innerHTML =
-
-            '<div style="color:#ef4444;text-align:center;">' +
-
-            'لا توجد فواتير مطابقة لهذا البحث!' +
-
-            '</div>';
-
+function renderSearchResults(data, error, resBox, showAdminControls) {
+    if (error || !data || data.length === 0) {
+        resBox.innerHTML = '<div style="color:#ef4444;text-align:center;">لا توجد فواتير مطابقة لهذا البحث!</div>';
         return;
     }
 
-
-    resBox.innerHTML =
-
-        data.map(
-            function(inv) {
-
-                const isDone =
-                    inv.status ===
-                    'تم الانتهاء من الصيانة';
-
-
-                const isDelivered =
-                    inv.status ===
-                    'تم التسليم 🚚';
-
-
-                const statusClass =
-                    isDelivered
-                        ? 'bg-delivered'
-                        : (
-                            isDone
-                                ? 'bg-done'
-                                : 'bg-pending'
-                        );
-
-
-                const price =
-                    inv.price || 0;
-
-
-                const paid =
-                    inv.paid || 0;
-
-
-                const rem =
-                    price - paid;
-
-
-                let invDate =
-                    new Date(
-                        inv.created_at ||
-                        Date.now()
-                    );
-
-
-                let numTop =
-                    inv.daily_number ||
-                    '#';
-
-
-                let numBottom =
-                    getEgyptDay(
-                        invDate
-                    );
-
-
-                let fractionHtml =
-
-                    '<span class="fraction" style="font-size:14px;">' +
-
-                        '<span class="numerator">' +
-                            numTop +
-                        '</span>' +
-
-                        '<span class="denominator">' +
-                            numBottom +
-                        '</span>' +
-
-                    '</span>';
-
-
-                let imageGalleryHtml =
-                    '';
-
-
-                if (inv.image_url) {
-
-                    const imageUrls =
-                        String(
-                            inv.image_url
-                        )
-                        .split(/\r?\n/)
-                        .map(
-                            u => u.trim()
-                        )
-                        .filter(
-                            u => u.length > 1
-                        );
-
-
-                    if (
-                        imageUrls.length > 0
-                    ) {
-
-                        imageGalleryHtml =
-
-                            '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">' +
-
-                            imageUrls
-                                .map(
-                                    url =>
-
-                                        '<a href="' +
-                                        url +
-                                        '" target="_blank">' +
-
-                                        '<img src="' +
-                                        url +
-                                        '" class="worker-thumb">' +
-
-                                        '</a>'
-                                )
-                                .join('') +
-
-                            '</div>';
-                    }
-                }
-
-
-                let adminControlsHtml =
-                    '';
-
-
-                if (showAdminControls) {
-
-                    adminControlsHtml =
-
-                        '<div style="margin-top:10px;padding:10px;background:#1a1500;border:1px solid #bf953f;border-radius:8px;">' +
-
-                            '<div style="font-size:13px;color:#f3e5ab;margin-bottom:6px;font-weight:bold;">💳 حالة الدفع: ' +
-
-                                (
-                                    rem > 0
-
-                                        ? '<span style="color:#ef4444;">متبقي (' +
-                                            rem +
-                                            ' ج)</span>'
-
-                                        : '<span style="color:#16a34a;">تم السداد ✅</span>'
-                                ) +
-
-                            '</div>' +
-
-                            '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
-
-                                '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updatePaymentStatus(' +
-                                    inv.id +
-                                    ', ' +
-                                    price +
-                                    ',0)">✅ تم سداد المبلغ</button>' +
-
-                                '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updatePaymentStatus(' +
-                                    inv.id +
-                                    ', ' +
-                                    price +
-                                    ',' +
-                                    (
-                                        rem > 0
-                                            ? rem
-                                            : price
-                                    ) +
-                                    ')">⏳ لم يتم السداد</button>' +
-
-                            '</div>' +
-
-                            '<div style="margin-top:6px;">' +
-
-                                '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">🗄️ تعديل مكان التخزين (الرف):</label>' +
-
-                                '<div style="display:flex;gap:5px;">' +
-
-                                    '<select id="shelf_edit_' +
-                                        inv.id +
-                                        '" style="padding:6px;font-size:12px;margin-top:0;">' +
-
-                                        '<option value="الرف : أ">الرف : أ</option>' +
-                                        '<option value="الرف : ب">الرف : ب</option>' +
-                                        '<option value="الرف : ج">الرف : ج</option>' +
-                                        '<option value="الرف : د">الرف : د</option>' +
-                                        '<option value="الرف : هـ">الرف : هـ</option>' +
-                                        '<option value="الرف : و">الرف : و</option>' +
-
-                                    '</select>' +
-
-                                    '<button type="button" class="btn-sm" style="background:#bf953f;color:#000;padding:6px 12px;margin-top:0;" onclick="updateShelfLocation(' +
-                                        inv.id +
-                                        ')">تحديث الرف</button>' +
-
-                                '</div>' +
-
-                            '</div>' +
-
-                        '</div>' +
-
-                        '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
-
-                            '<button type="button" class="btn-sm" style="background:#0284c7;color:#fff;flex:1;" onclick="updateStatus(' +
-                                inv.id +
-                                ', \'تم التسليم 🚚\')">🚚 تم التسليم</button>' +
-
-                            '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updateStatus(' +
-                                inv.id +
-                                ', \'تم الانتهاء من الصيانة\')">✅ تم الانتهاء</button>' +
-
-                            '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updateStatus(' +
-                                inv.id +
-                                ', \'تحت الصيانة\')">⏳ تحت الصيانة</button>' +
-
-                        '</div>';
-                }
-
-
-                return (
-
-                    '<div style="border-bottom:1px dashed #33270a;padding-bottom:12px;margin-bottom:12px;">' +
-
-                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-
-                            '<strong style="color:#f3e5ab;font-size:15px;">👤 ' +
-
-                                inv.customer_name +
-
-                            '</strong>' +
-
-                            '<span class="status-badge ' +
-                                statusClass +
-                            '">' +
-
-                                (
-                                    inv.status ||
-                                    'تحت الصيانة'
-                                ) +
-
-                            '</span>' +
-
-                        '</div>' +
-
-                        '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">📅 التاريخ: ' +
-
-                            getEgyptDateString(
-                                inv.created_at ||
-                                Date.now()
-                            ) +
-
-                        '</div>' +
-
-                        '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;">🔢 <b>رقم الأوردر:</b> ' +
-
-                            fractionHtml +
-
-                        '</div>' +
-
-                        '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">📱 الموبايل: ' +
-
-                            (inv.phone || '-') +
-
-                        '</div>' +
-
-                        '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">👟 <b>الأصناف:</b> ' +
-
-                            (inv.item_type || '-') +
-
-                        '</div>' +
-
-                        '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">🛠️ <b>الخدمة:</b> ' +
-
-                            (inv.details || '-') +
-
-                        '</div>' +
-
-                        '<div style="font-size:13px;margin-bottom:4px;">💰 الحساب: ' +
-
-                            price +
-
-                            ' ج | 💵 المدفوع: ' +
-
-                            paid +
-
-                            ' ج | 🔴 المتبقي: <span style="color:#ef4444;font-weight:bold;">' +
-
-                            rem +
-
-                            ' ج</span></div>' +
-
-                        imageGalleryHtml +
-
-                        adminControlsHtml +
-
-                    '</div>'
-                );
+    resBox.innerHTML = data.map(function(inv) {
+        const isDone = inv.status === 'تم الانتهاء من الصيانة';
+        const isDelivered = inv.status === 'تم التسليم 🚚';
+        const statusClass = isDelivered ? 'bg-delivered' : (isDone ? 'bg-done' : 'bg-pending');
+
+        const price = inv.price || 0;
+        const paid = inv.paid || 0;
+        const rem = price - paid;
+
+        let invDate = new Date(inv.created_at || Date.now());
+        let numTop = inv.daily_number || '#';
+        let numBottom = getEgyptDay(invDate);
+
+        let fractionHtml =
+            '<span class="fraction" style="font-size:14px;">' +
+                '<span class="numerator">' + numTop + '</span>' +
+                '<span class="denominator">' + numBottom + '</span>' +
+            '</span>';
+
+        let imageGalleryHtml = '';
+        if (inv.image_url) {
+            const imageUrls = String(inv.image_url).split(/\r?\n/).map(u => u.trim()).filter(u => u.length > 1);
+            if (imageUrls.length > 0) {
+                imageGalleryHtml =
+                    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">' +
+                    imageUrls.map(url => '<a href="' + url + '" target="_blank"><img src="' + url + '" class="worker-thumb"></a>').join('') +
+                    '</div>';
             }
-        ).join('');
+        }
+
+        let adminControlsHtml = '';
+        if (showAdminControls) {
+            adminControlsHtml =
+                '<div style="margin-top:10px;padding:10px;background:#1a1500;border:1px solid #bf953f;border-radius:8px;">' +
+                    '<div style="font-size:13px;color:#f3e5ab;margin-bottom:6px;font-weight:bold;">💳 حالة الدفع: ' +
+                        (rem > 0 ? '<span style="color:#ef4444;">متبقي (' + rem + ' ج)</span>' : '<span style="color:#16a34a;">تم السداد ✅</span>') +
+                    '</div>' +
+                    '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
+                        '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ',0)">✅ تم سداد المبلغ</button>' +
+                        '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ',' + (rem > 0 ? rem : price) + ')">⏳ لم يتم السداد</button>' +
+                    '</div>' +
+                    '<div style="margin-top:6px;">' +
+                        '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">🗄️ تعديل مكان التخزين (الرف):</label>' +
+                        '<div style="display:flex;gap:5px;">' +
+                            '<select id="shelf_edit_' + inv.id + '" style="padding:6px;font-size:12px;margin-top:0;">' +
+                                '<option value="الرف : أ">الرف : أ</option>' +
+                                '<option value="الرف : ب">الرف : ب</option>' +
+                                '<option value="الرف : ج">الرف : ج</option>' +
+                                '<option value="الرف : د">الرف : د</option>' +
+                                '<option value="الرف : هـ">الرف : هـ</option>' +
+                                '<option value="الرف : و">الرف : و</option>' +
+                            '</select>' +
+                            '<button type="button" class="btn-sm" style="background:#bf953f;color:#000;padding:6px 12px;margin-top:0;" onclick="updateShelfLocation(' + inv.id + ')">تحديث الرف</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
+                    '<button type="button" class="btn-sm" style="background:#0284c7;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تم التسليم 🚚\')">🚚 تم التسليم</button>' +
+                    '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تم الانتهاء من الصيانة\')">✅ تم الانتهاء</button>' +
+                    '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تحت الصيانة\')">⏳ تحت الصيانة</button>' +
+                '</div>';
+        }
+
+        return (
+            '<div style="border-bottom:1px dashed #33270a;padding-bottom:12px;margin-bottom:12px;">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+                    '<strong style="color:#f3e5ab;font-size:15px;">👤 ' + inv.customer_name + '</strong>' +
+                    '<span class="status-badge ' + statusClass + '">' + (inv.status || 'تحت الصيانة') + '</span>' +
+                '</div>' +
+                '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">📅 التاريخ: ' + getEgyptDateString(inv.created_at || Date.now()) + '</div>' +
+                '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;">🔢 <b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
+                '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">📱 الموبايل: ' + (inv.phone || '-') + '</div>' +
+                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">👟 <b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
+                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">🛠️ <b>الخدمة:</b> ' + (inv.details || '-') + '</div>' +
+                '<div style="font-size:13px;margin-bottom:4px;">💰 الحساب: ' + price + ' ج | 💵 المدفوع: ' + paid + ' ج | 🔴 المتبقي: <span style="color:#ef4444;font-weight:bold;">' + rem + ' ج</span></div>' +
+                imageGalleryHtml +
+                adminControlsHtml +
+            '</div>'
+        );
+    }).join('');
 }
 
 
@@ -3342,44 +1778,19 @@ function renderSearchResults(
    تحديث الدفع
    ===================================================== */
 
-async function updatePaymentStatus(
-    invoiceId,
-    totalPrice,
-    targetRem
-) {
+async function updatePaymentStatus(invoiceId, totalPrice, targetRem) {
+    let newPaid = targetRem === 0 ? totalPrice : totalPrice - targetRem;
 
-    let newPaid =
-        targetRem === 0
-            ? totalPrice
-            : totalPrice - targetRem;
-
-
-    const { error } =
-        await supabaseClient
-            .from('invoices')
-            .update({
-                paid: newPaid
-            })
-            .eq(
-                'id',
-                invoiceId
-            );
-
+    const { error } = await supabaseClient
+        .from('invoices')
+        .update({ paid: newPaid })
+        .eq('id', invoiceId);
 
     if (!error) {
-
-        alert(
-            "✅ تم تحديث حالة السداد بنجاح 👍"
-        );
-
-
+        alert("✅ تم تحديث حالة السداد بنجاح 👍");
         adminSearchByFractionNumber();
-
     } else {
-
-        alert(
-            "❌ حدث خطأ!"
-        );
+        alert("❌ حدث خطأ!");
     }
 }
 
@@ -3389,92 +1800,30 @@ async function updatePaymentStatus(
    ===================================================== */
 
 async function updateShelfLocation(id) {
+    const newShelf = document.getElementById('shelf_edit_' + id).value;
 
-    const newShelf =
-        document.getElementById(
-            'shelf_edit_' + id
-        ).value;
-
-
-    const {
-        data: invData
-    } =
-        await supabaseClient
-            .from('invoices')
-            .select('details')
-            .eq(
-                'id',
-                id
-            )
-            .single();
-
+    const { data: invData } = await supabaseClient
+        .from('invoices')
+        .select('details')
+        .eq('id', id)
+        .single();
 
     if (invData) {
+        let currentDetails = invData.details || '';
+        let parts = currentDetails.split('|').map(p => p.trim());
+        let cleanDetails = parts.filter(p => !p.startsWith('الرف')).join(' | ');
+        let updatedDetails = cleanDetails ? (cleanDetails + ' | ' + newShelf) : newShelf;
 
-        let currentDetails =
-            invData.details || '';
-
-
-        let parts =
-            currentDetails
-                .split('|')
-                .map(
-                    p => p.trim()
-                );
-
-
-        let cleanDetails =
-            parts
-                .filter(
-                    p =>
-                        !p.startsWith(
-                            'الرف'
-                        )
-                )
-                .join(' | ');
-
-
-        let updatedDetails =
-            cleanDetails
-                ? (
-                    cleanDetails +
-                    ' | ' +
-                    newShelf
-                )
-                : newShelf;
-
-
-        const {
-            error
-        } =
-            await supabaseClient
-                .from('invoices')
-                .update({
-                    details:
-                        updatedDetails
-                })
-                .eq(
-                    'id',
-                    id
-                );
-
+        const { error } = await supabaseClient
+            .from('invoices')
+            .update({ details: updatedDetails })
+            .eq('id', id);
 
         if (!error) {
-
-            alert(
-                '✅ تم تحديث الرف بنجاح إلى (' +
-                newShelf +
-                ') 👍'
-            );
-
-
+            alert('✅ تم تحديث الرف بنجاح إلى (' + newShelf + ') 👍');
             adminSearchByFractionNumber();
-
         } else {
-
-            alert(
-                '❌ حدث خطأ أثناء تحديث الرف!'
-            );
+            alert('❌ حدث خطأ أثناء تحديث الرف!');
         }
     }
 }
@@ -3484,38 +1833,17 @@ async function updateShelfLocation(id) {
    تحديث الحالة
    ===================================================== */
 
-async function updateStatus(
-    id,
-    newStatus
-) {
-
-    const { error } =
-        await supabaseClient
-            .from('invoices')
-            .update({
-                status:
-                    newStatus
-            })
-            .eq(
-                'id',
-                id
-            );
-
+async function updateStatus(id, newStatus) {
+    const { error } = await supabaseClient
+        .from('invoices')
+        .update({ status: newStatus })
+        .eq('id', id);
 
     if (!error) {
-
-        alert(
-            'تم تغيير الحالة بنجاح 👍'
-        );
-
-
+        alert('تم تغيير الحالة بنجاح 👍');
         adminSearchByFractionNumber();
-
     } else {
-
-        alert(
-            'حدث خطأ!'
-        );
+        alert('حدث خطأ!');
     }
 }
 
