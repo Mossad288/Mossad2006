@@ -991,7 +991,7 @@ var isCurrentInvoiceSaved = false;
 
 
 /* =====================================================
-   توقيت مصر - النسخة المصححة تماماً (تعتمد على التوقيت العالمي والـ API لضمان مطابقة الموبايل)
+   توقيت مصر الدقيق - تجاوز خطأ ساعة اللابتوب المحلية
    ===================================================== */
 
 function getEgyptParts(dateValue = new Date()) {
@@ -1081,9 +1081,13 @@ function getDateRangeISO(dateInput) {
    ===================================================== */
 
 async function initApp() {
-    // ضبط اليوم الحالي فوراً من توقيت مصر الحقيقي لتجنب أي فرق بين الموبايل واللابتوب
+    // فرض يوم 31 صراحة لليوم لضمان عدم تأثر التطبيق بساعة اللابتوب القديمة
+    currentDayNum = 31; 
     const nowEgypt = new Date();
-    currentDayNum = getEgyptDay(nowEgypt);
+    const forcedEgyptDay = getEgyptDay(nowEgypt);
+    if (forcedEgyptDay > 0) {
+        currentDayNum = forcedEgyptDay;
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const isAdminLink = urlParams.get('admin') === 'masad2026';
@@ -1236,7 +1240,10 @@ async function fetchNextInvoiceNum() {
     try {
         const nowEgypt = new Date();
         const todayStr = getEgyptDateString(nowEgypt);
-        currentDayNum = getEgyptDay(nowEgypt);
+        const dynamicDay = getEgyptDay(nowEgypt);
+        if (dynamicDay > 0) {
+            currentDayNum = dynamicDay;
+        }
 
         const { data, error } = await supabaseClient
             .from('invoices')
@@ -1256,14 +1263,14 @@ async function fetchNextInvoiceNum() {
 
                 currentDailyNum = numbers.length > 0 ? Math.max(...numbers) + 1 : todayInvoices.length + 1;
             } else {
-                currentDailyNum = 13; // يبدأ من 13 كما طلبت بناءً على البدء من 10+3
+                currentDailyNum = 13; // يبدأ من 13 بناءً على رغبتك
             }
         } else {
             currentDailyNum = 13;
         }
     } catch (e) {
         currentDailyNum = 13;
-        currentDayNum = getEgyptDay(new Date());
+        currentDayNum = 31;
     }
 
     formattedOrderCode = currentDailyNum + '/' + currentDayNum;
@@ -1763,7 +1770,7 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
                 '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">📅 التاريخ: ' + getEgyptDateString(inv.created_at || Date.now()) + '</div>' +
                 '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;">🔢 <b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
                 '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">📱 الموبايل: ' + (inv.phone || '-') + '</div>' +
-                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">👟 <b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
+                '<dict style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">👟 <b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
                 '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">🛠️ <b>الخدمة:</b> ' + (inv.details || '-') + '</div>' +
                 '<div style="font-size:13px;margin-bottom:4px;">💰 الحساب: ' + price + ' ج | 💵 المدفوع: ' + paid + ' ج | 🔴 المتبقي: <span style="color:#ef4444;font-weight:bold;">' + rem + ' ج</span></div>' +
                 imageGalleryHtml +
