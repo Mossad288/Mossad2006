@@ -1265,7 +1265,7 @@ async function fetchNextInvoiceNum() {
 
                 currentDailyNum = numbers.length > 0 ? Math.max(...numbers) + 1 : todayInvoices.length + 1;
             } else {
-                currentDailyNum = 1; // يصفر تلقائياً فوراً مع أول دقيقة في اليوم الجديد
+                currentDailyNum = 1; 
             }
         } else {
             currentDailyNum = 1;
@@ -1391,7 +1391,7 @@ function getItemsSummary() {
 
 
 /* =====================================================
-   إرسال الفاتورة
+   إرسال الفاتورة (محدّث لضمان السرعة الفورية للواتس)
    ===================================================== */
 
 async function sendTo(m) {
@@ -1473,14 +1473,15 @@ async function sendTo(m) {
             '⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.' + '\n\n' +
             '❤️ *نرحب بكم دائمًا في الاسكافي شوز*';
 
-        window.open("https://wa.me/" + cleanPh + "?text=" + encodeURIComponent(msg), "_blank");
+        // فتح رابط الواتساب مباشرة بسرعة فائقة
+        window.location.href = "https://wa.me/" + cleanPh + "?text=" + encodeURIComponent(msg);
     } else {
         var oMsg =
             '📥 *[ALESKAFY SHOES - نسخة المحل]*\n' +
             '🧾 *أرشيف أوردر رقم (' + formattedOrderCode + ') على (' + shelf + ')*\n\n' +
             baseTxt;
 
-        window.open("https://wa.me/" + OWNER_PHONE + "?text=" + encodeURIComponent(oMsg), "_blank");
+        window.location.href = "https://wa.me/" + OWNER_PHONE + "?text=" + encodeURIComponent(oMsg);
     }
 }
 
@@ -1588,7 +1589,7 @@ async function loadDeliveredInvoices(filterType) {
 
 
 /* =====================================================
-   بحث الصنايعي
+   بحث الصنايعي (محدّث للريفريش السريع)
    ===================================================== */
 
 async function searchByFractionNumber() {
@@ -1632,7 +1633,7 @@ async function searchByFractionNumber() {
 
 
 /* =====================================================
-   بحث الإدارة
+   بحث الإدارة (محدّث للريفريش السريع)
    ===================================================== */
 
 async function adminSearchByFractionNumber() {
