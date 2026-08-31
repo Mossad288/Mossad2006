@@ -431,6 +431,7 @@
             type="password"
             id="passwordInput"
             placeholder="أدخل الباسورد هنا"
+            autocomplete="new-password"
             style="text-align:center;font-size:16px;letter-spacing:2px;"
             onkeydown="if(event.key === 'Enter') submitPassword()"
         >
@@ -441,7 +442,7 @@
             style="background:linear-gradient(135deg,#bf953f,#aa771c);color:#000;font-weight:900;margin-top:15px;"
             onclick="submitPassword()"
         >
-            🔓 دخول للنظام
+            دخول للنظام
         </button>
 
         <button
@@ -450,7 +451,7 @@
             style="background:transparent;color:#ef4444;border:1px solid #ef4444;font-size:12px;margin-top:10px;"
             onclick="logoutApp()"
         >
-            🔒 مسح الجلسة وتسجيل الخروج
+            مسح الجلسة وتسجيل الخروج
         </button>
     </div>
 </div>
@@ -480,7 +481,6 @@
             class="mini-icon-btn track-btn"
             onclick="openScreen('searchScreen')"
         >
-            <span style="font-size:16px;">🔍</span>
             <span>البحث والتتبع</span>
         </button>
 
@@ -490,8 +490,7 @@
             style="background:linear-gradient(135deg,#059669,#047857);"
             onclick="openScreen('deliveryScreen')"
         >
-            <span style="font-size:16px;">🚚</span>
-            <span>المُسلمة</span>
+            <span>المسلمة</span>
         </button>
 
         <button
@@ -500,7 +499,6 @@
             style="background:linear-gradient(135deg,#bf953f,#aa771c);color:#000;"
             onclick="openScreen('reportsScreen')"
         >
-            <span style="font-size:16px;">📊</span>
             <span>التقارير</span>
         </button>
 
@@ -508,41 +506,41 @@
 
     <div id="mainDashboardScreen">
 
-        <form id="invoiceForm" style="display:none;">
+        <form id="invoiceForm" style="display:none;" autocomplete="off">
 
-            <label>👤 اسم العميل:</label>
-            <input type="text" id="name" placeholder="اسم العميل">
+            <label>اسم العميل:</label>
+            <input type="text" id="name" placeholder="اسم العميل" autocomplete="off">
 
-            <label>📱 واتساب العميل:</label>
-            <input type="text" id="phone" placeholder="01012345678">
+            <label>واتساب العميل:</label>
+            <input type="text" id="phone" placeholder="01012345678" autocomplete="off">
 
             <div class="row">
                 <div>
-                    <label>📅 تاريخ الاستلام:</label>
-                    <input type="date" id="rDate">
+                    <label>تاريخ الاستلام:</label>
+                    <input type="date" id="rDate" autocomplete="off">
                 </div>
 
                 <div>
-                    <label>📦 تاريخ التسليم:</label>
-                    <input type="date" id="dDate">
+                    <label>تاريخ التسليم:</label>
+                    <input type="date" id="dDate" autocomplete="off">
                 </div>
             </div>
 
             <div class="row">
 
                 <div>
-                    <label>👟 كوتشيات:</label>
-                    <input type="number" id="snk" value="0">
+                    <label>كوتشيات:</label>
+                    <input type="number" id="snk" value="0" autocomplete="off">
                 </div>
 
                 <div>
-                    <label>🥾 جزم:</label>
-                    <input type="number" id="shs" value="0">
+                    <label>جزم:</label>
+                    <input type="number" id="shs" value="0" autocomplete="off">
                 </div>
 
                 <div>
-                    <label>🩴 شبشب:</label>
-                    <input type="number" id="slp" value="0">
+                    <label>شبشب:</label>
+                    <input type="number" id="slp" value="0" autocomplete="off">
                 </div>
 
             </div>
@@ -550,30 +548,31 @@
             <div class="row">
 
                 <div>
-                    <label>👡 صندل:</label>
-                    <input type="number" id="snd" value="0">
+                    <label>صندل:</label>
+                    <input type="number" id="snd" value="0" autocomplete="off">
                 </div>
 
                 <div>
-                    <label>👞 فردة:</label>
-                    <input type="number" id="sng" value="0">
+                    <label>فردة:</label>
+                    <input type="number" id="sng" value="0" autocomplete="off">
                 </div>
 
                 <div>
-                    <label>💼 شنط:</label>
-                    <input type="number" id="bags" value="0">
+                    <label>شنط:</label>
+                    <input type="number" id="bags" value="0" autocomplete="off">
                 </div>
 
             </div>
 
-            <label>🛠️ الخدمة المطلوبة:</label>
+            <label>الخدمة المطلوبة:</label>
             <input
                 type="text"
                 id="srv"
                 placeholder="غسيل، خياطة"
+                autocomplete="off"
             >
 
-            <label>🗄️ مكان التخزين (الرف بالمحل):</label>
+            <label>مكان التخزين (الرف بالمحل):</label>
 
             <select id="shelfLocation">
                 <option value="الرف : أ">الرف : أ</option>
@@ -584,7 +583,7 @@
                 <option value="الرف : و">الرف : و</option>
             </select>
 
-            <label>📷 تصوير القطع قبل الصيانة:</label>
+            <label>تصوير القطع قبل الصيانة:</label>
 
             <input
                 type="file"
@@ -600,43 +599,46 @@
                 class="btn camera-btn"
                 onclick="document.getElementById('itemImages').click();"
             >
-                📷 تصوير / اختيار عدة صور
+                تصوير / اختيار عدة صور
             </button>
 
             <div id="previewsContainer"></div>
 
             <div id="uploadStatus" class="loading-text">
-                ⏳ جاري رفع الصور، انتظر لحظة...
+                جاري رفع الصور، انتظر لحظة...
             </div>
 
             <div class="row">
 
                 <div>
-                    <label>💰 الحساب الكلي:</label>
+                    <label>الحساب الكلي:</label>
                     <input
                         type="number"
                         id="tot"
                         oninput="calc()"
+                        autocomplete="off"
                     >
                 </div>
 
                 <div>
-                    <label>💵 المدفوع مقدمًا:</label>
+                    <label>المدفوع مقدمًا:</label>
                     <input
                         type="number"
                         id="paid"
                         oninput="calc()"
+                        autocomplete="off"
                     >
                 </div>
 
             </div>
 
-            <label>🔴 المبلغ المتبقي:</label>
+            <label>المبلغ المتبقي:</label>
 
             <input
                 type="number"
                 id="rem"
                 readonly
+                autocomplete="off"
                 style="color:#ef4444;font-weight:bold;background:#0c0c0c;"
             >
 
@@ -646,7 +648,7 @@
                 style="background:linear-gradient(135deg,#16a34a,#15803d);margin-top:15px;"
                 onclick="sendTo('client')"
             >
-                📱 1. إرسال للعميل
+                1. إرسال للعميل
             </button>
 
             <button
@@ -655,7 +657,7 @@
                 style="background:linear-gradient(135deg,#2563eb,#1d4ed8);"
                 onclick="sendTo('owner')"
             >
-                📋 2. إرسال للمحل
+                2. إرسال للمحل
             </button>
 
         </form>
@@ -668,7 +670,7 @@
             id="socialBtn"
             style="background:linear-gradient(135deg,#1877f2,#0c4a6e);display:none;"
         >
-            🌐 السوشيال ميديا للمحل
+            السوشيال ميديا للمحل
         </a>
 
     </div>
@@ -676,11 +678,11 @@
     <div id="workerQuerySection" style="display:none;margin-top:10px;">
 
         <h3 style="color:#bf953f;text-align:center;margin-top:5px;">
-            🛠️ استعلام الصنايعي عن الأوردر
+            استعلام الصنايعي عن الأوردر
         </h3>
 
         <label style="text-align:center;margin-bottom:8px;">
-            🔢 ابحث برقم الأوردر (بسط ومقام) أو بالتاريخ:
+            ابحث برقم الأوردر (بسط ومقام) أو بالتاريخ:
         </label>
 
         <div
@@ -695,6 +697,7 @@
                     type="number"
                     id="searchNumerator"
                     placeholder="رقم"
+                    autocomplete="off"
                     style="text-align:center;padding:8px;border-bottom:none;font-weight:bold;color:#f3e5ab;font-size:16px;"
                 >
 
@@ -704,6 +707,7 @@
                     type="number"
                     id="searchDenominator"
                     placeholder="اليوم"
+                    autocomplete="off"
                     style="text-align:center;padding:8px;border-top:none;font-weight:bold;color:#38bdf8;font-size:16px;"
                 >
 
@@ -712,12 +716,13 @@
             <div style="margin-top:10px;text-align:right;">
 
                 <label style="font-size:12px;color:#38bdf8;margin-bottom:3px;">
-                    📅 اختر التاريخ:
+                    اختر التاريخ:
                 </label>
 
                 <input
                     type="date"
                     id="searchDate"
+                    autocomplete="off"
                     style="text-align:center;font-size:13px;padding:8px;"
                 >
 
@@ -749,15 +754,15 @@
             class="btn back-btn"
             onclick="closeScreen()"
         >
-            ⬅️ رجوع لوحة التحكم الرئيسية
+            رجوع لوحة التحكم الرئيسية
         </button>
 
         <h3 style="color:#bf953f;text-align:center;margin-top:0;">
-            🔍 البحث والتتبع الشامل
+            البحث والتتبع الشامل
         </h3>
 
         <label style="text-align:center;margin-bottom:8px;">
-            🔢 البحث برقم الأوردر أو التاريخ:
+            البحث برقم الأوردر أو التاريخ:
         </label>
 
         <div
@@ -772,6 +777,7 @@
                     type="number"
                     id="adminSearchNumerator"
                     placeholder="رقم"
+                    autocomplete="off"
                     style="text-align:center;padding:8px;border-bottom:none;font-weight:bold;color:#f3e5ab;font-size:16px;"
                 >
 
@@ -781,6 +787,7 @@
                     type="number"
                     id="adminSearchDenominator"
                     placeholder="اليوم"
+                    autocomplete="off"
                     style="text-align:center;padding:8px;border-top:none;font-weight:bold;color:#38bdf8;font-size:16px;"
                 >
 
@@ -789,12 +796,13 @@
             <div style="margin-top:10px;text-align:right;">
 
                 <label style="font-size:12px;color:#38bdf8;margin-bottom:3px;">
-                    📅 اختر التاريخ:
+                    اختر التاريخ:
                 </label>
 
                 <input
                     type="date"
                     id="adminSearchDate"
+                    autocomplete="off"
                     style="text-align:center;font-size:13px;padding:8px;"
                 >
 
@@ -814,7 +822,7 @@
         <div>
 
             <label>
-                👤 أو البحث باسم العميل أو رقم الموبايل:
+                أو البحث باسم العميل أو رقم الموبايل:
             </label>
 
             <div style="display:flex;gap:5px;">
@@ -823,6 +831,7 @@
                     type="text"
                     id="searchInput"
                     placeholder="الاسم أو الرقم..."
+                    autocomplete="off"
                     style="margin-top:0;text-align:right;"
                 >
 
@@ -854,11 +863,11 @@
             class="btn back-btn"
             onclick="closeScreen()"
         >
-            ⬅️ رجوع لوحة التحكم الرئيسية
+            رجوع لوحة التحكم الرئيسية
         </button>
 
         <h3 style="color:#38bdf8;text-align:center;margin-top:0;">
-            🚚 الأوردرات المُسلمة للعملاء
+            الأوردرات المسلمة للعملاء
         </h3>
 
         <div class="row" style="margin-bottom:10px;">
@@ -870,7 +879,7 @@
                     style="background:linear-gradient(135deg,#059669,#047857);margin-top:0;"
                     onclick="loadDeliveredInvoices('today')"
                 >
-                    ☀️ مسلمات اليوم فقط
+                    مسلمات اليوم فقط
                 </button>
             </div>
 
@@ -881,7 +890,7 @@
                     style="background:linear-gradient(135deg,#0284c7,#0369a1);margin-top:0;"
                     onclick="loadDeliveredInvoices('all')"
                 >
-                    📦 كل الأوردرات المسلمة
+                    كل الأوردرات المسلمة
                 </button>
             </div>
 
@@ -902,11 +911,11 @@
             class="btn back-btn"
             onclick="closeScreen()"
         >
-            ⬅️ رجوع لوحة التحكم الرئيسية
+            رجوع لوحة التحكم الرئيسية
         </button>
 
         <h3 style="color:#f3e5ab;text-align:center;margin-top:0;">
-            📊 تقارير المحل الإدارية
+            تقارير المحل الإدارية
         </h3>
 
         <button
@@ -915,7 +924,7 @@
             style="background:linear-gradient(135deg,#bf953f,#aa771c);color:#000;"
             onclick="rep('daily')"
         >
-            📊 تحميل التقرير اليومي
+            تحميل التقرير اليومي
         </button>
 
         <button
@@ -924,7 +933,7 @@
             style="background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;"
             onclick="rep('monthly')"
         >
-            📅 تحميل التقرير الشهري
+            تحميل التقرير الشهري
         </button>
 
         <button
@@ -933,7 +942,7 @@
             style="background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;"
             onclick="rep('yearly')"
         >
-            📆 تحميل التقرير السنوي
+            تحميل التقرير السنوي
         </button>
 
         <div
@@ -945,11 +954,11 @@
     </div>
 
     <div class="notice-box">
-        ⚠️ تنبيه: المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد الإستلام .
+        تنبيه: المحل غير مسؤول عن أي شيء بعد 15 يوم من ميعاد الاستلام.
     </div>
 
     <div class="footer-credits">
-        جميع الحقوق محفوظه لي
+        جميع الحقوق محفوظة لي
         <span>المهندس مسعد سالم _ الاسكافي شوز</span>
     </div>
 
@@ -986,7 +995,7 @@ var isCurrentInvoiceSaved = false;
 
 
 /* =====================================================
-   التوقيت الرسمي لمصر دقيق 100% (من غير الاعتماد على ساعة الجهاز)
+   التوقيت الرسمي لمصر دقيق 100%
    ===================================================== */
 
 async function getAccurateEgyptNow() {
@@ -998,9 +1007,7 @@ async function getAccurateEgyptNow() {
                 return new Date(data.datetime);
             }
         }
-    } catch (e) {
-        // في حالة عدم الاتصال بالانترنت، يتم جلب التاريخ الحقيقي المحسوب بتوقيت مصر
-    }
+    } catch (e) {}
     return new Date();
 }
 
@@ -1130,7 +1137,7 @@ function submitPassword() {
             sessionStorage.setItem('aleskafy_admin_logged', 'true');
             grantAccess('admin');
         } else {
-            alert("❌ كلمة مرور الإدارة غير صحيحة!");
+            alert("كلمة مرور الإدارة غير صحيحة!");
             document.getElementById('passwordInput').value = "";
         }
     } else {
@@ -1138,7 +1145,7 @@ function submitPassword() {
             sessionStorage.setItem('aleskafy_worker_logged', 'true');
             grantAccess('worker');
         } else {
-            alert("❌ كلمة مرور الصنايعي غير صحيحة!");
+            alert("كلمة مرور الصنايعي غير صحيحة!");
             document.getElementById('passwordInput').value = "";
         }
     }
@@ -1170,6 +1177,7 @@ function grantAccess(role) {
         document.getElementById('socialBtn').style.display = 'flex';
         document.getElementById('portalMenu').style.display = 'grid';
         document.getElementById('workerQuerySection').style.display = 'none';
+        resetFormInputs();
         fetchNextInvoiceNum();
     } else {
         document.getElementById('invoiceForm').style.display = 'none';
@@ -1178,6 +1186,35 @@ function grantAccess(role) {
         document.getElementById('portalMenu').style.display = 'none';
         document.getElementById('workerQuerySection').style.display = 'block';
     }
+}
+
+
+/* =====================================================
+   تنظيف حقول الفاتورة تماماً من أي قيم مخزنة
+   ===================================================== */
+
+function resetFormInputs() {
+    document.getElementById('name').value = '';
+    document.getElementById('phone').value = '';
+    document.getElementById('rDate').value = '';
+    document.getElementById('dDate').value = '';
+    document.getElementById('snk').value = '0';
+    document.getElementById('shs').value = '0';
+    document.getElementById('slp').value = '0';
+    document.getElementById('snd').value = '0';
+    document.getElementById('sng').value = '0';
+    document.getElementById('bags').value = '0';
+    document.getElementById('srv').value = '';
+    document.getElementById('shelfLocation').selectedIndex = 0;
+    document.getElementById('itemImages').value = '';
+    document.getElementById('previewsContainer').innerHTML = '';
+    document.getElementById('tot').value = '';
+    document.getElementById('paid').value = '';
+    document.getElementById('rem').value = '';
+    
+    uploadedImageUrls = [];
+    selectedFilesList = [];
+    isCurrentInvoiceSaved = false;
 }
 
 
@@ -1238,7 +1275,7 @@ function calc() {
 
 
 /* =====================================================
-   رقم الأوردر (يقلب تلقائياً الساعة 12 بدقة تامة)
+   رقم الأوردر
    ===================================================== */
 
 async function fetchNextInvoiceNum() {
@@ -1325,7 +1362,7 @@ async function uploadAllImages() {
     }
 
     const statusEl = document.getElementById('uploadStatus');
-    statusEl.innerText = '⏳ جاري رفع الصور، انتظر لحظة...';
+    statusEl.innerText = 'جاري رفع الصور، انتظر لحظة...';
     statusEl.style.display = 'block';
 
     let urls = [];
@@ -1359,7 +1396,7 @@ async function uploadAllImages() {
 
     } catch (err) {
         statusEl.style.display = 'none';
-        alert("❌ خطأ أثناء رفع الصور:\n" + err.message);
+        alert("خطأ أثناء رفع الصور:\n" + err.message);
         return [];
     }
 }
@@ -1391,7 +1428,7 @@ function getItemsSummary() {
 
 
 /* =====================================================
-   إرسال الفاتورة (محدّث لضمان السرعة الفورية للواتس)
+   إرسال الفاتورة وتجهيز أوردر جديد فوراً
    ===================================================== */
 
 async function sendTo(m) {
@@ -1447,16 +1484,16 @@ async function sendTo(m) {
     }
 
     var baseTxt =
-        '👤 *اسم العميل:* ' + n + '\n' +
-        '📅 *تاريخ الاستلام:* ' + r + '\n' +
-        '📦 *تاريخ التسليم:* ' + d + '\n' +
-        '🗄️ *مكان التخزين:* ' + shelf + '\n\n' +
-        '👟 *كوتشيات:* ' + sk + ' | 🥾 *جزم:* ' + ss + ' | 🩴 *شبشب:* ' + sl + '\n' +
-        '👡 *صندل:* ' + sn + ' | 👞 *فردة:* ' + sg + ' | 💼 *شنط:* ' + bg + '\n' +
-        '🛠️ *الخدمة:* ' + sv + '\n\n' +
-        '💰 *الحساب الكلي:* ' + t + ' جنيه\n' +
-        '💵 *المدفوع مقدمًا:* ' + p + ' جنيه\n' +
-        '🔴 *المبلغ المتبقي:* ' + rm + ' جنيه';
+        'اسم العميل: ' + n + '\n' +
+        'تاريخ الاستلام: ' + r + '\n' +
+        'تاريخ التسليم: ' + d + '\n' +
+        'مكان التخزين: ' + shelf + '\n\n' +
+        'كوتشيات: ' + sk + ' | جزم: ' + ss + ' | شبشب: ' + sl + '\n' +
+        'صندل: ' + sn + ' | فردة: ' + sg + ' | شنط: ' + bg + '\n' +
+        'الخدمة: ' + sv + '\n\n' +
+        'الحساب الكلي: ' + t + ' جنيه\n' +
+        'المدفوع مقدمًا: ' + p + ' جنيه\n' +
+        'المبلغ المتبقي: ' + rm + ' جنيه';
 
     if (m === 'client') {
         var cleanPh = ph.replace(/\D/g, '');
@@ -1465,24 +1502,27 @@ async function sendTo(m) {
         }
 
         var msg =
-            '✨ *ALESKAFY SHOES* ✨\n' +
-            '🧾 *إيصال استلام صيانة - رقم (' + formattedOrderCode + ')*\n\n' +
+            'ALESKAFY SHOES\n' +
+            'إيصال استلام صيانة - رقم (' + formattedOrderCode + ')\n\n' +
             baseTxt + '\n\n' +
-            '🔔 *لمتابعة أخبار وعروض المحل:*' + '\n' +
+            'لمتابعة أخبار وعروض المحل:\n' +
             FACEBOOK_PAGE + '\n\n' +
-            '⚠️ *تنبيه:* المحل غير مسؤول عن أي شيء بعد ١٥ يوم من ميعاد التسليم.' + '\n\n' +
-            '❤️ *نرحب بكم دائمًا في الاسكافي شوز*';
+            'تنبيه: المحل غير مسؤول عن أي شيء بعد 15 يوم من ميعاد التسليم.\n\n' +
+            'نرحب بكم دائمًا في الاسكافي شوز';
 
-        // فتح رابط الواتساب مباشرة بسرعة فائقة
         window.location.href = "https://wa.me/" + cleanPh + "?text=" + encodeURIComponent(msg);
     } else {
         var oMsg =
-            '📥 *[ALESKAFY SHOES - نسخة المحل]*\n' +
-            '🧾 *أرشيف أوردر رقم (' + formattedOrderCode + ') على (' + shelf + ')*\n\n' +
+            '[ALESKAFY SHOES - نسخة المحل]\n' +
+            'أرشيف أوردر رقم (' + formattedOrderCode + ') على (' + shelf + ')\n\n' +
             baseTxt;
 
         window.location.href = "https://wa.me/" + OWNER_PHONE + "?text=" + encodeURIComponent(oMsg);
     }
+
+    // تجهيز النظام لأوردر جديد وتحديث الرقم
+    resetFormInputs();
+    fetchNextInvoiceNum();
 }
 
 
@@ -1531,16 +1571,16 @@ async function rep(type) {
             totalRemainingAll += rem;
             totalOverallAll += price;
 
-            reportLines += 'أوردر (' + x.daily_number + '/' + getEgyptDay(invDate) + ') - ' + x.customer_name + ' | الإجمالي: ' + price + ' ج | المدفوع (الخزنة): ' + paid + ' ج | الباقي: ' + rem + ' ج\n';
+            reportLines += 'أوردر (' + x.daily_number + '/' + getEgyptDay(invDate) + ') - ' + x.customer_name + ' | الإجمالي: ' + price + ' ج | المدفوع: ' + paid + ' ج | الباقي: ' + rem + ' ج\n';
         }
     });
 
     let txt = 'تقرير الإسكافي شوز (' + type.toUpperCase() + ')\n====================\n\n';
     txt += reportLines;
     txt += "\n====================\n";
-    txt += "💰 إجمالي الحساب الكلي: " + totalOverallAll + ' ج\n';
-    txt += "💵 إجمالي اللي دخل الخزنة (المدفوع): " + totalVaultAll + ' ج\n';
-    txt += "🔴 إجمالي المبلغ المتبقي: " + totalRemainingAll + ' ج';
+    txt += "إجمالي الحساب الكلي: " + totalOverallAll + ' ج\n';
+    txt += "إجمالي الخزنة (المدفوع): " + totalVaultAll + ' ج\n';
+    txt += "إجمالي المبلغ المتبقي: " + totalRemainingAll + ' ج';
 
     var b = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8" });
     var lnk = document.createElement('a');
@@ -1557,12 +1597,12 @@ async function rep(type) {
 async function loadDeliveredInvoices(filterType) {
     const resBox = document.getElementById('deliveryResults');
     resBox.style.display = 'block';
-    resBox.innerHTML = 'جاري التحميل... ⏳';
+    resBox.innerHTML = 'جاري التحميل...';
 
     let query = supabaseClient
         .from('invoices')
         .select('*')
-        .eq('status', 'تم التسليم 🚚')
+        .eq('status', 'تم التسليم')
         .order('created_at', { ascending: false });
 
     const { data, error } = await query;
@@ -1589,7 +1629,7 @@ async function loadDeliveredInvoices(filterType) {
 
 
 /* =====================================================
-   بحث الصنايعي (محدّث للريفريش السريع)
+   بحث الصنايعي
    ===================================================== */
 
 async function searchByFractionNumber() {
@@ -1604,7 +1644,7 @@ async function searchByFractionNumber() {
     }
 
     resBox.style.display = 'block';
-    resBox.innerHTML = 'جاري التحميل... ⏳';
+    resBox.innerHTML = 'جاري التحميل...';
 
     let query = supabaseClient
         .from('invoices')
@@ -1633,7 +1673,7 @@ async function searchByFractionNumber() {
 
 
 /* =====================================================
-   بحث الإدارة (محدّث للريفريش السريع)
+   بحث الإدارة
    ===================================================== */
 
 async function adminSearchByFractionNumber() {
@@ -1648,7 +1688,7 @@ async function adminSearchByFractionNumber() {
     }
 
     resBox.style.display = 'block';
-    resBox.innerHTML = 'جاري التحميل... ⏳';
+    resBox.innerHTML = 'جاري التحميل...';
 
     let query = supabaseClient
         .from('invoices')
@@ -1690,7 +1730,7 @@ async function searchInvoices() {
     }
 
     resBox.style.display = 'block';
-    resBox.innerHTML = 'جاري التحميل... ⏳';
+    resBox.innerHTML = 'جاري التحميل...';
 
     const { data, error } = await supabaseClient
         .from('invoices')
@@ -1703,7 +1743,7 @@ async function searchInvoices() {
 
 
 /* =====================================================
-   عرض النتائج وتعديل الصور بعد الحفظ
+   عرض النتائج
    ===================================================== */
 
 function renderSearchResults(data, error, resBox, showAdminControls) {
@@ -1714,7 +1754,7 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
 
     resBox.innerHTML = data.map(function(inv) {
         const isDone = inv.status === 'تم الانتهاء من الصيانة';
-        const isDelivered = inv.status === 'تم التسليم 🚚';
+        const isDelivered = inv.status === 'تم التسليم';
         const statusClass = isDelivered ? 'bg-delivered' : (isDone ? 'bg-done' : 'bg-pending');
 
         const price = inv.price || 0;
@@ -1746,20 +1786,20 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
         if (showAdminControls) {
             adminControlsHtml =
                 '<div style="margin-top:10px;padding:10px;background:#1a1500;border:1px solid #bf953f;border-radius:8px;">' +
-                    '<div style="font-size:13px;color:#f3e5ab;margin-bottom:6px;font-weight:bold;">💳 حالة الدفع: ' +
-                        (rem > 0 ? '<span style="color:#ef4444;">متبقي (' + rem + ' ج)</span>' : '<span style="color:#16a34a;">تم السداد ✅</span>') +
+                    '<div style="font-size:13px;color:#f3e5ab;margin-bottom:6px;font-weight:bold;">حالة الدفع: ' +
+                        (rem > 0 ? '<span style="color:#ef4444;">متبقي (' + rem + ' ج)</span>' : '<span style="color:#16a34a;">تم السداد</span>') +
                     '</div>' +
                     '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
-                        '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ',0)">✅ تم سداد المبلغ</button>' +
-                        '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ',' + (rem > 0 ? rem : price) + ')">⏳ لم يتم السداد</button>' +
+                        '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ',0)">تم سداد المبلغ</button>' +
+                        '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ',' + (rem > 0 ? rem : price) + ')">لم يتم السداد</button>' +
                     '</div>' +
                     '<div style="margin-top:8px;">' +
-                        '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">📷 إضافة صور جديدة لهذا الأوردر:</label>' +
+                        '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">إضافة صور جديدة لهذا الأوردر:</label>' +
                         '<input type="file" id="extra_images_' + inv.id + '" accept="image/*" multiple style="display:none;" onchange="uploadExtraImagesForInvoice(' + inv.id + ')">' +
-                        '<button type="button" class="btn-sm" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;width:100%;padding:8px;" onclick="document.getElementById(\'extra_images_' + inv.id + '\').click();">📷 اختر صور وأضفها فوراً</button>' +
+                        '<button type="button" class="btn-sm" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;width:100%;padding:8px;" onclick="document.getElementById(\'extra_images_' + inv.id + '\').click();">اختر صور وأضفها فوراً</button>' +
                     '</div>' +
                     '<div style="margin-top:10px;">' +
-                        '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">🗄️ تعديل مكان التخزين (الرف):</label>' +
+                        '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">تعديل مكان التخزين (الرف):</label>' +
                         '<div style="display:flex;gap:5px;">' +
                             '<select id="shelf_edit_' + inv.id + '" style="padding:6px;font-size:12px;margin-top:0;">' +
                                 '<option value="الرف : أ">الرف : أ</option>' +
@@ -1774,24 +1814,24 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
                     '</div>' +
                 '</div>' +
                 '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
-                    '<button type="button" class="btn-sm" style="background:#0284c7;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تم التسليم 🚚\')">🚚 تم التسليم</button>' +
-                    '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تم الانتهاء من الصيانة\')">✅ تم الانتهاء</button>' +
-                    '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تحت الصيانة\')">⏳ تحت الصيانة</button>' +
+                    '<button type="button" class="btn-sm" style="background:#0284c7;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تم التسليم\')">تم التسليم</button>' +
+                    '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تم الانتهاء من الصيانة\')">تم الانتهاء</button>' +
+                    '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تحت الصيانة\')">تحت الصيانة</button>' +
                 '</div>';
         }
 
         return (
             '<div style="border-bottom:1px dashed #33270a;padding-bottom:12px;margin-bottom:12px;">' +
                 '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-                    '<strong style="color:#f3e5ab;font-size:15px;">👤 ' + inv.customer_name + '</strong>' +
+                    '<strong style="color:#f3e5ab;font-size:15px;">' + inv.customer_name + '</strong>' +
                     '<span class="status-badge ' + statusClass + '">' + (inv.status || 'تحت الصيانة') + '</span>' +
                 '</div>' +
-                '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">📅 التاريخ: ' + getEgyptDateString(inv.created_at || Date.now()) + '</div>' +
-                '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;">🔢 <b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
-                '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">📱 الموبايل: ' + (inv.phone || '-') + '</div>' +
-                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">👟 <b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
-                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">🛠️ <b>الخدمة:</b> ' + (inv.details || '-') + '</div>' +
-                '<div style="font-size:13px;margin-bottom:4px;">💰 الحساب: ' + price + ' ج | 💵 المدفوع: ' + paid + ' ج | 🔴 المتبقي: <span style="color:#ef4444;font-weight:bold;">' + rem + ' ج</span></div>' +
+                '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">التاريخ: ' + getEgyptDateString(inv.created_at || Date.now()) + '</div>' +
+                '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;"><b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
+                '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">الموبايل: ' + (inv.phone || '-') + '</div>' +
+                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
+                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الخدمة:</b> ' + (inv.details || '-') + '</div>' +
+                '<div style="font-size:13px;margin-bottom:4px;">الحساب: ' + price + ' ج | المدفوع: ' + paid + ' ج | المتبقي: <span style="color:#ef4444;font-weight:bold;">' + rem + ' ج</span></div>' +
                 imageGalleryHtml +
                 adminControlsHtml +
             '</div>'
@@ -1801,14 +1841,14 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
 
 
 /* =====================================================
-   إضافة صور إضافية لأوردر مسجل مسبقاً
+   إضافة صور إضافية للأوردر
    ===================================================== */
 
 async function uploadExtraImagesForInvoice(invoiceId) {
     const fileInput = document.getElementById('extra_images_' + invoiceId);
     if (!fileInput.files || fileInput.files.length === 0) return;
 
-    alert("⏳ جاري رفع الصور الجديدة للأوردر، انتظر لحظة...");
+    alert("جاري رفع الصور الجديدة للأوردر، انتظر لحظة...");
 
     try {
         let newUrls = [];
@@ -1847,11 +1887,11 @@ async function uploadExtraImagesForInvoice(invoiceId) {
 
         if (updateErr) throw new Error(updateErr.message);
 
-        alert("✅ تم رفع وإضافة الصور بنجاح للأوردر 👍");
+        alert("تم رفع وإضافة الصور بنجاح للأوردر");
         adminSearchByFractionNumber();
 
     } catch (err) {
-        alert("❌ خطأ أثناء رفع الصور الإضافية:\n" + err.message);
+        alert("خطأ أثناء رفع الصور الإضافية:\n" + err.message);
     }
 }
 
@@ -1869,10 +1909,10 @@ async function updatePaymentStatus(invoiceId, totalPrice, targetRem) {
         .eq('id', invoiceId);
 
     if (!error) {
-        alert("✅ تم تحديث حالة السداد بنجاح 👍");
+        alert("تم تحديث حالة السداد بنجاح");
         adminSearchByFractionNumber();
     } else {
-        alert("❌ حدث خطأ!");
+        alert("حدث خطأ!");
     }
 }
 
@@ -1902,10 +1942,10 @@ async function updateShelfLocation(id) {
             .eq('id', id);
 
         if (!error) {
-            alert('✅ تم تحديث الرف بنجاح إلى (' + newShelf + ') 👍');
+            alert('تم تحديث الرف بنجاح إلى (' + newShelf + ')');
             adminSearchByFractionNumber();
         } else {
-            alert('❌ حدث خطأ أثناء تحديث الرف!');
+            alert('حدث خطأ أثناء تحديث الرف!');
         }
     }
 }
@@ -1922,7 +1962,7 @@ async function updateStatus(id, newStatus) {
         .eq('id', id);
 
     if (!error) {
-        alert('تم تغيير الحالة بنجاح 👍');
+        alert('تم تغيير الحالة بنجاح');
         adminSearchByFractionNumber();
     } else {
         alert('حدث خطأ!');
