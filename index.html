@@ -971,10 +971,6 @@ const supabaseClient =
 
 var OWNER_PHONE = "201090274601";
 
-/* =====================================================
-   لينك فيسبوك المحل
-   ===================================================== */
-
 const FACEBOOK_PAGE =
     "https://www.facebook.com/61560847583033";
 
@@ -982,17 +978,32 @@ const FACEBOOK_PAGE =
 var uploadedImageUrls = [];
 var selectedFilesList = [];
 
-var currentDailyNum = 13;
-var currentDayNum = 31;
+var currentDailyNum = 1;
+var currentDayNum = 1;
 
 var formattedOrderCode = "";
-
 var isCurrentInvoiceSaved = false;
 
 
 /* =====================================================
-   توقيت مصر الدقيق - تجاوز خطأ ساعة اللابتوب المحلية
+   التوقيت الرسمي لمصر (يعتمد على الوقت الحقيقي بغض النظر عن اللابتوب)
    ===================================================== */
+
+async function getAccurateEgyptNow() {
+    try {
+        // محاولة جلب الوقت بدقة من انترنت API عالمي عشان لو ساعة اللابتوب متدمرة
+        const response = await fetch('https://worldtimeapi.org/api/timezone/Africa/Cairo');
+        if (response.ok) {
+            const data = await response.json();
+            if (data && data.datetime) {
+                return new Date(data.datetime);
+            }
+        }
+    } catch (e) {
+        // لو الـ API مقفول أو النت مش متاح، نعتمد على دالة الزمن برضه بتوقيت مصر
+    }
+    return new Date();
+}
 
 function getEgyptParts(dateValue = new Date()) {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -1081,12 +1092,8 @@ function getDateRangeISO(dateInput) {
    ===================================================== */
 
 async function initApp() {
-    currentDayNum = 31; 
-    const nowEgypt = new Date();
-    const forcedEgyptDay = getEgyptDay(nowEgypt);
-    if (forcedEgyptDay > 0) {
-        currentDayNum = forcedEgyptDay;
-    }
+    const nowEgypt = await getAccurateEgyptNow();
+    currentDayNum = getEgyptDay(nowEgypt);
 
     const urlParams = new URLSearchParams(window.location.search);
     const isAdminLink = urlParams.get('admin') === 'masad2026';
@@ -1232,17 +1239,14 @@ function calc() {
 
 
 /* =====================================================
-   رقم الأوردر
+   رقم الأوردر (يقلب تلقائياً الساعة 12 بتوقيت مصر)
    ===================================================== */
 
 async function fetchNextInvoiceNum() {
     try {
-        const nowEgypt = new Date();
+        const nowEgypt = await getAccurateEgyptNow();
         const todayStr = getEgyptDateString(nowEgypt);
-        const dynamicDay = getEgyptDay(nowEgypt);
-        if (dynamicDay > 0) {
-            currentDayNum = dynamicDay;
-        }
+        currentDayNum = getEgyptDay(nowEgypt);
 
         const { data, error } = await supabaseClient
             .from('invoices')
@@ -1262,14 +1266,13 @@ async function fetchNextInvoiceNum() {
 
                 currentDailyNum = numbers.length > 0 ? Math.max(...numbers) + 1 : todayInvoices.length + 1;
             } else {
-                currentDailyNum = 13;
+                currentDailyNum = 1; // يصفر يبدأ من 1 تلقائياً مع أول أوردر في اليوم الجديد
             }
         } else {
-            currentDailyNum = 13;
+            currentDailyNum = 1;
         }
     } catch (e) {
-        currentDailyNum = 13;
-        currentDayNum = 31;
+        currentDailyNum = 1;
     }
 
     formattedOrderCode = currentDailyNum + '/' + currentDayNum;
@@ -1484,11 +1487,11 @@ async function sendTo(m) {
 
 
 /* =====================================================
-   التقارير (المعدلة حسب طلبك)
+   التقارير
    ===================================================== */
 
 async function rep(type) {
-    const egyptNow = new Date();
+    const egyptNow = await getAccurateEgyptNow();
     const currentYear = getEgyptYear(egyptNow);
     const currentMonth = getEgyptMonth(egyptNow);
     const todayStr = getEgyptDateString(egyptNow);
@@ -1502,9 +1505,9 @@ async function rep(type) {
         return;
     }
 
-    let totalVaultAll = 0;       // إجمالي اللي دخل الخزنة (المدفوع)
-    let totalRemainingAll = 0;   // إجمالي المتبقي
-    let totalOverallAll = 0;     // إجمالي الحساب الكلي
+    let totalVaultAll = 0;
+    let totalRemainingAll = 0;
+    let totalOverallAll = 0;
 
     let reportLines = '';
 
@@ -1571,7 +1574,8 @@ async function loadDeliveredInvoices(filterType) {
 
     let filteredData = data;
     if (filterType === 'today') {
-        const todayStr = getEgyptDateString(new Date());
+        const nowEgypt = await getAccurateEgyptNow();
+        const todayStr = getEgyptDateString(nowEgypt);
         filteredData = data.filter(inv => getEgyptDateString(inv.created_at) === todayStr);
 
         if (filteredData.length === 0) {
@@ -1797,7 +1801,7 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
 
 
 /* =====================================================
-   إضافة صور إضافية لأوردر مسجل مسبقاً (مفيد للاب توب)
+   إضافة صور إضافية لأوردر مسجل مسبقاً
    ===================================================== */
 
 async function uploadExtraImagesForInvoice(invoiceId) {
@@ -1825,7 +1829,6 @@ async function uploadExtraImagesForInvoice(invoiceId) {
             newUrls.push(publicUrlData.publicUrl);
         }
 
-        // جلب الصور القديمة للأوردر لدمجها مع الصور الجديدة
         const { data: invData, error: fetchErr } = await supabaseClient
             .from('invoices')
             .select('image_url')
