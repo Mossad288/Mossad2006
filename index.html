@@ -509,20 +509,20 @@
         <form id="invoiceForm" style="display:none;" autocomplete="off">
 
             <label>اسم العميل:</label>
-            <input type="text" id="name" placeholder="اسم العميل" autocomplete="off">
+            <input type="text" id="name" placeholder="اسم العميل" autocomplete="off" value="">
 
             <label>واتساب العميل:</label>
-            <input type="text" id="phone" placeholder="01012345678" autocomplete="off">
+            <input type="text" id="phone" placeholder="01012345678" autocomplete="off" value="">
 
             <div class="row">
                 <div>
                     <label>تاريخ الاستلام:</label>
-                    <input type="date" id="rDate" autocomplete="off">
+                    <input type="date" id="rDate" autocomplete="off" value="">
                 </div>
 
                 <div>
                     <label>تاريخ التسليم:</label>
-                    <input type="date" id="dDate" autocomplete="off">
+                    <input type="date" id="dDate" autocomplete="off" value="">
                 </div>
             </div>
 
@@ -530,17 +530,17 @@
 
                 <div>
                     <label>كوتشيات:</label>
-                    <input type="number" id="snk" value="0" autocomplete="off">
+                    <input type="number" id="snk" placeholder="" autocomplete="off" value="">
                 </div>
 
                 <div>
                     <label>جزم:</label>
-                    <input type="number" id="shs" value="0" autocomplete="off">
+                    <input type="number" id="shs" placeholder="" autocomplete="off" value="">
                 </div>
 
                 <div>
                     <label>شبشب:</label>
-                    <input type="number" id="slp" value="0" autocomplete="off">
+                    <input type="number" id="slp" placeholder="" autocomplete="off" value="">
                 </div>
 
             </div>
@@ -549,17 +549,17 @@
 
                 <div>
                     <label>صندل:</label>
-                    <input type="number" id="snd" value="0" autocomplete="off">
+                    <input type="number" id="snd" placeholder="" autocomplete="off" value="">
                 </div>
 
                 <div>
                     <label>فردة:</label>
-                    <input type="number" id="sng" value="0" autocomplete="off">
+                    <input type="number" id="sng" placeholder="" autocomplete="off" value="">
                 </div>
 
                 <div>
                     <label>شنط:</label>
-                    <input type="number" id="bags" value="0" autocomplete="off">
+                    <input type="number" id="bags" placeholder="" autocomplete="off" value="">
                 </div>
 
             </div>
@@ -570,6 +570,7 @@
                 id="srv"
                 placeholder="غسيل، خياطة"
                 autocomplete="off"
+                value=""
             >
 
             <label>مكان التخزين (الرف بالمحل):</label>
@@ -615,8 +616,10 @@
                     <input
                         type="number"
                         id="tot"
+                        placeholder=""
                         oninput="calc()"
                         autocomplete="off"
+                        value=""
                     >
                 </div>
 
@@ -625,8 +628,10 @@
                     <input
                         type="number"
                         id="paid"
+                        placeholder=""
                         oninput="calc()"
                         autocomplete="off"
+                        value=""
                     >
                 </div>
 
@@ -638,7 +643,9 @@
                 type="number"
                 id="rem"
                 readonly
+                placeholder=""
                 autocomplete="off"
+                value=""
                 style="color:#ef4444;font-weight:bold;background:#0c0c0c;"
             >
 
@@ -698,6 +705,7 @@
                     id="searchNumerator"
                     placeholder="رقم"
                     autocomplete="off"
+                    value=""
                     style="text-align:center;padding:8px;border-bottom:none;font-weight:bold;color:#f3e5ab;font-size:16px;"
                 >
 
@@ -708,6 +716,7 @@
                     id="searchDenominator"
                     placeholder="اليوم"
                     autocomplete="off"
+                    value=""
                     style="text-align:center;padding:8px;border-top:none;font-weight:bold;color:#38bdf8;font-size:16px;"
                 >
 
@@ -723,6 +732,7 @@
                     type="date"
                     id="searchDate"
                     autocomplete="off"
+                    value=""
                     style="text-align:center;font-size:13px;padding:8px;"
                 >
 
@@ -778,6 +788,7 @@
                     id="adminSearchNumerator"
                     placeholder="رقم"
                     autocomplete="off"
+                    value=""
                     style="text-align:center;padding:8px;border-bottom:none;font-weight:bold;color:#f3e5ab;font-size:16px;"
                 >
 
@@ -788,6 +799,7 @@
                     id="adminSearchDenominator"
                     placeholder="اليوم"
                     autocomplete="off"
+                    value=""
                     style="text-align:center;padding:8px;border-top:none;font-weight:bold;color:#38bdf8;font-size:16px;"
                 >
 
@@ -803,6 +815,7 @@
                     type="date"
                     id="adminSearchDate"
                     autocomplete="off"
+                    value=""
                     style="text-align:center;font-size:13px;padding:8px;"
                 >
 
@@ -832,6 +845,7 @@
                     id="searchInput"
                     placeholder="الاسم أو الرقم..."
                     autocomplete="off"
+                    value=""
                     style="margin-top:0;text-align:right;"
                 >
 
@@ -1198,12 +1212,12 @@ function resetFormInputs() {
     document.getElementById('phone').value = '';
     document.getElementById('rDate').value = '';
     document.getElementById('dDate').value = '';
-    document.getElementById('snk').value = '0';
-    document.getElementById('shs').value = '0';
-    document.getElementById('slp').value = '0';
-    document.getElementById('snd').value = '0';
-    document.getElementById('sng').value = '0';
-    document.getElementById('bags').value = '0';
+    document.getElementById('snk').value = '';
+    document.getElementById('shs').value = '';
+    document.getElementById('slp').value = '';
+    document.getElementById('snd').value = '';
+    document.getElementById('sng').value = '';
+    document.getElementById('bags').value = '';
     document.getElementById('srv').value = '';
     document.getElementById('shelfLocation').selectedIndex = 0;
     document.getElementById('itemImages').value = '';
@@ -1270,7 +1284,7 @@ function closeScreen() {
 function calc() {
     var t = parseFloat(document.getElementById('tot').value) || 0;
     var p = parseFloat(document.getElementById('paid').value) || 0;
-    document.getElementById('rem').value = t - p;
+    document.getElementById('rem').value = (document.getElementById('tot').value === '') && (document.getElementById('paid').value === '') ? '' : (t - p);
 }
 
 
@@ -1448,15 +1462,15 @@ async function sendTo(m) {
     var r = document.getElementById('rDate').value || 'غير محدد';
     var d = document.getElementById('dDate').value || 'غير محدد';
 
-    var sk = document.getElementById('snk').value;
-    var ss = document.getElementById('shs').value;
-    var sl = document.getElementById('slp').value;
-    var sn = document.getElementById('snd').value;
-    var sg = document.getElementById('sng').value;
-    var bg = document.getElementById('bags').value;
+    var sk = document.getElementById('snk').value || '0';
+    var ss = document.getElementById('shs').value || '0';
+    var sl = document.getElementById('slp').value || '0';
+    var sn = document.getElementById('snd').value || '0';
+    var sg = document.getElementById('sng').value || '0';
+    var bg = document.getElementById('bags').value || '0';
     var sv = document.getElementById('srv').value;
-    var p = document.getElementById('paid').value;
-    var rm = document.getElementById('rem').value;
+    var p = document.getElementById('paid').value || '0';
+    var rm = document.getElementById('rem').value || '0';
 
     if (!isCurrentInvoiceSaved) {
         const { error } = await supabaseClient
