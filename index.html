@@ -1081,7 +1081,6 @@ function getDateRangeISO(dateInput) {
    ===================================================== */
 
 async function initApp() {
-    // فرض يوم 31 صراحة لليوم لضمان عدم تأثر التطبيق بساعة اللابتوب القديمة
     currentDayNum = 31; 
     const nowEgypt = new Date();
     const forcedEgyptDay = getEgyptDay(nowEgypt);
@@ -1263,7 +1262,7 @@ async function fetchNextInvoiceNum() {
 
                 currentDailyNum = numbers.length > 0 ? Math.max(...numbers) + 1 : todayInvoices.length + 1;
             } else {
-                currentDailyNum = 13; // يبدأ من 13 بناءً على رغبتك
+                currentDailyNum = 13;
             }
         } else {
             currentDailyNum = 13;
@@ -1485,7 +1484,7 @@ async function sendTo(m) {
 
 
 /* =====================================================
-   التقارير
+   التقارير (المعدلة حسب طلبك)
    ===================================================== */
 
 async function rep(type) {
@@ -1503,14 +1502,16 @@ async function rep(type) {
         return;
     }
 
-    let totalRemainingAll = 0;
-    let txt = 'تقرير الإسكافي شوز (' + type.toUpperCase() + ')\n====================\n\n';
+    let totalVaultAll = 0;       // إجمالي اللي دخل الخزنة (المدفوع)
+    let totalRemainingAll = 0;   // إجمالي المتبقي
+    let totalOverallAll = 0;     // إجمالي الحساب الكلي
+
+    let reportLines = '';
 
     list.forEach(function(x) {
-        var price = x.price || 0;
-        var paid = x.paid || 0;
-        var rem = price - paid;
-        totalRemainingAll += rem;
+        let price = parseFloat(x.price) || 0;
+        let paid = parseFloat(x.paid) || 0;
+        let rem = price - paid;
 
         let invDate = new Date(x.created_at || Date.now());
         let invYear = getEgyptYear(invDate);
@@ -1523,11 +1524,20 @@ async function rep(type) {
         if (type === 'yearly' && invYear === currentYear) include = true;
 
         if (include) {
-            txt += 'أوردر (' + x.daily_number + '/' + getEgyptDay(invDate) + ') - ' + x.customer_name + ' | الحساب: ' + price + ' ج | الباقي: ' + rem + ' ج\n';
+            totalVaultAll += paid;
+            totalRemainingAll += rem;
+            totalOverallAll += price;
+
+            reportLines += 'أوردر (' + x.daily_number + '/' + getEgyptDay(invDate) + ') - ' + x.customer_name + ' | الإجمالي: ' + price + ' ج | المدفوع (الخزنة): ' + paid + ' ج | الباقي: ' + rem + ' ج\n';
         }
     });
 
-    txt += "\n====================\nإجمالي المتبقي المتراكم: " + totalRemainingAll + ' ج';
+    let txt = 'تقرير الإسكافي شوز (' + type.toUpperCase() + ')\n====================\n\n';
+    txt += reportLines;
+    txt += "\n====================\n";
+    txt += "💰 إجمالي الحساب الكلي: " + totalOverallAll + ' ج\n';
+    txt += "💵 إجمالي اللي دخل الخزنة (المدفوع): " + totalVaultAll + ' ج\n';
+    txt += "🔴 إجمالي المبلغ المتبقي: " + totalRemainingAll + ' ج';
 
     var b = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8" });
     var lnk = document.createElement('a');
@@ -1689,7 +1699,7 @@ async function searchInvoices() {
 
 
 /* =====================================================
-   عرض النتائج
+   عرض النتائج وتعديل الصور بعد الحفظ
    ===================================================== */
 
 function renderSearchResults(data, error, resBox, showAdminControls) {
@@ -1739,7 +1749,12 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
                         '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ',0)">✅ تم سداد المبلغ</button>' +
                         '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ',' + (rem > 0 ? rem : price) + ')">⏳ لم يتم السداد</button>' +
                     '</div>' +
-                    '<div style="margin-top:6px;">' +
+                    '<div style="margin-top:8px;">' +
+                        '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">📷 إضافة صور جديدة لهذا الأوردر:</label>' +
+                        '<input type="file" id="extra_images_' + inv.id + '" accept="image/*" multiple style="display:none;" onchange="uploadExtraImagesForInvoice(' + inv.id + ')">' +
+                        '<button type="button" class="btn-sm" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;width:100%;padding:8px;" onclick="document.getElementById(\'extra_images_' + inv.id + '\').click();">📷 اختر صور وأضفها فوراً</button>' +
+                    '</div>' +
+                    '<div style="margin-top:10px;">' +
                         '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">🗄️ تعديل مكان التخزين (الرف):</label>' +
                         '<div style="display:flex;gap:5px;">' +
                             '<select id="shelf_edit_' + inv.id + '" style="padding:6px;font-size:12px;margin-top:0;">' +
@@ -1770,7 +1785,7 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
                 '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">📅 التاريخ: ' + getEgyptDateString(inv.created_at || Date.now()) + '</div>' +
                 '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;">🔢 <b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
                 '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">📱 الموبايل: ' + (inv.phone || '-') + '</div>' +
-                '<dict style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">👟 <b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
+                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">👟 <b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
                 '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;">🛠️ <b>الخدمة:</b> ' + (inv.details || '-') + '</div>' +
                 '<div style="font-size:13px;margin-bottom:4px;">💰 الحساب: ' + price + ' ج | 💵 المدفوع: ' + paid + ' ج | 🔴 المتبقي: <span style="color:#ef4444;font-weight:bold;">' + rem + ' ج</span></div>' +
                 imageGalleryHtml +
@@ -1778,6 +1793,63 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
             '</div>'
         );
     }).join('');
+}
+
+
+/* =====================================================
+   إضافة صور إضافية لأوردر مسجل مسبقاً (مفيد للاب توب)
+   ===================================================== */
+
+async function uploadExtraImagesForInvoice(invoiceId) {
+    const fileInput = document.getElementById('extra_images_' + invoiceId);
+    if (!fileInput.files || fileInput.files.length === 0) return;
+
+    alert("⏳ جاري رفع الصور الجديدة للأوردر، انتظر لحظة...");
+
+    try {
+        let newUrls = [];
+        for (let i = 0; i < fileInput.files.length; i++) {
+            const file = fileInput.files[i];
+            const fileName = 'inv_extra_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2,7) + '.jpg';
+
+            const { error: uploadError } = await supabaseClient.storage
+                .from('images')
+                .upload(fileName, file, { cacheControl: '3600', upsert: true });
+
+            if (uploadError) throw new Error(uploadError.message);
+
+            const { data: publicUrlData } = supabaseClient.storage
+                .from('images')
+                .getPublicUrl(fileName);
+
+            newUrls.push(publicUrlData.publicUrl);
+        }
+
+        // جلب الصور القديمة للأوردر لدمجها مع الصور الجديدة
+        const { data: invData, error: fetchErr } = await supabaseClient
+            .from('invoices')
+            .select('image_url')
+            .eq('id', invoiceId)
+            .single();
+
+        if (fetchErr) throw new Error(fetchErr.message);
+
+        let existingUrls = invData.image_url ? String(invData.image_url).split(/\r?\n/).map(u => u.trim()).filter(u => u.length > 1) : [];
+        let combinedUrls = existingUrls.concat(newUrls).join('\n');
+
+        const { error: updateErr } = await supabaseClient
+            .from('invoices')
+            .update({ image_url: combinedUrls })
+            .eq('id', invoiceId);
+
+        if (updateErr) throw new Error(updateErr.message);
+
+        alert("✅ تم رفع وإضافة الصور بنجاح للأوردر 👍");
+        adminSearchByFractionNumber();
+
+    } catch (err) {
+        alert("❌ خطأ أثناء رفع الصور الإضافية:\n" + err.message);
+    }
 }
 
 
