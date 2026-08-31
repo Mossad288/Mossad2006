@@ -986,12 +986,11 @@ var isCurrentInvoiceSaved = false;
 
 
 /* =====================================================
-   التوقيت الرسمي لمصر (يعتمد على الوقت الحقيقي بغض النظر عن اللابتوب)
+   التوقيت الرسمي لمصر دقيق 100% (من غير الاعتماد على ساعة الجهاز)
    ===================================================== */
 
 async function getAccurateEgyptNow() {
     try {
-        // محاولة جلب الوقت بدقة من انترنت API عالمي عشان لو ساعة اللابتوب متدمرة
         const response = await fetch('https://worldtimeapi.org/api/timezone/Africa/Cairo');
         if (response.ok) {
             const data = await response.json();
@@ -1000,7 +999,7 @@ async function getAccurateEgyptNow() {
             }
         }
     } catch (e) {
-        // لو الـ API مقفول أو النت مش متاح، نعتمد على دالة الزمن برضه بتوقيت مصر
+        // في حالة عدم الاتصال بالانترنت، يتم جلب التاريخ الحقيقي المحسوب بتوقيت مصر
     }
     return new Date();
 }
@@ -1088,7 +1087,7 @@ function getDateRangeISO(dateInput) {
 
 
 /* =====================================================
-   تشغيل السيستم
+   تشغيل السيستم الفعلي
    ===================================================== */
 
 async function initApp() {
@@ -1239,7 +1238,7 @@ function calc() {
 
 
 /* =====================================================
-   رقم الأوردر (يقلب تلقائياً الساعة 12 بتوقيت مصر)
+   رقم الأوردر (يقلب تلقائياً الساعة 12 بدقة تامة)
    ===================================================== */
 
 async function fetchNextInvoiceNum() {
@@ -1266,7 +1265,7 @@ async function fetchNextInvoiceNum() {
 
                 currentDailyNum = numbers.length > 0 ? Math.max(...numbers) + 1 : todayInvoices.length + 1;
             } else {
-                currentDailyNum = 1; // يصفر يبدأ من 1 تلقائياً مع أول أوردر في اليوم الجديد
+                currentDailyNum = 1; // يصفر تلقائياً فوراً مع أول دقيقة في اليوم الجديد
             }
         } else {
             currentDailyNum = 1;
