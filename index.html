@@ -997,7 +997,6 @@ var OWNER_PHONE = "201090274601";
 const FACEBOOK_PAGE =
     "https://www.facebook.com/61560847583033";
 
-
 var uploadedImageUrls = [];
 var selectedFilesList = [];
 
@@ -1007,22 +1006,169 @@ var currentDayNum = 1;
 var formattedOrderCode = "";
 var isCurrentInvoiceSaved = false;
 
-
 /* =====================================================
-   التوقيت الرسمي لمصر دقيق 100%
+   التوقيت الرسمي لمصر
+   يعتمد على وقت موثوق + ساعة تشغيل monotonic
+   حتى تغيير ساعة الجهاز لا يغيّر اليوم أثناء التشغيل
    ===================================================== */
 
+var trustedEgyptTimeMs = null;
+var trustedPerformanceMs = null;
+var midnightTimer = null;
+var timeSyncTimer = null;
+
 async function getAccurateEgyptNow() {
-    try {
-        const response = await fetch('https://worldtimeapi.org/api/timezone/Africa/Cairo');
-        if (response.ok) {
-            const data = await response.json();
-            if (data && data.datetime) {
-                return new Date(data.datetime);
+
+    const endpoints = [
+        'https://worldtimeapi.org/api/timezone/Africa/Cairo?cb=' + Math.random(),
+        'https://timeapi.io/api/Time/current/zone?timeZone=Africa/Cairo&cb=' + Math.random()
+    ];
+
+    for (let i = 0; i < endpoints.length; i++) {
+
+        try {
+
+            const response = await fetch(
+                endpoints[i],
+                {
+                    cache: 'no-store'
+                }
+            );
+
+            if (response.ok) {
+
+                const data = await response.json();
+
+                const dateText =
+                    data.datetime ||
+                    data.dateTime ||
+                    data.currentLocalTime;
+
+                if (dateText) {
+
+                    const serverMs =
+                        new Date(dateText).getTime();
+
+                    if (!isNaN(serverMs)) {
+
+                        trustedEgyptTimeMs = serverMs;
+                        trustedPerformanceMs = performance.now();
+
+                        return new Date(serverMs);
+                    }
+                }
             }
-        }
-    } catch (e) {}
+
+        } catch (e) {}
+    }
+
+    /*
+       لو الاتصال بالوقت الخارجي فشل بعد ما
+       حصلت مزامنة صحيحة قبل كده، نكمل من
+       الساعة الداخلية monotonic ولا نعتمد
+       على ساعة الجهاز.
+    */
+
+    if (
+        trustedEgyptTimeMs !== null &&
+        trustedPerformanceMs !== null
+    ) {
+
+        return new Date(
+            trustedEgyptTimeMs +
+            (performance.now() - trustedPerformanceMs)
+        );
+    }
+
+    /*
+       طوارئ أول تشغيل فقط لو خدمتا الوقت
+       غير متاحتين تماماً.
+    */
+
     return new Date();
+}
+
+/* =====================================================
+   ضبط التحديث التلقائي عند 12:00 منتصف الليل
+   ===================================================== */
+
+function scheduleMidnightRefresh(nowEgypt) {
+
+    if (midnightTimer) {
+        clearTimeout(midnightTimer);
+    }
+
+    const currentDateStr =
+        getEgyptDateString(nowEgypt);
+
+    const nextDate =
+        new Date(currentDateStr + 'T12:00:00Z');
+
+    nextDate.setUTCDate(
+        nextDate.getUTCDate() + 1
+    );
+
+    const nextDateStr =
+        nextDate.toISOString().slice(0, 10);
+
+    const nextMidnightISO =
+        getEgyptStartOfDayISO(nextDateStr);
+
+    const delay =
+        Math.max(
+            1000,
+            new Date(nextMidnightISO).getTime() -
+            nowEgypt.getTime()
+        );
+
+    midnightTimer = setTimeout(
+        async function() {
+
+            const freshNow =
+                await getAccurateEgyptNow();
+
+            currentDayNum =
+                getEgyptDay(freshNow);
+
+            /*
+               إعادة حساب رقم الأوردر لليوم الجديد.
+               بما إن created_at في Supabase داخل
+               نطاق اليوم الجديد، سيبدأ العداد من 1.
+            */
+
+            await fetchNextInvoiceNum();
+
+            scheduleMidnightRefresh(freshNow);
+
+        },
+        delay
+    );
+}
+
+/* =====================================================
+   مزامنة الوقت كل 5 دقائق
+   ===================================================== */
+
+function startTimeSynchronization() {
+
+    if (timeSyncTimer) {
+        clearInterval(timeSyncTimer);
+    }
+
+    timeSyncTimer = setInterval(
+        async function() {
+
+            const nowEgypt =
+                await getAccurateEgyptNow();
+
+            currentDayNum =
+                getEgyptDay(nowEgypt);
+
+            scheduleMidnightRefresh(nowEgypt);
+
+        },
+        5 * 60 * 1000
+    );
 }
 
 function getEgyptParts(dateValue = new Date()) {
@@ -1106,27 +1252,51 @@ function getDateRangeISO(dateInput) {
     };
 }
 
-
 /* =====================================================
    تشغيل السيستم الفعلي
    ===================================================== */
 
 async function initApp() {
-    const nowEgypt = await getAccurateEgyptNow();
-    currentDayNum = getEgyptDay(nowEgypt);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const isAdminLink = urlParams.get('admin') === 'masad2026';
+    const nowEgypt =
+        await getAccurateEgyptNow();
+
+    currentDayNum =
+        getEgyptDay(nowEgypt);
+
+    scheduleMidnightRefresh(nowEgypt);
+    startTimeSynchronization();
+
+    const urlParams =
+        new URLSearchParams(window.location.search);
+
+    const isAdminLink =
+        urlParams.get('admin') === 'masad2026';
 
     if (isAdminLink) {
-        document.getElementById('authSubtitleText').innerText = "تسجيل دخول الإدارة (المحل)";
-        if (sessionStorage.getItem('aleskafy_admin_logged') === 'true') {
+
+        document.getElementById('authSubtitleText').innerText =
+            "تسجيل دخول الإدارة (المحل)";
+
+        if (
+            sessionStorage.getItem(
+                'aleskafy_admin_logged'
+            ) === 'true'
+        ) {
             grantAccess('admin');
             return;
         }
+
     } else {
-        document.getElementById('authSubtitleText').innerText = "تسجيل دخول الصنايعي";
-        if (sessionStorage.getItem('aleskafy_worker_logged') === 'true') {
+
+        document.getElementById('authSubtitleText').innerText =
+            "تسجيل دخول الصنايعي";
+
+        if (
+            sessionStorage.getItem(
+                'aleskafy_worker_logged'
+            ) === 'true'
+        ) {
             grantAccess('worker');
             return;
         }
@@ -1135,7 +1305,6 @@ async function initApp() {
     document.getElementById('authScreen').style.display = 'flex';
     document.getElementById('mainContainer').style.display = 'none';
 }
-
 
 /* =====================================================
    تسجيل الدخول
@@ -1165,7 +1334,6 @@ function submitPassword() {
     }
 }
 
-
 /* =====================================================
    تسجيل الخروج
    ===================================================== */
@@ -1175,7 +1343,6 @@ function logoutApp() {
     sessionStorage.removeItem('aleskafy_worker_logged');
     location.reload();
 }
-
 
 /* =====================================================
    صلاحيات المستخدم
@@ -1201,7 +1368,6 @@ function grantAccess(role) {
         document.getElementById('workerQuerySection').style.display = 'block';
     }
 }
-
 
 /* =====================================================
    تنظيف حقول الفاتورة تماماً من أي قيم مخزنة
@@ -1231,7 +1397,6 @@ function resetFormInputs() {
     isCurrentInvoiceSaved = false;
 }
 
-
 /* =====================================================
    فتح الشاشات
    ===================================================== */
@@ -1250,7 +1415,6 @@ function openScreen(screenId) {
         behavior: 'smooth'
     });
 }
-
 
 /* =====================================================
    رجوع
@@ -1276,7 +1440,6 @@ function closeScreen() {
     });
 }
 
-
 /* =====================================================
    الحساب
    ===================================================== */
@@ -1287,51 +1450,75 @@ function calc() {
     document.getElementById('rem').value = (document.getElementById('tot').value === '') && (document.getElementById('paid').value === '') ? '' : (t - p);
 }
 
-
 /* =====================================================
    رقم الأوردر (محسوب بدقة لليوم الحالي فقط)
    ===================================================== */
 
 async function fetchNextInvoiceNum() {
+
     try {
-        const nowEgypt = await getAccurateEgyptNow();
-        const todayStr = getEgyptDateString(nowEgypt);
-        currentDayNum = getEgyptDay(nowEgypt);
 
-        const range = getDateRangeISO(todayStr);
+        const nowEgypt =
+            await getAccurateEgyptNow();
 
-        const { data, error } = await supabaseClient
-            .from('invoices')
-            .select('daily_number')
-            .gte('created_at', range.start)
-            .lte('created_at', range.end);
+        const todayStr =
+            getEgyptDateString(nowEgypt);
+
+        currentDayNum =
+            getEgyptDay(nowEgypt);
+
+        const range =
+            getDateRangeISO(todayStr);
+
+        const { data, error } =
+            await supabaseClient
+                .from('invoices')
+                .select('daily_number')
+                .gte('created_at', range.start)
+                .lte('created_at', range.end);
 
         if (!error && data && data.length > 0) {
-            const numbers = data
-                .map(inv => parseInt(inv.daily_number))
-                .filter(n => !isNaN(n));
 
-            currentDailyNum = numbers.length > 0 ? Math.max(...numbers) + 1 : 1;
+            const numbers =
+                data
+                    .map(inv => parseInt(inv.daily_number))
+                    .filter(n => !isNaN(n));
+
+            currentDailyNum =
+                numbers.length > 0
+                    ? Math.max(...numbers) + 1
+                    : 1;
+
         } else {
+
             currentDailyNum = 1;
         }
+
     } catch (e) {
+
         currentDailyNum = 1;
     }
 
-    formattedOrderCode = currentDailyNum + '/' + currentDayNum;
+    formattedOrderCode =
+        currentDailyNum + '/' + currentDayNum;
 
-    const badgeEl = document.getElementById('badge');
+    const badgeEl =
+        document.getElementById('badge');
+
     if (badgeEl) {
+
         badgeEl.innerHTML =
             '<span>رقم أوردر اليوم:</span>' +
             '<span class="fraction" style="font-size:16px;">' +
-                '<span class="numerator">' + currentDailyNum + '</span>' +
-                '<span class="denominator">' + currentDayNum + '</span>' +
+                '<span class="numerator">' +
+                    currentDailyNum +
+                '</span>' +
+                '<span class="denominator">' +
+                    currentDayNum +
+                '</span>' +
             '</span>';
     }
 }
-
 
 /* =====================================================
    الصور
@@ -1358,7 +1545,6 @@ function handleImagesSelection(event) {
         });
     }
 }
-
 
 /* =====================================================
    رفع الصور
@@ -1409,7 +1595,6 @@ async function uploadAllImages() {
     }
 }
 
-
 /* =====================================================
    ملخص الأصناف
    ===================================================== */
@@ -1433,7 +1618,6 @@ function getItemsSummary() {
 
     return items.join(' | ') || 'أصناف متعددة';
 }
-
 
 /* =====================================================
    إرسال الفاتورة وتجهيز أوردر جديد فوراً
@@ -1532,7 +1716,6 @@ async function sendTo(m) {
     fetchNextInvoiceNum();
 }
 
-
 /* =====================================================
    التقارير (محدثة لمنع التكرار والترتيب التصاعدي السليم)
    ===================================================== */
@@ -1574,14 +1757,12 @@ async function rep(type) {
             let dayNum = getEgyptDay(invDate);
             let uniqueKey = x.daily_number + '/' + dayNum;
             
-            // لتجنب تكرار نفس رقم الأوردر لو متسجل مرتين، بنحتفظ بالأحدث أو الأول ونمنع التكرار
             uniqueInvoicesMap.set(uniqueKey, x);
         }
     });
 
     let filteredList = Array.from(uniqueInvoicesMap.values());
     
-    // ترتيب تصاعدي حسب رقم الأوردر اليومي
     filteredList.sort(function(a, b) {
         return (parseInt(a.daily_number) || 0) - (parseInt(b.daily_number) || 0);
     });
@@ -1614,7 +1795,6 @@ async function rep(type) {
     lnk.download = "Report_" + type + ".txt";
     lnk.click();
 }
-
 
 /* =====================================================
    الأوردرات المسلمة
@@ -1652,7 +1832,6 @@ async function loadDeliveredInvoices(filterType) {
 
     renderSearchResults(filteredData, null, resBox, false);
 }
-
 
 /* =====================================================
    بحث الصنايعي
@@ -1697,7 +1876,6 @@ async function searchByFractionNumber() {
     renderSearchResults(finalData, error, resBox, false);
 }
 
-
 /* =====================================================
    بحث الإدارة
    ===================================================== */
@@ -1741,7 +1919,6 @@ async function adminSearchByFractionNumber() {
     renderSearchResults(finalData, error, resBox, true);
 }
 
-
 /* =====================================================
    البحث بالاسم أو الموبايل
    ===================================================== */
@@ -1766,7 +1943,6 @@ async function searchInvoices() {
 
     renderSearchResults(data, error, resBox, true);
 }
-
 
 /* =====================================================
    عرض النتائج
@@ -1865,7 +2041,6 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
     }).join('');
 }
 
-
 /* =====================================================
    إضافة صور إضافية للأوردر
    ===================================================== */
@@ -1921,7 +2096,6 @@ async function uploadExtraImagesForInvoice(invoiceId) {
     }
 }
 
-
 /* =====================================================
    تحديث الدفع
    ===================================================== */
@@ -1941,7 +2115,6 @@ async function updatePaymentStatus(invoiceId, totalPrice, targetRem) {
         alert("حدث خطأ!");
     }
 }
-
 
 /* =====================================================
    تحديث الرف
@@ -1975,7 +2148,6 @@ async function updateShelfLocation(id) {
         }
     }
 }
-
 
 /* =====================================================
    تحديث الحالة
