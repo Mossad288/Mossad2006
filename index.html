@@ -1534,7 +1534,7 @@ async function sendTo(m) {
 
 
 /* =====================================================
-   التقارير
+   التقارير (محدثة لمنع التكرار والترتيب التصاعدي السليم)
    ===================================================== */
 
 async function rep(type) {
@@ -1545,7 +1545,8 @@ async function rep(type) {
 
     const { data: list, error } = await supabaseClient
         .from('invoices')
-        .select('*');
+        .select('*')
+        .order('created_at', { ascending: true });
 
     if (error || !list || list.length === 0) {
         alert("لا توجد فواتير مسجلة!");
@@ -1556,13 +1557,9 @@ async function rep(type) {
     let totalRemainingAll = 0;
     let totalOverallAll = 0;
 
-    let reportLines = '';
+    let uniqueInvoicesMap = new Map();
 
     list.forEach(function(x) {
-        let price = parseFloat(x.price) || 0;
-        let paid = parseFloat(x.paid) || 0;
-        let rem = price - paid;
-
         let invDate = new Date(x.created_at || Date.now());
         let invYear = getEgyptYear(invDate);
         let invMonth = getEgyptMonth(invDate);
@@ -1574,12 +1571,34 @@ async function rep(type) {
         if (type === 'yearly' && invYear === currentYear) include = true;
 
         if (include) {
-            totalVaultAll += paid;
-            totalRemainingAll += rem;
-            totalOverallAll += price;
-
-            reportLines += 'أوردر (' + x.daily_number + '/' + getEgyptDay(invDate) + ') - ' + x.customer_name + ' | الإجمالي: ' + price + ' ج | المدفوع: ' + paid + ' ج | الباقي: ' + rem + ' ج\n';
+            let dayNum = getEgyptDay(invDate);
+            let uniqueKey = x.daily_number + '/' + dayNum;
+            
+            // لتجنب تكرار نفس رقم الأوردر لو متسجل مرتين، بنحتفظ بالأحدث أو الأول ونمنع التكرار
+            uniqueInvoicesMap.set(uniqueKey, x);
         }
+    });
+
+    let filteredList = Array.from(uniqueInvoicesMap.values());
+    
+    // ترتيب تصاعدي حسب رقم الأوردر اليومي
+    filteredList.sort(function(a, b) {
+        return (parseInt(a.daily_number) || 0) - (parseInt(b.daily_number) || 0);
+    });
+
+    let reportLines = '';
+
+    filteredList.forEach(function(x) {
+        let price = parseFloat(x.price) || 0;
+        let paid = parseFloat(x.paid) || 0;
+        let rem = price - paid;
+        let invDate = new Date(x.created_at || Date.now());
+
+        totalVaultAll += paid;
+        totalRemainingAll += rem;
+        totalOverallAll += price;
+
+        reportLines += 'أوردر (' + x.daily_number + '/' + getEgyptDay(invDate) + ') - ' + x.customer_name + ' | الإجمالي: ' + price + ' ج | المدفوع: ' + paid + ' ج | الباقي: ' + rem + ' ج\n';
     });
 
     let txt = 'تقرير الإسكافي شوز (' + type.toUpperCase() + ')\n====================\n\n';
@@ -1610,7 +1629,7 @@ async function loadDeliveredInvoices(filterType) {
         .from('invoices')
         .select('*')
         .eq('status', 'تم التسليم')
-        .order('created_at', { ascending: false });
+        .order('daily_number', { ascending: true });
 
     const { data, error } = await query;
 
@@ -1656,7 +1675,7 @@ async function searchByFractionNumber() {
     let query = supabaseClient
         .from('invoices')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('daily_number', { ascending: true });
 
     if (numVal) {
         query = query.eq('daily_number', parseInt(numVal));
@@ -1700,7 +1719,7 @@ async function adminSearchByFractionNumber() {
     let query = supabaseClient
         .from('invoices')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('daily_number', { ascending: true });
 
     if (numVal) {
         query = query.eq('daily_number', parseInt(numVal));
@@ -1743,7 +1762,7 @@ async function searchInvoices() {
         .from('invoices')
         .select('*')
         .or('customer_name.ilike.%' + query + '%,phone.ilike.%' + query + '%')
-        .order('created_at', { ascending: false });
+        .order('daily_number', { ascending: true });
 
     renderSearchResults(data, error, resBox, true);
 }
