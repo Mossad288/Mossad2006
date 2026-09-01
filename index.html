@@ -1289,7 +1289,7 @@ function calc() {
 
 
 /* =====================================================
-   رقم الأوردر
+   رقم الأوردر (محسوب بدقة لليوم الحالي فقط)
    ===================================================== */
 
 async function fetchNextInvoiceNum() {
@@ -1298,26 +1298,20 @@ async function fetchNextInvoiceNum() {
         const todayStr = getEgyptDateString(nowEgypt);
         currentDayNum = getEgyptDay(nowEgypt);
 
+        const range = getDateRangeISO(todayStr);
+
         const { data, error } = await supabaseClient
             .from('invoices')
-            .select('daily_number, created_at')
-            .order('daily_number', { ascending: false })
-            .limit(1000);
+            .select('daily_number')
+            .gte('created_at', range.start)
+            .lte('created_at', range.end);
 
         if (!error && data && data.length > 0) {
-            const todayInvoices = data.filter(function(inv) {
-                return getEgyptDateString(inv.created_at) === todayStr;
-            });
+            const numbers = data
+                .map(inv => parseInt(inv.daily_number))
+                .filter(n => !isNaN(n));
 
-            if (todayInvoices.length > 0) {
-                const numbers = todayInvoices
-                    .map(inv => parseInt(inv.daily_number))
-                    .filter(n => !isNaN(n));
-
-                currentDailyNum = numbers.length > 0 ? Math.max(...numbers) + 1 : todayInvoices.length + 1;
-            } else {
-                currentDailyNum = 1; 
-            }
+            currentDailyNum = numbers.length > 0 ? Math.max(...numbers) + 1 : 1;
         } else {
             currentDailyNum = 1;
         }
@@ -1534,7 +1528,6 @@ async function sendTo(m) {
         window.location.href = "https://wa.me/" + OWNER_PHONE + "?text=" + encodeURIComponent(oMsg);
     }
 
-    // تجهيز النظام لأوردر جديد وتحديث الرقم
     resetFormInputs();
     fetchNextInvoiceNum();
 }
