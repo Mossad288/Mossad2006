@@ -1006,12 +1006,6 @@ var currentDayNum = 1;
 var formattedOrderCode = "";
 var isCurrentInvoiceSaved = false;
 
-/* =====================================================
-   التوقيت الرسمي لمصر
-   يعتمد على وقت موثوق + ساعة تشغيل monotonic
-   حتى تغيير ساعة الجهاز لا يغيّر اليوم أثناء التشغيل
-   ===================================================== */
-
 var trustedEgyptTimeMs = null;
 var trustedPerformanceMs = null;
 var midnightTimer = null;
@@ -1062,13 +1056,6 @@ async function getAccurateEgyptNow() {
         } catch (e) {}
     }
 
-    /*
-       لو الاتصال بالوقت الخارجي فشل بعد ما
-       حصلت مزامنة صحيحة قبل كده، نكمل من
-       الساعة الداخلية monotonic ولا نعتمد
-       على ساعة الجهاز.
-    */
-
     if (
         trustedEgyptTimeMs !== null &&
         trustedPerformanceMs !== null
@@ -1080,17 +1067,8 @@ async function getAccurateEgyptNow() {
         );
     }
 
-    /*
-       طوارئ أول تشغيل فقط لو خدمتا الوقت
-       غير متاحتين تماماً.
-    */
-
     return new Date();
 }
-
-/* =====================================================
-   ضبط التحديث التلقائي عند 12:00 منتصف الليل
-   ===================================================== */
 
 function scheduleMidnightRefresh(nowEgypt) {
 
@@ -1130,12 +1108,6 @@ function scheduleMidnightRefresh(nowEgypt) {
             currentDayNum =
                 getEgyptDay(freshNow);
 
-            /*
-               إعادة حساب رقم الأوردر لليوم الجديد.
-               بما إن created_at في Supabase داخل
-               نطاق اليوم الجديد، سيبدأ العداد من 1.
-            */
-
             await fetchNextInvoiceNum();
 
             scheduleMidnightRefresh(freshNow);
@@ -1144,10 +1116,6 @@ function scheduleMidnightRefresh(nowEgypt) {
         delay
     );
 }
-
-/* =====================================================
-   مزامنة الوقت كل 5 دقائق
-   ===================================================== */
 
 function startTimeSynchronization() {
 
@@ -1252,10 +1220,6 @@ function getDateRangeISO(dateInput) {
     };
 }
 
-/* =====================================================
-   تشغيل السيستم الفعلي
-   ===================================================== */
-
 async function initApp() {
 
     const nowEgypt =
@@ -1306,10 +1270,6 @@ async function initApp() {
     document.getElementById('mainContainer').style.display = 'none';
 }
 
-/* =====================================================
-   تسجيل الدخول
-   ===================================================== */
-
 function submitPassword() {
     let pass = document.getElementById('passwordInput').value.trim();
     const urlParams = new URLSearchParams(window.location.search);
@@ -1334,19 +1294,11 @@ function submitPassword() {
     }
 }
 
-/* =====================================================
-   تسجيل الخروج
-   ===================================================== */
-
 function logoutApp() {
     sessionStorage.removeItem('aleskafy_admin_logged');
     sessionStorage.removeItem('aleskafy_worker_logged');
     location.reload();
 }
-
-/* =====================================================
-   صلاحيات المستخدم
-   ===================================================== */
 
 function grantAccess(role) {
     document.getElementById('authScreen').style.display = 'none';
@@ -1369,10 +1321,6 @@ function grantAccess(role) {
     }
 }
 
-/* =====================================================
-   تنظيف حقول الفاتورة تماماً من أي قيم مخزنة
-   ===================================================== */
-
 function resetFormInputs() {
     document.getElementById('name').value = '';
     document.getElementById('phone').value = '';
@@ -1391,15 +1339,11 @@ function resetFormInputs() {
     document.getElementById('tot').value = '';
     document.getElementById('paid').value = '';
     document.getElementById('rem').value = '';
-    
+
     uploadedImageUrls = [];
     selectedFilesList = [];
     isCurrentInvoiceSaved = false;
 }
-
-/* =====================================================
-   فتح الشاشات
-   ===================================================== */
 
 function openScreen(screenId) {
     document.getElementById('mainDashboardScreen').style.display = 'none';
@@ -1415,10 +1359,6 @@ function openScreen(screenId) {
         behavior: 'smooth'
     });
 }
-
-/* =====================================================
-   رجوع
-   ===================================================== */
 
 function closeScreen() {
     document.getElementById('searchScreen').style.display = 'none';
@@ -1440,19 +1380,15 @@ function closeScreen() {
     });
 }
 
-/* =====================================================
-   الحساب
-   ===================================================== */
-
 function calc() {
     var t = parseFloat(document.getElementById('tot').value) || 0;
     var p = parseFloat(document.getElementById('paid').value) || 0;
-    document.getElementById('rem').value = (document.getElementById('tot').value === '') && (document.getElementById('paid').value === '') ? '' : (t - p);
+    document.getElementById('rem').value =
+        (document.getElementById('tot').value === '') &&
+        (document.getElementById('paid').value === '')
+            ? ''
+            : (t - p);
 }
-
-/* =====================================================
-   رقم الأوردر (محسوب بدقة لليوم الحالي فقط)
-   ===================================================== */
 
 async function fetchNextInvoiceNum() {
 
@@ -1520,10 +1456,6 @@ async function fetchNextInvoiceNum() {
     }
 }
 
-/* =====================================================
-   الصور
-   ===================================================== */
-
 function handleImagesSelection(event) {
     const files = event.target.files;
     if (files && files.length > 0) {
@@ -1546,10 +1478,6 @@ function handleImagesSelection(event) {
     }
 }
 
-/* =====================================================
-   رفع الصور
-   ===================================================== */
-
 async function uploadAllImages() {
     if (selectedFilesList.length === 0) {
         return [];
@@ -1564,22 +1492,31 @@ async function uploadAllImages() {
     try {
         for (let i = 0; i < selectedFilesList.length; i++) {
             const file = selectedFilesList[i];
-            const fileName = 'inv_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2,7) + '.jpg';
+            const fileName =
+                'inv_' +
+                Date.now() +
+                '_' +
+                i +
+                '_' +
+                Math.random().toString(36).substring(2,7) +
+                '.jpg';
 
-            const { data, error: uploadError } = await supabaseClient.storage
-                .from('images')
-                .upload(fileName, file, {
-                    cacheControl: '3600',
-                    upsert: true
-                });
+            const { data, error: uploadError } =
+                await supabaseClient.storage
+                    .from('images')
+                    .upload(fileName, file, {
+                        cacheControl: '3600',
+                        upsert: true
+                    });
 
             if (uploadError) {
                 throw new Error(uploadError.message);
             }
 
-            const { data: publicUrlData } = supabaseClient.storage
-                .from('images')
-                .getPublicUrl(fileName);
+            const { data: publicUrlData } =
+                supabaseClient.storage
+                    .from('images')
+                    .getPublicUrl(fileName);
 
             urls.push(publicUrlData.publicUrl);
         }
@@ -1594,10 +1531,6 @@ async function uploadAllImages() {
         return [];
     }
 }
-
-/* =====================================================
-   ملخص الأصناف
-   ===================================================== */
 
 function getItemsSummary() {
     let items = [];
@@ -1620,10 +1553,12 @@ function getItemsSummary() {
 }
 
 /* =====================================================
-   إرسال الفاتورة وتجهيز أوردر جديد فوراً
+   إرسال الفاتورة - واتساب مباشر
+   الصور لا تدخل في رسالة الواتساب
    ===================================================== */
 
 async function sendTo(m) {
+
     var n = document.getElementById('name').value.trim();
     var t = document.getElementById('tot').value.trim();
     var ph = document.getElementById('phone').value.trim();
@@ -1634,6 +1569,10 @@ async function sendTo(m) {
         return;
     }
 
+    /*
+       الصور يتم رفعها وحفظ روابطها في قاعدة البيانات
+       فقط، ولا يتم وضع أي رابط صورة داخل رسالة الواتساب.
+    */
     var imgUrls = await uploadAllImages();
     var imagesForDatabase = imgUrls.join('\n');
 
@@ -1651,21 +1590,29 @@ async function sendTo(m) {
     var rm = document.getElementById('rem').value || '0';
 
     if (!isCurrentInvoiceSaved) {
-        const { error } = await supabaseClient
-            .from('invoices')
-            .insert([
-                {
-                    customer_name: n,
-                    phone: ph,
-                    item_type: getItemsSummary(),
-                    details: sv + ' | ' + shelf,
-                    price: parseFloat(t) || 0,
-                    paid: parseFloat(p) || 0,
-                    image_url: imagesForDatabase,
-                    status: 'تحت الصيانة',
-                    daily_number: currentDailyNum
-                }
-            ]);
+
+        const { error } =
+            await supabaseClient
+                .from('invoices')
+                .insert([
+                    {
+                        customer_name: n,
+                        phone: ph,
+                        item_type: getItemsSummary(),
+                        details: sv + ' | ' + shelf,
+                        price: parseFloat(t) || 0,
+                        paid: parseFloat(p) || 0,
+
+                        /*
+                           روابط الصور محفوظة هنا فقط
+                           ولن يتم إرسالها للواتساب.
+                        */
+                        image_url: imagesForDatabase,
+
+                        status: 'تحت الصيانة',
+                        daily_number: currentDailyNum
+                    }
+                ]);
 
         if (error) {
             alert("خطأ في حفظ الفاتورة: " + error.message);
@@ -1688,37 +1635,65 @@ async function sendTo(m) {
         'المبلغ المتبقي: ' + rm + ' جنيه';
 
     if (m === 'client') {
-        var cleanPh = ph.replace(/\D/g, '');
+
+        var cleanPh =
+            ph.replace(/\D/g, '');
+
         if (cleanPh.startsWith("0")) {
             cleanPh = "2" + cleanPh;
         }
 
         var msg =
             'ALESKAFY SHOES\n' +
-            'إيصال استلام صيانة - رقم (' + formattedOrderCode + ')\n\n' +
-            baseTxt + '\n\n' +
+            'إيصال استلام صيانة - رقم (' +
+            formattedOrderCode +
+            ')\n\n' +
+            baseTxt +
+            '\n\n' +
             'لمتابعة أخبار وعروض المحل:\n' +
-            FACEBOOK_PAGE + '\n\n' +
+            FACEBOOK_PAGE +
+            '\n\n' +
             'تنبيه: المحل غير مسؤول عن أي شيء بعد 15 يوم من ميعاد التسليم.\n\n' +
             'نرحب بكم دائمًا في الاسكافي شوز';
 
-        window.location.href = "https://wa.me/" + cleanPh + "?text=" + encodeURIComponent(msg);
+        /*
+           فتح تطبيق WhatsApp مباشرة
+           بدون استخدام wa.me
+        */
+        var whatsappAppUrl =
+            "whatsapp://send?phone=" +
+            cleanPh +
+            "&text=" +
+            encodeURIComponent(msg);
+
+        window.location.href = whatsappAppUrl;
+
     } else {
+
         var oMsg =
             '[ALESKAFY SHOES - نسخة المحل]\n' +
-            'أرشيف أوردر رقم (' + formattedOrderCode + ') على (' + shelf + ')\n\n' +
+            'أرشيف أوردر رقم (' +
+            formattedOrderCode +
+            ') على (' +
+            shelf +
+            ')\n\n' +
             baseTxt;
 
-        window.location.href = "https://wa.me/" + OWNER_PHONE + "?text=" + encodeURIComponent(oMsg);
+        /*
+           فتح WhatsApp للمحل مباشرة
+        */
+        var ownerWhatsappAppUrl =
+            "whatsapp://send?phone=" +
+            OWNER_PHONE +
+            "&text=" +
+            encodeURIComponent(oMsg);
+
+        window.location.href = ownerWhatsappAppUrl;
     }
 
     resetFormInputs();
     fetchNextInvoiceNum();
 }
-
-/* =====================================================
-   التقارير (محدثة لمنع التكرار والترتيب التصاعدي السليم)
-   ===================================================== */
 
 async function rep(type) {
     const egyptNow = await getAccurateEgyptNow();
@@ -1726,10 +1701,11 @@ async function rep(type) {
     const currentMonth = getEgyptMonth(egyptNow);
     const todayStr = getEgyptDateString(egyptNow);
 
-    const { data: list, error } = await supabaseClient
-        .from('invoices')
-        .select('*')
-        .order('created_at', { ascending: true });
+    const { data: list, error } =
+        await supabaseClient
+            .from('invoices')
+            .select('*')
+            .order('created_at', { ascending: true });
 
     if (error || !list || list.length === 0) {
         alert("لا توجد فواتير مسجلة!");
@@ -1743,427 +1719,1027 @@ async function rep(type) {
     let uniqueInvoicesMap = new Map();
 
     list.forEach(function(x) {
-        let invDate = new Date(x.created_at || Date.now());
-        let invYear = getEgyptYear(invDate);
-        let invMonth = getEgyptMonth(invDate);
-        let invDateStr = getEgyptDateString(invDate);
+
+        let invDate =
+            new Date(x.created_at || Date.now());
+
+        let invYear =
+            getEgyptYear(invDate);
+
+        let invMonth =
+            getEgyptMonth(invDate);
+
+        let invDateStr =
+            getEgyptDateString(invDate);
 
         let include = false;
-        if (type === 'daily' && invDateStr === todayStr) include = true;
-        if (type === 'monthly' && invYear === currentYear && invMonth === currentMonth) include = true;
-        if (type === 'yearly' && invYear === currentYear) include = true;
+
+        if (
+            type === 'daily' &&
+            invDateStr === todayStr
+        ) include = true;
+
+        if (
+            type === 'monthly' &&
+            invYear === currentYear &&
+            invMonth === currentMonth
+        ) include = true;
+
+        if (
+            type === 'yearly' &&
+            invYear === currentYear
+        ) include = true;
 
         if (include) {
-            let dayNum = getEgyptDay(invDate);
-            let uniqueKey = x.daily_number + '/' + dayNum;
-            
-            uniqueInvoicesMap.set(uniqueKey, x);
+
+            let dayNum =
+                getEgyptDay(invDate);
+
+            let uniqueKey =
+                x.daily_number + '/' + dayNum;
+
+            uniqueInvoicesMap.set(
+                uniqueKey,
+                x
+            );
         }
     });
 
-    let filteredList = Array.from(uniqueInvoicesMap.values());
-    
+    let filteredList =
+        Array.from(
+            uniqueInvoicesMap.values()
+        );
+
     filteredList.sort(function(a, b) {
-        return (parseInt(a.daily_number) || 0) - (parseInt(b.daily_number) || 0);
+        return (
+            (parseInt(a.daily_number) || 0) -
+            (parseInt(b.daily_number) || 0)
+        );
     });
 
     let reportLines = '';
 
     filteredList.forEach(function(x) {
-        let price = parseFloat(x.price) || 0;
-        let paid = parseFloat(x.paid) || 0;
-        let rem = price - paid;
-        let invDate = new Date(x.created_at || Date.now());
+
+        let price =
+            parseFloat(x.price) || 0;
+
+        let paid =
+            parseFloat(x.paid) || 0;
+
+        let rem =
+            price - paid;
+
+        let invDate =
+            new Date(x.created_at || Date.now());
 
         totalVaultAll += paid;
         totalRemainingAll += rem;
         totalOverallAll += price;
 
-        reportLines += 'أوردر (' + x.daily_number + '/' + getEgyptDay(invDate) + ') - ' + x.customer_name + ' | الإجمالي: ' + price + ' ج | المدفوع: ' + paid + ' ج | الباقي: ' + rem + ' ج\n';
+        reportLines +=
+            'أوردر (' +
+            x.daily_number +
+            '/' +
+            getEgyptDay(invDate) +
+            ') - ' +
+            x.customer_name +
+            ' | الإجمالي: ' +
+            price +
+            ' ج | المدفوع: ' +
+            paid +
+            ' ج | الباقي: ' +
+            rem +
+            ' ج\n';
     });
 
-    let txt = 'تقرير الإسكافي شوز (' + type.toUpperCase() + ')\n====================\n\n';
-    txt += reportLines;
-    txt += "\n====================\n";
-    txt += "إجمالي الحساب الكلي: " + totalOverallAll + ' ج\n';
-    txt += "إجمالي الخزنة (المدفوع): " + totalVaultAll + ' ج\n';
-    txt += "إجمالي المبلغ المتبقي: " + totalRemainingAll + ' ج';
+    let txt =
+        'تقرير الإسكافي شوز (' +
+        type.toUpperCase() +
+        ')\n====================\n\n';
 
-    var b = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8" });
-    var lnk = document.createElement('a');
-    lnk.href = URL.createObjectURL(b);
-    lnk.download = "Report_" + type + ".txt";
+    txt += reportLines;
+
+    txt +=
+        "\n====================\n";
+
+    txt +=
+        "إجمالي الحساب الكلي: " +
+        totalOverallAll +
+        ' ج\n';
+
+    txt +=
+        "إجمالي الخزنة (المدفوع): " +
+        totalVaultAll +
+        ' ج\n';
+
+    txt +=
+        "إجمالي المبلغ المتبقي: " +
+        totalRemainingAll +
+        ' ج';
+
+    var b =
+        new Blob(
+            ["\uFEFF" + txt],
+            {
+                type: "text/plain;charset=utf-8"
+            }
+        );
+
+    var lnk =
+        document.createElement('a');
+
+    lnk.href =
+        URL.createObjectURL(b);
+
+    lnk.download =
+        "Report_" +
+        type +
+        ".txt";
+
     lnk.click();
 }
 
-/* =====================================================
-   الأوردرات المسلمة
-   ===================================================== */
-
 async function loadDeliveredInvoices(filterType) {
-    const resBox = document.getElementById('deliveryResults');
+
+    const resBox =
+        document.getElementById('deliveryResults');
+
     resBox.style.display = 'block';
     resBox.innerHTML = 'جاري التحميل...';
 
-    let query = supabaseClient
-        .from('invoices')
-        .select('*')
-        .eq('status', 'تم التسليم')
-        .order('daily_number', { ascending: true });
+    let query =
+        supabaseClient
+            .from('invoices')
+            .select('*')
+            .eq('status', 'تم التسليم')
+            .order(
+                'daily_number',
+                {
+                    ascending: true
+                }
+            );
 
-    const { data, error } = await query;
+    const { data, error } =
+        await query;
 
-    if (error || !data || data.length === 0) {
-        resBox.innerHTML = '<div style="color:#38bdf8;text-align:center;padding:10px;">لا توجد أوردرات مسلمة مسجلة حالياً!</div>';
+    if (
+        error ||
+        !data ||
+        data.length === 0
+    ) {
+
+        resBox.innerHTML =
+            '<div style="color:#38bdf8;text-align:center;padding:10px;">لا توجد أوردرات مسلمة مسجلة حالياً!</div>';
+
         return;
     }
 
     let filteredData = data;
+
     if (filterType === 'today') {
-        const nowEgypt = await getAccurateEgyptNow();
-        const todayStr = getEgyptDateString(nowEgypt);
-        filteredData = data.filter(inv => getEgyptDateString(inv.created_at) === todayStr);
+
+        const nowEgypt =
+            await getAccurateEgyptNow();
+
+        const todayStr =
+            getEgyptDateString(nowEgypt);
+
+        filteredData =
+            data.filter(
+                inv =>
+                    getEgyptDateString(
+                        inv.created_at
+                    ) === todayStr
+            );
 
         if (filteredData.length === 0) {
-            resBox.innerHTML = '<div style="color:#38bdf8;text-align:center;padding:10px;">لم يتم تسليم أي أوردرات اليوم حتى الآن!</div>';
+
+            resBox.innerHTML =
+                '<div style="color:#38bdf8;text-align:center;padding:10px;">لم يتم تسليم أي أوردرات اليوم حتى الآن!</div>';
+
             return;
         }
     }
 
-    renderSearchResults(filteredData, null, resBox, false);
+    renderSearchResults(
+        filteredData,
+        null,
+        resBox,
+        false
+    );
 }
-
-/* =====================================================
-   بحث الصنايعي
-   ===================================================== */
 
 async function searchByFractionNumber() {
-    const numVal = document.getElementById('searchNumerator').value.trim();
-    const denVal = document.getElementById('searchDenominator').value.trim();
-    const dateInput = document.getElementById('searchDate').value;
-    const resBox = document.getElementById('workerSearchResults');
+
+    const numVal =
+        document
+            .getElementById('searchNumerator')
+            .value
+            .trim();
+
+    const denVal =
+        document
+            .getElementById('searchDenominator')
+            .value
+            .trim();
+
+    const dateInput =
+        document
+            .getElementById('searchDate')
+            .value;
+
+    const resBox =
+        document
+            .getElementById('workerSearchResults');
 
     if (!numVal && !denVal && !dateInput) {
-        alert('الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث');
+
+        alert(
+            'الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث'
+        );
+
         return;
     }
 
     resBox.style.display = 'block';
     resBox.innerHTML = 'جاري التحميل...';
 
-    let query = supabaseClient
-        .from('invoices')
-        .select('*')
-        .order('daily_number', { ascending: true });
+    let query =
+        supabaseClient
+            .from('invoices')
+            .select('*')
+            .order(
+                'daily_number',
+                {
+                    ascending: true
+                }
+            );
 
     if (numVal) {
-        query = query.eq('daily_number', parseInt(numVal));
+        query =
+            query.eq(
+                'daily_number',
+                parseInt(numVal)
+            );
     }
 
     if (dateInput) {
-        const range = getDateRangeISO(dateInput);
-        query = query.gte('created_at', range.start).lte('created_at', range.end);
+
+        const range =
+            getDateRangeISO(dateInput);
+
+        query =
+            query
+                .gte(
+                    'created_at',
+                    range.start
+                )
+                .lte(
+                    'created_at',
+                    range.end
+                );
     }
 
-    const { data, error } = await query;
+    const { data, error } =
+        await query;
+
     let finalData = data;
 
     if (!dateInput && denVal && data) {
-        const dNum = parseInt(denVal);
-        finalData = data.filter(inv => getEgyptDay(inv.created_at) === dNum);
+
+        const dNum =
+            parseInt(denVal);
+
+        finalData =
+            data.filter(
+                inv =>
+                    getEgyptDay(
+                        inv.created_at
+                    ) === dNum
+            );
     }
 
-    renderSearchResults(finalData, error, resBox, false);
+    renderSearchResults(
+        finalData,
+        error,
+        resBox,
+        false
+    );
 }
-
-/* =====================================================
-   بحث الإدارة
-   ===================================================== */
 
 async function adminSearchByFractionNumber() {
-    const numVal = document.getElementById('adminSearchNumerator').value.trim();
-    const denVal = document.getElementById('adminSearchDenominator').value.trim();
-    const dateInput = document.getElementById('adminSearchDate').value;
-    const resBox = document.getElementById('searchResults');
+
+    const numVal =
+        document
+            .getElementById('adminSearchNumerator')
+            .value
+            .trim();
+
+    const denVal =
+        document
+            .getElementById('adminSearchDenominator')
+            .value
+            .trim();
+
+    const dateInput =
+        document
+            .getElementById('adminSearchDate')
+            .value;
+
+    const resBox =
+        document
+            .getElementById('searchResults');
 
     if (!numVal && !denVal && !dateInput) {
-        alert('الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث');
+
+        alert(
+            'الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث'
+        );
+
         return;
     }
 
     resBox.style.display = 'block';
     resBox.innerHTML = 'جاري التحميل...';
 
-    let query = supabaseClient
-        .from('invoices')
-        .select('*')
-        .order('daily_number', { ascending: true });
+    let query =
+        supabaseClient
+            .from('invoices')
+            .select('*')
+            .order(
+                'daily_number',
+                {
+                    ascending: true
+                }
+            );
 
     if (numVal) {
-        query = query.eq('daily_number', parseInt(numVal));
+
+        query =
+            query.eq(
+                'daily_number',
+                parseInt(numVal)
+            );
     }
 
     if (dateInput) {
-        const range = getDateRangeISO(dateInput);
-        query = query.gte('created_at', range.start).lte('created_at', range.end);
+
+        const range =
+            getDateRangeISO(dateInput);
+
+        query =
+            query
+                .gte(
+                    'created_at',
+                    range.start
+                )
+                .lte(
+                    'created_at',
+                    range.end
+                );
     }
 
-    const { data, error } = await query;
+    const { data, error } =
+        await query;
+
     let finalData = data;
 
     if (!dateInput && denVal && data) {
-        const dNum = parseInt(denVal);
-        finalData = data.filter(inv => getEgyptDay(inv.created_at) === dNum);
+
+        const dNum =
+            parseInt(denVal);
+
+        finalData =
+            data.filter(
+                inv =>
+                    getEgyptDay(
+                        inv.created_at
+                    ) === dNum
+            );
     }
 
-    renderSearchResults(finalData, error, resBox, true);
+    renderSearchResults(
+        finalData,
+        error,
+        resBox,
+        true
+    );
 }
 
-/* =====================================================
-   البحث بالاسم أو الموبايل
-   ===================================================== */
-
 async function searchInvoices() {
-    const query = document.getElementById('searchInput').value.trim();
-    const resBox = document.getElementById('searchResults');
+
+    const query =
+        document
+            .getElementById('searchInput')
+            .value
+            .trim();
+
+    const resBox =
+        document
+            .getElementById('searchResults');
 
     if (!query) {
-        alert('أدخل اسم العميل أو رقم الموبايل');
+
+        alert(
+            'أدخل اسم العميل أو رقم الموبايل'
+        );
+
         return;
     }
 
     resBox.style.display = 'block';
     resBox.innerHTML = 'جاري التحميل...';
 
-    const { data, error } = await supabaseClient
-        .from('invoices')
-        .select('*')
-        .or('customer_name.ilike.%' + query + '%,phone.ilike.%' + query + '%')
-        .order('daily_number', { ascending: true });
+    const { data, error } =
+        await supabaseClient
+            .from('invoices')
+            .select('*')
+            .or(
+                'customer_name.ilike.%' +
+                query +
+                '%,phone.ilike.%' +
+                query +
+                '%'
+            )
+            .order(
+                'daily_number',
+                {
+                    ascending: true
+                }
+            );
 
-    renderSearchResults(data, error, resBox, true);
+    renderSearchResults(
+        data,
+        error,
+        resBox,
+        true
+    );
 }
 
-/* =====================================================
-   عرض النتائج
-   ===================================================== */
+function renderSearchResults(
+    data,
+    error,
+    resBox,
+    showAdminControls
+) {
 
-function renderSearchResults(data, error, resBox, showAdminControls) {
-    if (error || !data || data.length === 0) {
-        resBox.innerHTML = '<div style="color:#ef4444;text-align:center;">لا توجد فواتير مطابقة لهذا البحث!</div>';
+    if (
+        error ||
+        !data ||
+        data.length === 0
+    ) {
+
+        resBox.innerHTML =
+            '<div style="color:#ef4444;text-align:center;">لا توجد فواتير مطابقة لهذا البحث!</div>';
+
         return;
     }
 
-    resBox.innerHTML = data.map(function(inv) {
-        const isDone = inv.status === 'تم الانتهاء من الصيانة';
-        const isDelivered = inv.status === 'تم التسليم';
-        const statusClass = isDelivered ? 'bg-delivered' : (isDone ? 'bg-done' : 'bg-pending');
+    resBox.innerHTML =
+        data.map(function(inv) {
 
-        const price = inv.price || 0;
-        const paid = inv.paid || 0;
-        const rem = price - paid;
+            const isDone =
+                inv.status ===
+                'تم الانتهاء من الصيانة';
 
-        let invDate = new Date(inv.created_at || Date.now());
-        let numTop = inv.daily_number || '#';
-        let numBottom = getEgyptDay(invDate);
+            const isDelivered =
+                inv.status ===
+                'تم التسليم';
 
-        let fractionHtml =
-            '<span class="fraction" style="font-size:14px;">' +
-                '<span class="numerator">' + numTop + '</span>' +
-                '<span class="denominator">' + numBottom + '</span>' +
-            '</span>';
+            const statusClass =
+                isDelivered
+                    ? 'bg-delivered'
+                    : (
+                        isDone
+                            ? 'bg-done'
+                            : 'bg-pending'
+                    );
 
-        let imageGalleryHtml = '';
-        if (inv.image_url) {
-            const imageUrls = String(inv.image_url).split(/\r?\n/).map(u => u.trim()).filter(u => u.length > 1);
-            if (imageUrls.length > 0) {
-                imageGalleryHtml =
-                    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">' +
-                    imageUrls.map(url => '<a href="' + url + '" target="_blank"><img src="' + url + '" class="worker-thumb"></a>').join('') +
+            const price =
+                inv.price || 0;
+
+            const paid =
+                inv.paid || 0;
+
+            const rem =
+                price - paid;
+
+            let invDate =
+                new Date(
+                    inv.created_at ||
+                    Date.now()
+                );
+
+            let numTop =
+                inv.daily_number || '#';
+
+            let numBottom =
+                getEgyptDay(invDate);
+
+            let fractionHtml =
+                '<span class="fraction" style="font-size:14px;">' +
+                    '<span class="numerator">' +
+                        numTop +
+                    '</span>' +
+                    '<span class="denominator">' +
+                        numBottom +
+                    '</span>' +
+                '</span>';
+
+            let imageGalleryHtml = '';
+
+            if (inv.image_url) {
+
+                const imageUrls =
+                    String(inv.image_url)
+                        .split(/\r?\n/)
+                        .map(
+                            u => u.trim()
+                        )
+                        .filter(
+                            u => u.length > 1
+                        );
+
+                if (imageUrls.length > 0) {
+
+                    imageGalleryHtml =
+                        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">' +
+                        imageUrls
+                            .map(
+                                url =>
+                                    '<a href="' +
+                                    url +
+                                    '" target="_blank">' +
+                                    '<img src="' +
+                                    url +
+                                    '" class="worker-thumb">' +
+                                    '</a>'
+                            )
+                            .join('') +
+                        '</div>';
+                }
+            }
+
+            let adminControlsHtml = '';
+
+            if (showAdminControls) {
+
+                adminControlsHtml =
+                    '<div style="margin-top:10px;padding:10px;background:#1a1500;border:1px solid #bf953f;border-radius:8px;">' +
+
+                        '<div style="font-size:13px;color:#f3e5ab;margin-bottom:6px;font-weight:bold;">حالة الدفع: ' +
+
+                            (
+                                rem > 0
+                                    ? '<span style="color:#ef4444;">متبقي (' +
+                                      rem +
+                                      ' ج)</span>'
+                                    : '<span style="color:#16a34a;">تم السداد</span>'
+                            ) +
+
+                        '</div>' +
+
+                        '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
+
+                            '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updatePaymentStatus(' +
+                            inv.id +
+                            ', ' +
+                            price +
+                            ',0)">تم سداد المبلغ</button>' +
+
+                            '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updatePaymentStatus(' +
+                            inv.id +
+                            ', ' +
+                            price +
+                            ',' +
+                            (
+                                rem > 0
+                                    ? rem
+                                    : price
+                            ) +
+                            ')">لم يتم السداد</button>' +
+
+                        '</div>' +
+
+                        '<div style="margin-top:8px;">' +
+
+                            '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">إضافة صور جديدة لهذا الأوردر:</label>' +
+
+                            '<input type="file" id="extra_images_' +
+                            inv.id +
+                            '" accept="image/*" multiple style="display:none;" onchange="uploadExtraImagesForInvoice(' +
+                            inv.id +
+                            ')">' +
+
+                            '<button type="button" class="btn-sm" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;width:100%;padding:8px;" onclick="document.getElementById(\'extra_images_' +
+                            inv.id +
+                            '\').click();">اختر صور وأضفها فوراً</button>' +
+
+                        '</div>' +
+
+                        '<div style="margin-top:10px;">' +
+
+                            '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">تعديل مكان التخزين (الرف):</label>' +
+
+                            '<div style="display:flex;gap:5px;">' +
+
+                                '<select id="shelf_edit_' +
+                                inv.id +
+                                '" style="padding:6px;font-size:12px;margin-top:0;">' +
+
+                                    '<option value="الرف : أ">الرف : أ</option>' +
+                                    '<option value="الرف : ب">الرف : ب</option>' +
+                                    '<option value="الرف : ج">الرف : ج</option>' +
+                                    '<option value="الرف : د">الرف : د</option>' +
+                                    '<option value="الرف : هـ">الرف : هـ</option>' +
+                                    '<option value="الرف : و">الرف : و</option>' +
+
+                                '</select>' +
+
+                                '<button type="button" class="btn-sm" style="background:#bf953f;color:#000;padding:6px 12px;margin-top:0;" onclick="updateShelfLocation(' +
+                                inv.id +
+                                ')">تحديث الرف</button>' +
+
+                            '</div>' +
+
+                        '</div>' +
+
+                    '</div>' +
+
+                    '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
+
+                        '<button type="button" class="btn-sm" style="background:#0284c7;color:#fff;flex:1;" onclick="updateStatus(' +
+                        inv.id +
+                        ', \'تم التسليم\')">تم التسليم</button>' +
+
+                        '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updateStatus(' +
+                        inv.id +
+                        ', \'تم الانتهاء من الصيانة\')">تم الانتهاء</button>' +
+
+                        '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updateStatus(' +
+                        inv.id +
+                        ', \'تحت الصيانة\')">تحت الصيانة</button>' +
+
                     '</div>';
             }
-        }
 
-        let adminControlsHtml = '';
-        if (showAdminControls) {
-            adminControlsHtml =
-                '<div style="margin-top:10px;padding:10px;background:#1a1500;border:1px solid #bf953f;border-radius:8px;">' +
-                    '<div style="font-size:13px;color:#f3e5ab;margin-bottom:6px;font-weight:bold;">حالة الدفع: ' +
-                        (rem > 0 ? '<span style="color:#ef4444;">متبقي (' + rem + ' ج)</span>' : '<span style="color:#16a34a;">تم السداد</span>') +
-                    '</div>' +
-                    '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
-                        '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ',0)">تم سداد المبلغ</button>' +
-                        '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ',' + (rem > 0 ? rem : price) + ')">لم يتم السداد</button>' +
-                    '</div>' +
-                    '<div style="margin-top:8px;">' +
-                        '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">إضافة صور جديدة لهذا الأوردر:</label>' +
-                        '<input type="file" id="extra_images_' + inv.id + '" accept="image/*" multiple style="display:none;" onchange="uploadExtraImagesForInvoice(' + inv.id + ')">' +
-                        '<button type="button" class="btn-sm" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;width:100%;padding:8px;" onclick="document.getElementById(\'extra_images_' + inv.id + '\').click();">اختر صور وأضفها فوراً</button>' +
-                    '</div>' +
-                    '<div style="margin-top:10px;">' +
-                        '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">تعديل مكان التخزين (الرف):</label>' +
-                        '<div style="display:flex;gap:5px;">' +
-                            '<select id="shelf_edit_' + inv.id + '" style="padding:6px;font-size:12px;margin-top:0;">' +
-                                '<option value="الرف : أ">الرف : أ</option>' +
-                                '<option value="الرف : ب">الرف : ب</option>' +
-                                '<option value="الرف : ج">الرف : ج</option>' +
-                                '<option value="الرف : د">الرف : د</option>' +
-                                '<option value="الرف : هـ">الرف : هـ</option>' +
-                                '<option value="الرف : و">الرف : و</option>' +
-                            '</select>' +
-                            '<button type="button" class="btn-sm" style="background:#bf953f;color:#000;padding:6px 12px;margin-top:0;" onclick="updateShelfLocation(' + inv.id + ')">تحديث الرف</button>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>' +
-                '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
-                    '<button type="button" class="btn-sm" style="background:#0284c7;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تم التسليم\')">تم التسليم</button>' +
-                    '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تم الانتهاء من الصيانة\')">تم الانتهاء</button>' +
-                    '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تحت الصيانة\')">تحت الصيانة</button>' +
-                '</div>';
-        }
+            return (
 
-        return (
-            '<div style="border-bottom:1px dashed #33270a;padding-bottom:12px;margin-bottom:12px;">' +
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-                    '<strong style="color:#f3e5ab;font-size:15px;">' + inv.customer_name + '</strong>' +
-                    '<span class="status-badge ' + statusClass + '">' + (inv.status || 'تحت الصيانة') + '</span>' +
-                '</div>' +
-                '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">التاريخ: ' + getEgyptDateString(inv.created_at || Date.now()) + '</div>' +
-                '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;"><b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
-                '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">الموبايل: ' + (inv.phone || '-') + '</div>' +
-                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
-                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الخدمة:</b> ' + (inv.details || '-') + '</div>' +
-                '<div style="font-size:13px;margin-bottom:4px;">الحساب: ' + price + ' ج | المدفوع: ' + paid + ' ج | المتبقي: <span style="color:#ef4444;font-weight:bold;">' + rem + ' ج</span></div>' +
-                imageGalleryHtml +
-                adminControlsHtml +
-            '</div>'
-        );
-    }).join('');
+                '<div style="border-bottom:1px dashed #33270a;padding-bottom:12px;margin-bottom:12px;">' +
+
+                    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+
+                        '<strong style="color:#f3e5ab;font-size:15px;">' +
+                        inv.customer_name +
+                        '</strong>' +
+
+                        '<span class="status-badge ' +
+                        statusClass +
+                        '">' +
+                        (inv.status || 'تحت الصيانة') +
+                        '</span>' +
+
+                    '</div>' +
+
+                    '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">التاريخ: ' +
+                    getEgyptDateString(
+                        inv.created_at ||
+                        Date.now()
+                    ) +
+                    '</div>' +
+
+                    '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;"><b>رقم الأوردر:</b> ' +
+                    fractionHtml +
+                    '</div>' +
+
+                    '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">الموبايل: ' +
+                    (inv.phone || '-') +
+                    '</div>' +
+
+                    '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الأصناف:</b> ' +
+                    (inv.item_type || '-') +
+                    '</div>' +
+
+                    '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الخدمة:</b> ' +
+                    (inv.details || '-') +
+                    '</div>' +
+
+                    '<div style="font-size:13px;margin-bottom:4px;">الحساب: ' +
+                    price +
+                    ' ج | المدفوع: ' +
+                    paid +
+                    ' ج | المتبقي: <span style="color:#ef4444;font-weight:bold;">' +
+                    rem +
+                    ' ج</span></div>' +
+
+                    imageGalleryHtml +
+
+                    adminControlsHtml +
+
+                '</div>'
+            );
+        })
+        .join('');
 }
 
-/* =====================================================
-   إضافة صور إضافية للأوردر
-   ===================================================== */
-
 async function uploadExtraImagesForInvoice(invoiceId) {
-    const fileInput = document.getElementById('extra_images_' + invoiceId);
-    if (!fileInput.files || fileInput.files.length === 0) return;
 
-    alert("جاري رفع الصور الجديدة للأوردر، انتظر لحظة...");
+    const fileInput =
+        document.getElementById(
+            'extra_images_' +
+            invoiceId
+        );
+
+    if (
+        !fileInput.files ||
+        fileInput.files.length === 0
+    ) {
+        return;
+    }
+
+    alert(
+        "جاري رفع الصور الجديدة للأوردر، انتظر لحظة..."
+    );
 
     try {
+
         let newUrls = [];
-        for (let i = 0; i < fileInput.files.length; i++) {
-            const file = fileInput.files[i];
-            const fileName = 'inv_extra_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2,7) + '.jpg';
 
-            const { error: uploadError } = await supabaseClient.storage
-                .from('images')
-                .upload(fileName, file, { cacheControl: '3600', upsert: true });
+        for (
+            let i = 0;
+            i < fileInput.files.length;
+            i++
+        ) {
 
-            if (uploadError) throw new Error(uploadError.message);
+            const file =
+                fileInput.files[i];
 
-            const { data: publicUrlData } = supabaseClient.storage
-                .from('images')
-                .getPublicUrl(fileName);
+            const fileName =
+                'inv_extra_' +
+                Date.now() +
+                '_' +
+                i +
+                '_' +
+                Math.random()
+                    .toString(36)
+                    .substring(2,7) +
+                '.jpg';
 
-            newUrls.push(publicUrlData.publicUrl);
+            const {
+                error: uploadError
+            } =
+                await supabaseClient.storage
+                    .from('images')
+                    .upload(
+                        fileName,
+                        file,
+                        {
+                            cacheControl: '3600',
+                            upsert: true
+                        }
+                    );
+
+            if (uploadError) {
+                throw new Error(
+                    uploadError.message
+                );
+            }
+
+            const {
+                data: publicUrlData
+            } =
+                supabaseClient.storage
+                    .from('images')
+                    .getPublicUrl(
+                        fileName
+                    );
+
+            newUrls.push(
+                publicUrlData.publicUrl
+            );
         }
 
-        const { data: invData, error: fetchErr } = await supabaseClient
-            .from('invoices')
-            .select('image_url')
-            .eq('id', invoiceId)
-            .single();
+        const {
+            data: invData,
+            error: fetchErr
+        } =
+            await supabaseClient
+                .from('invoices')
+                .select('image_url')
+                .eq('id', invoiceId)
+                .single();
 
-        if (fetchErr) throw new Error(fetchErr.message);
+        if (fetchErr) {
+            throw new Error(
+                fetchErr.message
+            );
+        }
 
-        let existingUrls = invData.image_url ? String(invData.image_url).split(/\r?\n/).map(u => u.trim()).filter(u => u.length > 1) : [];
-        let combinedUrls = existingUrls.concat(newUrls).join('\n');
+        let existingUrls =
+            invData.image_url
+                ? String(invData.image_url)
+                    .split(/\r?\n/)
+                    .map(
+                        u => u.trim()
+                    )
+                    .filter(
+                        u => u.length > 1
+                    )
+                : [];
 
-        const { error: updateErr } = await supabaseClient
-            .from('invoices')
-            .update({ image_url: combinedUrls })
-            .eq('id', invoiceId);
+        let combinedUrls =
+            existingUrls
+                .concat(newUrls)
+                .join('\n');
 
-        if (updateErr) throw new Error(updateErr.message);
+        const {
+            error: updateErr
+        } =
+            await supabaseClient
+                .from('invoices')
+                .update({
+                    image_url:
+                        combinedUrls
+                })
+                .eq(
+                    'id',
+                    invoiceId
+                );
 
-        alert("تم رفع وإضافة الصور بنجاح للأوردر");
+        if (updateErr) {
+            throw new Error(
+                updateErr.message
+            );
+        }
+
+        alert(
+            "تم رفع وإضافة الصور بنجاح للأوردر"
+        );
+
         adminSearchByFractionNumber();
 
     } catch (err) {
-        alert("خطأ أثناء رفع الصور الإضافية:\n" + err.message);
+
+        alert(
+            "خطأ أثناء رفع الصور الإضافية:\n" +
+            err.message
+        );
     }
 }
 
-/* =====================================================
-   تحديث الدفع
-   ===================================================== */
+async function updatePaymentStatus(
+    invoiceId,
+    totalPrice,
+    targetRem
+) {
 
-async function updatePaymentStatus(invoiceId, totalPrice, targetRem) {
-    let newPaid = targetRem === 0 ? totalPrice : totalPrice - targetRem;
+    let newPaid =
+        targetRem === 0
+            ? totalPrice
+            : totalPrice - targetRem;
 
-    const { error } = await supabaseClient
-        .from('invoices')
-        .update({ paid: newPaid })
-        .eq('id', invoiceId);
+    const {
+        error
+    } =
+        await supabaseClient
+            .from('invoices')
+            .update({
+                paid: newPaid
+            })
+            .eq(
+                'id',
+                invoiceId
+            );
 
     if (!error) {
-        alert("تم تحديث حالة السداد بنجاح");
+
+        alert(
+            "تم تحديث حالة السداد بنجاح"
+        );
+
         adminSearchByFractionNumber();
+
     } else {
-        alert("حدث خطأ!");
+
+        alert(
+            "حدث خطأ!"
+        );
     }
 }
 
-/* =====================================================
-   تحديث الرف
-   ===================================================== */
-
 async function updateShelfLocation(id) {
-    const newShelf = document.getElementById('shelf_edit_' + id).value;
 
-    const { data: invData } = await supabaseClient
-        .from('invoices')
-        .select('details')
-        .eq('id', id)
-        .single();
+    const newShelf =
+        document
+            .getElementById(
+                'shelf_edit_' + id
+            )
+            .value;
+
+    const {
+        data: invData
+    } =
+        await supabaseClient
+            .from('invoices')
+            .select('details')
+            .eq('id', id)
+            .single();
 
     if (invData) {
-        let currentDetails = invData.details || '';
-        let parts = currentDetails.split('|').map(p => p.trim());
-        let cleanDetails = parts.filter(p => !p.startsWith('الرف')).join(' | ');
-        let updatedDetails = cleanDetails ? (cleanDetails + ' | ' + newShelf) : newShelf;
 
-        const { error } = await supabaseClient
-            .from('invoices')
-            .update({ details: updatedDetails })
-            .eq('id', id);
+        let currentDetails =
+            invData.details || '';
+
+        let parts =
+            currentDetails
+                .split('|')
+                .map(
+                    p => p.trim()
+                );
+
+        let cleanDetails =
+            parts
+                .filter(
+                    p =>
+                        !p.startsWith('الرف')
+                )
+                .join(' | ');
+
+        let updatedDetails =
+            cleanDetails
+                ? (
+                    cleanDetails +
+                    ' | ' +
+                    newShelf
+                )
+                : newShelf;
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from('invoices')
+                .update({
+                    details:
+                        updatedDetails
+                })
+                .eq(
+                    'id',
+                    id
+                );
 
         if (!error) {
-            alert('تم تحديث الرف بنجاح إلى (' + newShelf + ')');
+
+            alert(
+                'تم تحديث الرف بنجاح إلى (' +
+                newShelf +
+                ')'
+            );
+
             adminSearchByFractionNumber();
+
         } else {
-            alert('حدث خطأ أثناء تحديث الرف!');
+
+            alert(
+                'حدث خطأ أثناء تحديث الرف!'
+            );
         }
     }
 }
 
-/* =====================================================
-   تحديث الحالة
-   ===================================================== */
+async function updateStatus(
+    id,
+    newStatus
+) {
 
-async function updateStatus(id, newStatus) {
-    const { error } = await supabaseClient
-        .from('invoices')
-        .update({ status: newStatus })
-        .eq('id', id);
+    const {
+        error
+    } =
+        await supabaseClient
+            .from('invoices')
+            .update({
+                status:
+                    newStatus
+            })
+            .eq(
+                'id',
+                id
+            );
 
     if (!error) {
-        alert('تم تغيير الحالة بنجاح');
+
+        alert(
+            'تم تغيير الحالة بنجاح'
+        );
+
         adminSearchByFractionNumber();
+
     } else {
-        alert('حدث خطأ!');
+
+        alert(
+            'حدث خطأ!'
+        );
     }
 }
 
