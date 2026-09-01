@@ -1108,10 +1108,6 @@ function scheduleMidnightRefresh(nowEgypt) {
             currentDayNum =
                 getEgyptDay(freshNow);
 
-            /*
-             * تحديث رقم اليوم عند منتصف الليل فقط.
-             * لا يتم مسح الفاتورة أو عمل Refresh.
-             */
             await fetchNextInvoiceNum();
 
             scheduleMidnightRefresh(freshNow);
@@ -1513,10 +1509,6 @@ function grantAccess(role) {
             'workerQuerySection'
         ).style.display = 'none';
 
-        /*
-         * هنا فقط يتم تجهيز فاتورة جديدة
-         * عند دخول الإدارة/عمل Refresh.
-         */
         resetFormInputs();
 
         fetchNextInvoiceNum();
@@ -2077,11 +2069,6 @@ function getItemsSummary() {
     );
 }
 
-
-/* =====================================================
-   إرسال الفاتورة - بدون Reset أو Refresh تلقائي
-   ===================================================== */
-
 async function sendTo(m) {
 
     var n =
@@ -2119,7 +2106,6 @@ async function sendTo(m) {
 
         return;
     }
-
 
     var r =
         document.getElementById(
@@ -2187,20 +2173,6 @@ async function sendTo(m) {
         ).value ||
         '0';
 
-
-    /*
-     * حفظ الفاتورة مرة واحدة فقط.
-     *
-     * أول ضغطة سواء كانت للعميل أو للمحل:
-     * يتم رفع الصور وحفظ الفاتورة.
-     *
-     * بعد ذلك:
-     * isCurrentInvoiceSaved = true
-     *
-     * وبالتالي الضغط على الزر الثاني
-     * لن يكرر الفاتورة ولن يرفع الصور مرة ثانية.
-     */
-
     if (!isCurrentInvoiceSaved) {
 
         var imgUrls =
@@ -2238,10 +2210,6 @@ async function sendTo(m) {
                             parseFloat(p) ||
                             0,
 
-                        /*
-                         * روابط الصور في قاعدة البيانات فقط.
-                         * لا يتم إرسالها للواتساب.
-                         */
                         image_url:
                             imagesForDatabase,
 
@@ -2265,7 +2233,6 @@ async function sendTo(m) {
 
         isCurrentInvoiceSaved = true;
     }
-
 
     var baseTxt =
         'اسم العميل: ' +
@@ -2316,11 +2283,6 @@ async function sendTo(m) {
         rm +
         ' جنيه';
 
-
-    /* =========================
-       إرسال للعميل
-       ========================= */
-
     if (m === 'client') {
 
         var cleanPh =
@@ -2359,12 +2321,6 @@ async function sendTo(m) {
 
             'نرحب بكم دائمًا في الاسكافي شوز';
 
-
-        /*
-         * فتح تطبيق واتساب مباشرة.
-         * لا يوجد wa.me.
-         */
-
         var whatsappAppUrl =
             "whatsapp://send?phone=" +
             cleanPh +
@@ -2373,26 +2329,14 @@ async function sendTo(m) {
                 msg
             );
 
-
-        window.location.href =
+        /* تم التعديل:
+           واتساب يفتح مباشرة بدون window.open
+           وبدون أي Reset أو Refresh من الموقع */
+        location.href =
             whatsappAppUrl;
-
-
-        /*
-         * لا يوجد:
-         * resetFormInputs()
-         * fetchNextInvoiceNum()
-         *
-         * الفاتورة تظل كما هي.
-         */
 
         return;
     }
-
-
-    /* =========================
-       إرسال للمحل
-       ========================= */
 
     if (m === 'owner') {
 
@@ -2407,7 +2351,6 @@ async function sendTo(m) {
 
             baseTxt;
 
-
         var ownerWhatsappAppUrl =
             "whatsapp://send?phone=" +
             OWNER_PHONE +
@@ -2416,21 +2359,15 @@ async function sendTo(m) {
                 oMsg
             );
 
-
-        window.location.href =
+        /* تم التعديل:
+           واتساب يفتح مباشرة بدون window.open
+           وبدون أي Reset أو Refresh من الموقع */
+        location.href =
             ownerWhatsappAppUrl;
-
-
-        /*
-         * لا يوجد Reset.
-         * لا يوجد Refresh.
-         * لا يوجد رقم جديد.
-         */
 
         return;
     }
 }
-
 
 async function rep(type) {
 
@@ -2684,7 +2621,6 @@ async function rep(type) {
     lnk.click();
 }
 
-
 async function loadDeliveredInvoices(
     filterType
 ) {
@@ -2774,7 +2710,6 @@ async function loadDeliveredInvoices(
         false
     );
 }
-
 
 async function searchByFractionNumber() {
 
@@ -2904,7 +2839,6 @@ async function searchByFractionNumber() {
     );
 }
 
-
 async function adminSearchByFractionNumber() {
 
     const numVal =
@@ -3033,7 +2967,6 @@ async function adminSearchByFractionNumber() {
     );
 }
 
-
 async function searchInvoices() {
 
     const query =
@@ -3093,7 +3026,6 @@ async function searchInvoices() {
         true
     );
 }
-
 
 function renderSearchResults(
     data,
@@ -3418,7 +3350,6 @@ function renderSearchResults(
             .join('');
 }
 
-
 async function uploadExtraImagesForInvoice(
     invoiceId
 ) {
@@ -3585,7 +3516,6 @@ async function uploadExtraImagesForInvoice(
     }
 }
 
-
 async function updatePaymentStatus(
     invoiceId,
     totalPrice,
@@ -3626,7 +3556,6 @@ async function updatePaymentStatus(
         );
     }
 }
-
 
 async function updateShelfLocation(id) {
 
@@ -3717,7 +3646,6 @@ async function updateShelfLocation(id) {
         }
     }
 }
-
 
 async function updateStatus(
     id,
