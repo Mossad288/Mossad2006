@@ -2329,9 +2329,6 @@ async function sendTo(m) {
                 msg
             );
 
-        /* تم التعديل:
-           واتساب يفتح مباشرة بدون window.open
-           وبدون أي Reset أو Refresh من الموقع */
         location.href =
             whatsappAppUrl;
 
@@ -2359,9 +2356,6 @@ async function sendTo(m) {
                 oMsg
             );
 
-        /* تم التعديل:
-           واتساب يفتح مباشرة بدون window.open
-           وبدون أي Reset أو Refresh من الموقع */
         location.href =
             ownerWhatsappAppUrl;
 
@@ -2419,9 +2413,13 @@ async function rep(type) {
     let totalVaultAll = 0;
     let totalRemainingAll = 0;
     let totalOverallAll = 0;
+    let oldCollectedOverall = 0; 
 
     let uniqueInvoicesMap =
         new Map();
+
+    let oldCollectedLines = ''; 
+    let todayLines = '';
 
     list.forEach(
         function(x) {
@@ -2446,32 +2444,76 @@ async function rep(type) {
                 getEgyptDateString(
                     invDate
                 );
-
-            let include = false;
-
-            if (
-                type === 'daily' &&
-                invDateStr === todayStr
-            ) {
-                include = true;
+            
+            // تحقق من تاريخ التسليم
+            let deliveryDateStr = null;
+            if (x.delivery_date) {
+                 deliveryDateStr = getEgyptDateString(new Date(x.delivery_date));
             }
+
+
+            let includeToday = false;
+            let includeOldCollected = false;
+
+
+            if (type === 'daily') {
+                if (invDateStr === todayStr) {
+                    includeToday = true;
+                } else if (x.status === 'تم التسليم' && deliveryDateStr === todayStr) {
+                    includeOldCollected = true;
+                }
+            }
+
 
             if (
                 type === 'monthly' &&
                 invYear === currentYear &&
                 invMonth === currentMonth
             ) {
-                include = true;
+                includeToday = true;
             }
 
             if (
                 type === 'yearly' &&
                 invYear === currentYear
             ) {
-                include = true;
+                includeToday = true;
             }
 
-            if (include) {
+            let price =
+                parseFloat(
+                    x.price
+                ) || 0;
+
+            let paid =
+                parseFloat(
+                    x.paid
+                ) || 0;
+
+            let rem =
+                price - paid;
+
+            if (includeToday) {
+                 totalVaultAll += paid;
+                 totalRemainingAll += rem;
+                 totalOverallAll += price;
+
+                 todayLines +=
+                'أوردر (' +
+                x.daily_number +
+                '/' +
+                getEgyptDay(
+                    invDate
+                ) +
+                ') - ' +
+                x.customer_name +
+                ' | الإجمالي: ' +
+                price +
+                ' ج | المدفوع: ' +
+                paid +
+                ' ج | الباقي: ' +
+                rem +
+                ' ج\n';
 
                 let dayNum =
                     getEgyptDay(
@@ -2488,67 +2530,14 @@ async function rep(type) {
                     x
                 );
             }
-        }
-    );
 
-    let filteredList =
-        Array.from(
-            uniqueInvoicesMap.values()
-        );
-
-    filteredList.sort(
-        function(a, b) {
-
-            return (
-                (
-                    parseInt(
-                        a.daily_number
-                    ) || 0
-                ) -
-                (
-                    parseInt(
-                        b.daily_number
-                    ) || 0
-                )
-            );
-        }
-    );
-
-    let reportLines = '';
-
-    filteredList.forEach(
-        function(x) {
-
-            let price =
-                parseFloat(
-                    x.price
-                ) || 0;
-
-            let paid =
-                parseFloat(
-                    x.paid
-                ) || 0;
-
-            let rem =
-                price - paid;
-
-            let invDate =
-                new Date(
-                    x.created_at ||
-                    Date.now()
-                );
-
-            totalVaultAll +=
-                paid;
-
-            totalRemainingAll +=
-                rem;
-
-            totalOverallAll +=
-                price;
-
-            reportLines +=
-                'أوردر (' +
+            if(includeOldCollected){
+                 oldCollectedOverall += price; // افترضت انك عايز اجمالي الفواتير القديمة المحصلة
+                 totalVaultAll += paid;
+                 totalOverallAll += price;
+                 
+                  oldCollectedLines +=
+                'أوردر قديم (' +
                 x.daily_number +
                 '/' +
                 getEgyptDay(
@@ -2556,13 +2545,13 @@ async function rep(type) {
                 ) +
                 ') - ' +
                 x.customer_name +
+                ' | تاريخ الأوردر: ' + invDateStr +
                 ' | الإجمالي: ' +
                 price +
-                ' ج | المدفوع: ' +
+                ' ج | تم سداد: ' +
                 paid +
-                ' ج | الباقي: ' +
-                rem +
-                ' ج\n';
+                ' ج \n';
+            }
         }
     );
 
@@ -2572,14 +2561,23 @@ async function rep(type) {
         ')\n' +
         '====================\n\n';
 
+    txt += 'فواتير اليوم:\n';
+    txt += "-------------\n";
     txt +=
-        reportLines;
+        todayLines || 'لا توجد فواتير اليوم.\n';
+        
+    if (type === 'daily' && oldCollectedLines !== '') {
+         txt += "\nفواتير قديمة تم تحصيلها اليوم:\n";
+         txt += "------------------------------\n";
+         txt += oldCollectedLines;
+    }
+
 
     txt +=
         "\n====================\n";
 
     txt +=
-        "إجمالي الحساب الكلي: " +
+        "إجمالي الحساب الكلي (يشمل الفواتير القديمة المحصلة): " +
         totalOverallAll +
         ' ج\n';
 
@@ -2589,7 +2587,7 @@ async function rep(type) {
         ' ج\n';
 
     txt +=
-        "إجمالي المبلغ المتبقي: " +
+        "إجمالي المبلغ المتبقي لفواتير اليوم: " +
         totalRemainingAll +
         ' ج';
 
@@ -2686,10 +2684,10 @@ async function loadDeliveredInvoices(
 
         filteredData =
             data.filter(
-                inv =>
-                    getEgyptDateString(
-                        inv.created_at
-                    ) === todayStr
+                inv => {
+                    let dateToCheck = inv.delivery_date ? inv.delivery_date : inv.created_at;
+                    return getEgyptDateString(dateToCheck) === todayStr;
+                }
             );
 
         if (
@@ -3323,8 +3321,6 @@ function renderSearchResults(
                                 '-'
                             ) +
 
-                            '</div>' +
-
                             '<div style="font-size:13px;margin-bottom:4px;">الحساب: ' +
 
                             price +
@@ -3652,15 +3648,18 @@ async function updateStatus(
     newStatus
 ) {
 
+    let updateData = { status: newStatus };
+
+    if (newStatus === 'تم التسليم') {
+         updateData.delivery_date = new Date().toISOString();
+    }
+
     const {
         error
     } =
         await supabaseClient
             .from('invoices')
-            .update({
-                status:
-                    newStatus
-            })
+            .update(updateData)
             .eq(
                 'id',
                 id
@@ -3684,4 +3683,5 @@ async function updateStatus(
 
 </script>
 
+</body>
 </html>
