@@ -2329,6 +2329,9 @@ async function sendTo(m) {
                 msg
             );
 
+        /* تم التعديل:
+           واتساب يفتح مباشرة بدون window.open
+           وبدون أي Reset أو Refresh من الموقع */
         location.href =
             whatsappAppUrl;
 
@@ -2356,6 +2359,9 @@ async function sendTo(m) {
                 oMsg
             );
 
+        /* تم التعديل:
+           واتساب يفتح مباشرة بدون window.open
+           وبدون أي Reset أو Refresh من الموقع */
         location.href =
             ownerWhatsappAppUrl;
 
@@ -2411,12 +2417,11 @@ async function rep(type) {
     }
 
     let totalVaultAll = 0;
-    let totalRemainingToday = 0;
-    let totalOverallToday = 0;
-    
-    let todayLines = '';
-    let oldCollectedLines = '';
-    let oldCollectedVaultSum = 0;
+    let totalRemainingAll = 0;
+    let totalOverallAll = 0;
+
+    let uniqueInvoicesMap =
+        new Map();
 
     list.forEach(
         function(x) {
@@ -2441,11 +2446,78 @@ async function rep(type) {
                 getEgyptDateString(
                     invDate
                 );
-            
-            let deliveryDateStr = null;
-            if (x.delivery_date) {
-                 deliveryDateStr = getEgyptDateString(new Date(x.delivery_date));
+
+            let include = false;
+
+            if (
+                type === 'daily' &&
+                invDateStr === todayStr
+            ) {
+                include = true;
             }
+
+            if (
+                type === 'monthly' &&
+                invYear === currentYear &&
+                invMonth === currentMonth
+            ) {
+                include = true;
+            }
+
+            if (
+                type === 'yearly' &&
+                invYear === currentYear
+            ) {
+                include = true;
+            }
+
+            if (include) {
+
+                let dayNum =
+                    getEgyptDay(
+                        invDate
+                    );
+
+                let uniqueKey =
+                    x.daily_number +
+                    '/' +
+                    dayNum;
+
+                uniqueInvoicesMap.set(
+                    uniqueKey,
+                    x
+                );
+            }
+        }
+    );
+
+    let filteredList =
+        Array.from(
+            uniqueInvoicesMap.values()
+        );
+
+    filteredList.sort(
+        function(a, b) {
+
+            return (
+                (
+                    parseInt(
+                        a.daily_number
+                    ) || 0
+                ) -
+                (
+                    parseInt(
+                        b.daily_number
+                    ) || 0
+                )
+            );
+        }
+    );
+
+    let reportLines = '';
+
+    filteredList.forEach(
+        function(x) {
 
             let price =
                 parseFloat(
@@ -2460,66 +2532,37 @@ async function rep(type) {
             let rem =
                 price - paid;
 
-            if (type === 'daily') {
-                if (invDateStr === todayStr) {
-                     totalVaultAll += paid;
-                     totalRemainingToday += rem;
-                     totalOverallToday += price;
+            let invDate =
+                new Date(
+                    x.created_at ||
+                    Date.now()
+                );
 
-                     todayLines +=
-                    'أوردر (' +
-                    x.daily_number +
-                    '/' +
-                    getEgyptDay(invDate) +
-                    ') - ' +
-                    x.customer_name +
-                    ' | الإجمالي: ' +
-                    price +
-                    ' ج | المدفوع: ' +
-                    paid +
-                    ' ج | الباقي: ' +
-                    rem +
-                    ' ج\n';
-                } 
-                else if (x.status === 'تم التسليم' && deliveryDateStr === todayStr) {
-                     totalVaultAll += paid;
-                     oldCollectedVaultSum += paid;
-                     
-                     oldCollectedLines +=
-                    'أوردر قديم [تاريخه: ' + invDateStr + '] (' +
-                    x.daily_number +
-                    '/' +
-                    getEgyptDay(invDate) +
-                    ') - ' +
-                    x.customer_name +
-                    ' | التحصيل: ' +
-                    paid +
-                    ' ج (مدفوع كامل)\n';
-                }
-            } else {
-                if (
-                    (type === 'monthly' && invYear === currentYear && invMonth === currentMonth) ||
-                    (type === 'yearly' && invYear === currentYear)
-                ) {
-                    totalVaultAll += paid;
-                    totalOverallToday += price;
+            totalVaultAll +=
+                paid;
 
-                    todayLines +=
-                    'أوردر (' +
-                    x.daily_number +
-                    '/' +
-                    getEgyptDay(invDate) +
-                    ') - ' +
-                    x.customer_name +
-                    ' | الإجمالي: ' +
-                    price +
-                    ' ج | المدفوع: ' +
-                    paid +
-                    ' ج | الباقي: ' +
-                    rem +
-                    ' ج\n';
-                }
-            }
+            totalRemainingAll +=
+                rem;
+
+            totalOverallAll +=
+                price;
+
+            reportLines +=
+                'أوردر (' +
+                x.daily_number +
+                '/' +
+                getEgyptDay(
+                    invDate
+                ) +
+                ') - ' +
+                x.customer_name +
+                ' | الإجمالي: ' +
+                price +
+                ' ج | المدفوع: ' +
+                paid +
+                ' ج | الباقي: ' +
+                rem +
+                ' ج\n';
         }
     );
 
@@ -2529,32 +2572,26 @@ async function rep(type) {
         ')\n' +
         '====================\n\n';
 
-    txt += 'فواتير اليوم:\n';
-    txt += "-------------\n";
     txt +=
-        todayLines || 'لا توجد فواتير جديدة اليوم.\n';
-        
-    if (type === 'daily' && oldCollectedLines !== '') {
-         txt += "\nأوردرات قديمة (تم تسليمها وتحصيلها اليوم):\n";
-         txt += "--------------------------------------\n";
-         txt += oldCollectedLines;
-    }
+        reportLines;
 
     txt +=
         "\n====================\n";
 
     txt +=
-        "إجمالي الخزنة اليوم (شامل الجديد والقديم المحصل): " +
+        "إجمالي الحساب الكلي: " +
+        totalOverallAll +
+        ' ج\n';
+
+    txt +=
+        "إجمالي الخزنة (المدفوع): " +
         totalVaultAll +
         ' ج\n';
 
-    if (type === 'daily') {
-        txt += "  - من فواتير اليوم: " + (totalVaultAll - oldCollectedVaultSum) + " ج\n";
-        txt += "  - من الأوردرات القديمة المسلمة اليوم: " + oldCollectedVaultSum + " ج\n";
-        txt += "إجمالي المبلغ المتبقي (لفواتير اليوم فقط): " +
-        totalRemainingToday +
+    txt +=
+        "إجمالي المبلغ المتبقي: " +
+        totalRemainingAll +
         ' ج';
-    }
 
     var b =
         new Blob(
@@ -2649,10 +2686,10 @@ async function loadDeliveredInvoices(
 
         filteredData =
             data.filter(
-                inv => {
-                    let dateToCheck = inv.delivery_date ? inv.delivery_date : inv.created_at;
-                    return getEgyptDateString(dateToCheck) === todayStr;
-                }
+                inv =>
+                    getEgyptDateString(
+                        inv.created_at
+                    ) === todayStr
             );
 
         if (
@@ -3286,6 +3323,8 @@ function renderSearchResults(
                                 '-'
                             ) +
 
+                            '</div>' +
+
                             '<div style="font-size:13px;margin-bottom:4px;">الحساب: ' +
 
                             price +
@@ -3613,18 +3652,15 @@ async function updateStatus(
     newStatus
 ) {
 
-    let updateData = { status: newStatus };
-
-    if (newStatus === 'تم التسليم') {
-         updateData.delivery_date = new Date().toISOString();
-    }
-
     const {
         error
     } =
         await supabaseClient
             .from('invoices')
-            .update(updateData)
+            .update({
+                status:
+                    newStatus
+            })
             .eq(
                 'id',
                 id
@@ -3648,5 +3684,4 @@ async function updateStatus(
 
 </script>
 
-</body>
 </html>
