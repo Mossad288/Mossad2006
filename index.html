@@ -421,7 +421,10 @@
 
 <div id="authScreen" style="display:none;">
     <div class="auth-card">
-        <div class="auth-title">ALESKAFY SHOES</div>
+
+        <div class="auth-title">
+            ALESKAFY SHOES
+        </div>
 
         <div class="auth-subtitle" id="authSubtitleText">
             النظام الذكي لإدارة الصيانة
@@ -453,25 +456,32 @@
         >
             مسح الجلسة وتسجيل الخروج
         </button>
+
     </div>
 </div>
 
 <div class="container" id="mainContainer" style="display:none;">
 
     <div style="text-align:center;">
+
         <div class="header-logo-area">
+
             <img
                 src="https://iili.io/CpkSHbf.jpg"
                 class="sys-logo"
                 alt="Logo"
             >
 
-            <h1>ALESKAFY SHOES</h1>
+            <h1>
+                ALESKAFY SHOES
+            </h1>
+
         </div>
 
         <div class="badge" id="badge" style="display:none;">
             رقم الأوردر: جاري التحميل...
         </div>
+
     </div>
 
     <div class="admin-toolbar" id="portalMenu" style="display:none;">
@@ -509,38 +519,88 @@
         <form id="invoiceForm" style="display:none;" autocomplete="off">
 
             <label>اسم العميل:</label>
-            <input type="text" id="name" placeholder="اسم العميل" autocomplete="off" value="">
+
+            <input
+                type="text"
+                id="name"
+                placeholder="اسم العميل"
+                autocomplete="off"
+                value=""
+            >
 
             <label>واتساب العميل:</label>
-            <input type="text" id="phone" placeholder="01012345678" autocomplete="off" value="">
+
+            <input
+                type="text"
+                id="phone"
+                placeholder="01012345678"
+                autocomplete="off"
+                value=""
+            >
 
             <div class="row">
+
                 <div>
+
                     <label>تاريخ الاستلام:</label>
-                    <input type="date" id="rDate" autocomplete="off" value="">
+
+                    <input
+                        type="date"
+                        id="rDate"
+                        autocomplete="off"
+                        value=""
+                    >
+
                 </div>
 
                 <div>
+
                     <label>تاريخ التسليم:</label>
-                    <input type="date" id="dDate" autocomplete="off" value="">
+
+                    <input
+                        type="date"
+                        id="dDate"
+                        autocomplete="off"
+                        value=""
+                    >
+
                 </div>
+
             </div>
 
             <div class="row">
 
                 <div>
                     <label>كوتشيات:</label>
-                    <input type="number" id="snk" placeholder="" autocomplete="off" value="">
+
+                    <input
+                        type="number"
+                        id="snk"
+                        autocomplete="off"
+                        value=""
+                    >
                 </div>
 
                 <div>
                     <label>جزم:</label>
-                    <input type="number" id="shs" placeholder="" autocomplete="off" value="">
+
+                    <input
+                        type="number"
+                        id="shs"
+                        autocomplete="off"
+                        value=""
+                    >
                 </div>
 
                 <div>
                     <label>شبشب:</label>
-                    <input type="number" id="slp" placeholder="" autocomplete="off" value="">
+
+                    <input
+                        type="number"
+                        id="slp"
+                        autocomplete="off"
+                        value=""
+                    >
                 </div>
 
             </div>
@@ -549,22 +609,41 @@
 
                 <div>
                     <label>صندل:</label>
-                    <input type="number" id="snd" placeholder="" autocomplete="off" value="">
+
+                    <input
+                        type="number"
+                        id="snd"
+                        autocomplete="off"
+                        value=""
+                    >
                 </div>
 
                 <div>
                     <label>فردة:</label>
-                    <input type="number" id="sng" placeholder="" autocomplete="off" value="">
+
+                    <input
+                        type="number"
+                        id="sng"
+                        autocomplete="off"
+                        value=""
+                    >
                 </div>
 
                 <div>
                     <label>شنط:</label>
-                    <input type="number" id="bags" placeholder="" autocomplete="off" value="">
+
+                    <input
+                        type="number"
+                        id="bags"
+                        autocomplete="off"
+                        value=""
+                    >
                 </div>
 
             </div>
 
             <label>الخدمة المطلوبة:</label>
+
             <input
                 type="text"
                 id="srv"
@@ -573,18 +652,41 @@
                 value=""
             >
 
-            <label>مكان التخزين (الرف بالمحل):</label>
+            <label>
+                مكان التخزين (الرف بالمحل):
+            </label>
 
             <select id="shelfLocation">
-                <option value="الرف : أ">الرف : أ</option>
-                <option value="الرف : ب">الرف : ب</option>
-                <option value="الرف : ج">الرف : ج</option>
-                <option value="الرف : د">الرف : د</option>
-                <option value="الرف : هـ">الرف : هـ</option>
-                <option value="الرف : و">الرف : و</option>
+
+                <option value="الرف : أ">
+                    الرف : أ
+                </option>
+
+                <option value="الرف : ب">
+                    الرف : ب
+                </option>
+
+                <option value="الرف : ج">
+                    الرف : ج
+                </option>
+
+                <option value="الرف : د">
+                    الرف : د
+                </option>
+
+                <option value="الرف : هـ">
+                    الرف : هـ
+                </option>
+
+                <option value="الرف : و">
+                    الرف : و
+                </option>
+
             </select>
 
-            <label>تصوير القطع قبل الصيانة:</label>
+            <label>
+                تصوير القطع قبل الصيانة:
+            </label>
 
             <input
                 type="file"
@@ -605,45 +707,57 @@
 
             <div id="previewsContainer"></div>
 
-            <div id="uploadStatus" class="loading-text">
+            <div
+                id="uploadStatus"
+                class="loading-text"
+            >
                 جاري رفع الصور، انتظر لحظة...
             </div>
 
             <div class="row">
 
                 <div>
-                    <label>الحساب الكلي:</label>
+
+                    <label>
+                        الحساب الكلي:
+                    </label>
+
                     <input
                         type="number"
                         id="tot"
-                        placeholder=""
                         oninput="calc()"
                         autocomplete="off"
                         value=""
                     >
+
                 </div>
 
                 <div>
-                    <label>المدفوع مقدمًا:</label>
+
+                    <label>
+                        المدفوع مقدمًا:
+                    </label>
+
                     <input
                         type="number"
                         id="paid"
-                        placeholder=""
                         oninput="calc()"
                         autocomplete="off"
                         value=""
                     >
+
                 </div>
 
             </div>
 
-            <label>المبلغ المتبقي:</label>
+            <label>
+                المبلغ المتبقي:
+            </label>
 
             <input
                 type="number"
                 id="rem"
                 readonly
-                placeholder=""
                 autocomplete="off"
                 value=""
                 style="color:#ef4444;font-weight:bold;background:#0c0c0c;"
@@ -682,7 +796,10 @@
 
     </div>
 
-    <div id="workerQuerySection" style="display:none;margin-top:10px;">
+    <div
+        id="workerQuerySection"
+        style="display:none;margin-top:10px;"
+    >
 
         <h3 style="color:#bf953f;text-align:center;margin-top:5px;">
             استعلام الصنايعي عن الأوردر
@@ -709,7 +826,9 @@
                     style="text-align:center;padding:8px;border-bottom:none;font-weight:bold;color:#f3e5ab;font-size:16px;"
                 >
 
-                <div style="background:#bf953f;height:3px;width:100%;"></div>
+                <div
+                    style="background:#bf953f;height:3px;width:100%;"
+                ></div>
 
                 <input
                     type="number"
@@ -792,7 +911,9 @@
                     style="text-align:center;padding:8px;border-bottom:none;font-weight:bold;color:#f3e5ab;font-size:16px;"
                 >
 
-                <div style="background:#bf953f;height:3px;width:100%;"></div>
+                <div
+                    style="background:#bf953f;height:3px;width:100%;"
+                ></div>
 
                 <input
                     type="number"
@@ -887,6 +1008,7 @@
         <div class="row" style="margin-bottom:10px;">
 
             <div>
+
                 <button
                     type="button"
                     class="btn"
@@ -895,9 +1017,11 @@
                 >
                     مسلمات اليوم فقط
                 </button>
+
             </div>
 
             <div>
+
                 <button
                     type="button"
                     class="btn"
@@ -906,6 +1030,7 @@
                 >
                     كل الأوردرات المسلمة
                 </button>
+
             </div>
 
         </div>
@@ -973,7 +1098,9 @@
 
     <div class="footer-credits">
         جميع الحقوق محفوظة لي
-        <span>المهندس مسعد سالم _ الاسكافي شوز</span>
+        <span>
+            المهندس مسعد سالم _ الاسكافي شوز
+        </span>
     </div>
 
 </div>
@@ -1011,6 +1138,7 @@ var trustedPerformanceMs = null;
 var midnightTimer = null;
 var timeSyncTimer = null;
 
+
 async function getAccurateEgyptNow() {
 
     const endpoints = [
@@ -1022,16 +1150,18 @@ async function getAccurateEgyptNow() {
 
         try {
 
-            const response = await fetch(
-                endpoints[i],
-                {
-                    cache: 'no-store'
-                }
-            );
+            const response =
+                await fetch(
+                    endpoints[i],
+                    {
+                        cache: 'no-store'
+                    }
+                );
 
             if (response.ok) {
 
-                const data = await response.json();
+                const data =
+                    await response.json();
 
                 const dateText =
                     data.datetime ||
@@ -1041,14 +1171,21 @@ async function getAccurateEgyptNow() {
                 if (dateText) {
 
                     const serverMs =
-                        new Date(dateText).getTime();
+                        new Date(
+                            dateText
+                        ).getTime();
 
                     if (!isNaN(serverMs)) {
 
-                        trustedEgyptTimeMs = serverMs;
-                        trustedPerformanceMs = performance.now();
+                        trustedEgyptTimeMs =
+                            serverMs;
 
-                        return new Date(serverMs);
+                        trustedPerformanceMs =
+                            performance.now();
+
+                        return new Date(
+                            serverMs
+                        );
                     }
                 }
             }
@@ -1063,12 +1200,16 @@ async function getAccurateEgyptNow() {
 
         return new Date(
             trustedEgyptTimeMs +
-            (performance.now() - trustedPerformanceMs)
+            (
+                performance.now() -
+                trustedPerformanceMs
+            )
         );
     }
 
     return new Date();
 }
+
 
 function scheduleMidnightRefresh(nowEgypt) {
 
@@ -1077,45 +1218,63 @@ function scheduleMidnightRefresh(nowEgypt) {
     }
 
     const currentDateStr =
-        getEgyptDateString(nowEgypt);
+        getEgyptDateString(
+            nowEgypt
+        );
 
     const nextDate =
-        new Date(currentDateStr + 'T12:00:00Z');
+        new Date(
+            currentDateStr +
+            'T12:00:00Z'
+        );
 
     nextDate.setUTCDate(
         nextDate.getUTCDate() + 1
     );
 
     const nextDateStr =
-        nextDate.toISOString().slice(0, 10);
+        nextDate.toISOString().slice(
+            0,
+            10
+        );
 
     const nextMidnightISO =
-        getEgyptStartOfDayISO(nextDateStr);
+        getEgyptStartOfDayISO(
+            nextDateStr
+        );
 
     const delay =
         Math.max(
             1000,
-            new Date(nextMidnightISO).getTime() -
+            new Date(
+                nextMidnightISO
+            ).getTime() -
             nowEgypt.getTime()
         );
 
-    midnightTimer = setTimeout(
-        async function() {
+    midnightTimer =
+        setTimeout(
+            async function() {
 
-            const freshNow =
-                await getAccurateEgyptNow();
+                const freshNow =
+                    await getAccurateEgyptNow();
 
-            currentDayNum =
-                getEgyptDay(freshNow);
+                currentDayNum =
+                    getEgyptDay(
+                        freshNow
+                    );
 
-            await fetchNextInvoiceNum();
+                await fetchNextInvoiceNum();
 
-            scheduleMidnightRefresh(freshNow);
+                scheduleMidnightRefresh(
+                    freshNow
+                );
 
-        },
-        delay
-    );
+            },
+            delay
+        );
 }
+
 
 function startTimeSynchronization() {
 
@@ -1123,23 +1282,31 @@ function startTimeSynchronization() {
         clearInterval(timeSyncTimer);
     }
 
-    timeSyncTimer = setInterval(
-        async function() {
+    timeSyncTimer =
+        setInterval(
+            async function() {
 
-            const nowEgypt =
-                await getAccurateEgyptNow();
+                const nowEgypt =
+                    await getAccurateEgyptNow();
 
-            currentDayNum =
-                getEgyptDay(nowEgypt);
+                currentDayNum =
+                    getEgyptDay(
+                        nowEgypt
+                    );
 
-            scheduleMidnightRefresh(nowEgypt);
+                scheduleMidnightRefresh(
+                    nowEgypt
+                );
 
-        },
-        5 * 60 * 1000
-    );
+            },
+            5 * 60 * 1000
+        );
 }
 
-function getEgyptParts(dateValue = new Date()) {
+
+function getEgyptParts(
+    dateValue = new Date()
+) {
 
     const parts =
         new Intl.DateTimeFormat(
@@ -1160,23 +1327,32 @@ function getEgyptParts(dateValue = new Date()) {
 
     const result = {};
 
-    parts.forEach(function(part) {
+    parts.forEach(
+        function(part) {
 
-        if (part.type !== 'literal') {
-            result[part.type] = part.value;
+            if (
+                part.type !== 'literal'
+            ) {
+
+                result[part.type] =
+                    part.value;
+            }
+
         }
-
-    });
+    );
 
     return result;
 }
+
 
 function getEgyptDateString(
     dateValue = new Date()
 ) {
 
     const p =
-        getEgyptParts(dateValue);
+        getEgyptParts(
+            dateValue
+        );
 
     return (
         p.year +
@@ -1187,32 +1363,44 @@ function getEgyptDateString(
     );
 }
 
+
 function getEgyptDay(
     dateValue = new Date()
 ) {
 
     return Number(
-        getEgyptParts(dateValue).day
+        getEgyptParts(
+            dateValue
+        ).day
     );
 }
+
 
 function getEgyptYear(
     dateValue = new Date()
 ) {
 
     return Number(
-        getEgyptParts(dateValue).year
+        getEgyptParts(
+            dateValue
+        ).year
     );
 }
+
 
 function getEgyptMonth(
     dateValue = new Date()
 ) {
 
-    return Number(
-        getEgyptParts(dateValue).month
-    ) - 1;
+    return (
+        Number(
+            getEgyptParts(
+                dateValue
+            ).month
+        ) - 1
+    );
 }
+
 
 function getEgyptOffset(
     dateValue = new Date()
@@ -1231,10 +1419,16 @@ function getEgyptOffset(
 
     const zone =
         parts.find(
-            p => p.type === 'timeZoneName'
+            p =>
+                p.type ===
+                'timeZoneName'
         );
 
-    if (!zone || !zone.value) {
+    if (
+        !zone ||
+        !zone.value
+    ) {
+
         return '+03:00';
     }
 
@@ -1247,13 +1441,20 @@ function getEgyptOffset(
         return '+03:00';
     }
 
-    const sign = match[1];
+    const sign =
+        match[1];
 
     const hour =
-        String(match[2]).padStart(2, '0');
+        String(
+            match[2]
+        ).padStart(
+            2,
+            '0'
+        );
 
     const minute =
-        match[3] || '00';
+        match[3] ||
+        '00';
 
     return (
         sign +
@@ -1262,6 +1463,7 @@ function getEgyptOffset(
         minute
     );
 }
+
 
 function getEgyptStartOfDayISO(
     dateInput = null
@@ -1281,7 +1483,9 @@ function getEgyptStartOfDayISO(
         );
 
     const offset =
-        getEgyptOffset(testDate);
+        getEgyptOffset(
+            testDate
+        );
 
     return new Date(
         dateString +
@@ -1289,6 +1493,7 @@ function getEgyptStartOfDayISO(
         offset
     ).toISOString();
 }
+
 
 function getEgyptEndOfDayISO(
     dateInput = null
@@ -1308,7 +1513,9 @@ function getEgyptEndOfDayISO(
         );
 
     const offset =
-        getEgyptOffset(testDate);
+        getEgyptOffset(
+            testDate
+        );
 
     return new Date(
         dateString +
@@ -1317,7 +1524,10 @@ function getEgyptEndOfDayISO(
     ).toISOString();
 }
 
-function getDateRangeISO(dateInput) {
+
+function getDateRangeISO(
+    dateInput
+) {
 
     return {
         start:
@@ -1332,13 +1542,16 @@ function getDateRangeISO(dateInput) {
     };
 }
 
+
 async function initApp() {
 
     const nowEgypt =
         await getAccurateEgyptNow();
 
     currentDayNum =
-        getEgyptDay(nowEgypt);
+        getEgyptDay(
+            nowEgypt
+        );
 
     scheduleMidnightRefresh(
         nowEgypt
@@ -1369,6 +1582,7 @@ async function initApp() {
         ) {
 
             grantAccess('admin');
+
             return;
         }
 
@@ -1386,18 +1600,22 @@ async function initApp() {
         ) {
 
             grantAccess('worker');
+
             return;
         }
     }
 
     document.getElementById(
         'authScreen'
-    ).style.display = 'flex';
+    ).style.display =
+        'flex';
 
     document.getElementById(
         'mainContainer'
-    ).style.display = 'none';
+    ).style.display =
+        'none';
 }
+
 
 function submitPassword() {
 
@@ -1437,7 +1655,8 @@ function submitPassword() {
 
             document.getElementById(
                 'passwordInput'
-            ).value = "";
+            ).value =
+                "";
         }
 
     } else {
@@ -1459,10 +1678,12 @@ function submitPassword() {
 
             document.getElementById(
                 'passwordInput'
-            ).value = "";
+            ).value =
+                "";
         }
     }
 }
+
 
 function logoutApp() {
 
@@ -1477,37 +1698,45 @@ function logoutApp() {
     location.reload();
 }
 
+
 function grantAccess(role) {
 
     document.getElementById(
         'authScreen'
-    ).style.display = 'none';
+    ).style.display =
+        'none';
 
     document.getElementById(
         'mainContainer'
-    ).style.display = 'block';
+    ).style.display =
+        'block';
 
     if (role === 'admin') {
 
         document.getElementById(
             'invoiceForm'
-        ).style.display = 'block';
+        ).style.display =
+            'block';
 
         document.getElementById(
             'badge'
-        ).style.display = 'flex';
+        ).style.display =
+            'flex';
 
         document.getElementById(
             'socialBtn'
-        ).style.display = 'flex';
+        ).style.display =
+            'flex';
 
         document.getElementById(
             'portalMenu'
-        ).style.display = 'grid';
+        ).style.display =
+            'grid';
 
         document.getElementById(
             'workerQuerySection'
-        ).style.display = 'none';
+        ).style.display =
+            'none';
 
         resetFormInputs();
 
@@ -1517,25 +1746,31 @@ function grantAccess(role) {
 
         document.getElementById(
             'invoiceForm'
-        ).style.display = 'none';
+        ).style.display =
+            'none';
 
         document.getElementById(
             'badge'
-        ).style.display = 'none';
+        ).style.display =
+            'none';
 
         document.getElementById(
             'socialBtn'
-        ).style.display = 'none';
+        ).style.display =
+            'none';
 
         document.getElementById(
             'portalMenu'
-        ).style.display = 'none';
+        ).style.display =
+            'none';
 
         document.getElementById(
             'workerQuerySection'
-        ).style.display = 'block';
+        ).style.display =
+            'block';
     }
 }
+
 
 function resetFormInputs() {
 
@@ -1585,7 +1820,8 @@ function resetFormInputs() {
 
     document.getElementById(
         'shelfLocation'
-    ).selectedIndex = 0;
+    ).selectedIndex =
+        0;
 
     document.getElementById(
         'itemImages'
@@ -1593,7 +1829,8 @@ function resetFormInputs() {
 
     document.getElementById(
         'previewsContainer'
-    ).innerHTML = '';
+    ).innerHTML =
+        '';
 
     document.getElementById(
         'tot'
@@ -1614,31 +1851,40 @@ function resetFormInputs() {
     isCurrentInvoiceSaved = false;
 }
 
-function openScreen(screenId) {
+
+function openScreen(
+    screenId
+) {
 
     document.getElementById(
         'mainDashboardScreen'
-    ).style.display = 'none';
+    ).style.display =
+        'none';
 
     document.getElementById(
         'portalMenu'
-    ).style.display = 'none';
+    ).style.display =
+        'none';
 
     document.getElementById(
         'searchScreen'
-    ).style.display = 'none';
+    ).style.display =
+        'none';
 
     document.getElementById(
         'deliveryScreen'
-    ).style.display = 'none';
+    ).style.display =
+        'none';
 
     document.getElementById(
         'reportsScreen'
-    ).style.display = 'none';
+    ).style.display =
+        'none';
 
     document.getElementById(
         screenId
-    ).style.display = 'block';
+    ).style.display =
+        'block';
 
     window.scrollTo({
         top: 0,
@@ -1646,23 +1892,28 @@ function openScreen(screenId) {
     });
 }
 
+
 function closeScreen() {
 
     document.getElementById(
         'searchScreen'
-    ).style.display = 'none';
+    ).style.display =
+        'none';
 
     document.getElementById(
         'deliveryScreen'
-    ).style.display = 'none';
+    ).style.display =
+        'none';
 
     document.getElementById(
         'reportsScreen'
-    ).style.display = 'none';
+    ).style.display =
+        'none';
 
     document.getElementById(
         'mainDashboardScreen'
-    ).style.display = 'block';
+    ).style.display =
+        'block';
 
     const urlParams =
         new URLSearchParams(
@@ -1679,7 +1930,8 @@ function closeScreen() {
 
         document.getElementById(
             'portalMenu'
-        ).style.display = 'grid';
+        ).style.display =
+            'grid';
     }
 
     window.scrollTo({
@@ -1687,6 +1939,7 @@ function closeScreen() {
         behavior: 'smooth'
     });
 }
+
 
 function calc() {
 
@@ -1723,6 +1976,7 @@ function calc() {
             );
 }
 
+
 async function fetchNextInvoiceNum() {
 
     try {
@@ -1751,7 +2005,9 @@ async function fetchNextInvoiceNum() {
         } =
             await supabaseClient
                 .from('invoices')
-                .select('daily_number')
+                .select(
+                    'daily_number'
+                )
                 .gte(
                     'created_at',
                     range.start
@@ -1787,12 +2043,14 @@ async function fetchNextInvoiceNum() {
 
         } else {
 
-            currentDailyNum = 1;
+            currentDailyNum =
+                1;
         }
 
     } catch (e) {
 
-        currentDailyNum = 1;
+        currentDailyNum =
+            1;
     }
 
     formattedOrderCode =
@@ -1824,7 +2082,10 @@ async function fetchNextInvoiceNum() {
     }
 }
 
-function handleImagesSelection(event) {
+
+function handleImagesSelection(
+    event
+) {
 
     const files =
         event.target.files;
@@ -1839,7 +2100,8 @@ function handleImagesSelection(event) {
                 'previewsContainer'
             );
 
-        previewContainer.innerHTML = '';
+        previewContainer.innerHTML =
+            '';
 
         selectedFilesList = [];
 
@@ -1879,6 +2141,7 @@ function handleImagesSelection(event) {
         );
     }
 }
+
 
 async function uploadAllImages() {
 
@@ -1933,8 +2196,10 @@ async function uploadAllImages() {
                         fileName,
                         file,
                         {
-                            cacheControl: '3600',
-                            upsert: true
+                            cacheControl:
+                                '3600',
+                            upsert:
+                                true
                         }
                     );
 
@@ -1981,6 +2246,7 @@ async function uploadAllImages() {
     }
 }
 
+
 function getItemsSummary() {
 
     let items = [];
@@ -2018,48 +2284,60 @@ function getItemsSummary() {
     if (
         parseInt(sk) > 0
     ) {
+
         items.push(
-            'كوتشيات: ' + sk
+            'كوتشيات: ' +
+            sk
         );
     }
 
     if (
         parseInt(ss) > 0
     ) {
+
         items.push(
-            'جزم: ' + ss
+            'جزم: ' +
+            ss
         );
     }
 
     if (
         parseInt(sl) > 0
     ) {
+
         items.push(
-            'شبشب: ' + sl
+            'شبشب: ' +
+            sl
         );
     }
 
     if (
         parseInt(sn) > 0
     ) {
+
         items.push(
-            'صندل: ' + sn
+            'صندل: ' +
+            sn
         );
     }
 
     if (
         parseInt(sg) > 0
     ) {
+
         items.push(
-            'فردة: ' + sg
+            'فردة: ' +
+            sg
         );
     }
 
     if (
         parseInt(bg) > 0
     ) {
+
         items.push(
-            'شنط: ' + bg
+            'شنط: ' +
+            bg
         );
     }
 
@@ -2068,6 +2346,7 @@ function getItemsSummary() {
         'أصناف متعددة'
     );
 }
+
 
 async function sendTo(m) {
 
@@ -2231,7 +2510,8 @@ async function sendTo(m) {
             return;
         }
 
-        isCurrentInvoiceSaved = true;
+        isCurrentInvoiceSaved =
+            true;
     }
 
     var baseTxt =
@@ -2329,9 +2609,6 @@ async function sendTo(m) {
                 msg
             );
 
-        /* تم التعديل:
-           واتساب يفتح مباشرة بدون window.open
-           وبدون أي Reset أو Refresh من الموقع */
         location.href =
             whatsappAppUrl;
 
@@ -2359,15 +2636,17 @@ async function sendTo(m) {
                 oMsg
             );
 
-        /* تم التعديل:
-           واتساب يفتح مباشرة بدون window.open
-           وبدون أي Reset أو Refresh من الموقع */
         location.href =
             ownerWhatsappAppUrl;
 
         return;
     }
 }
+
+
+/* =========================================================
+   التقرير
+   ========================================================= */
 
 async function rep(type) {
 
@@ -2417,7 +2696,9 @@ async function rep(type) {
     }
 
     let totalVaultAll = 0;
+
     let totalRemainingAll = 0;
+
     let totalOverallAll = 0;
 
     let uniqueInvoicesMap =
@@ -2447,13 +2728,50 @@ async function rep(type) {
                     invDate
                 );
 
+            /*
+             * التعديل الأساسي:
+             *
+             * التقرير اليومي يعرض:
+             *
+             * 1- الفواتير التي تم إنشاؤها اليوم
+             *
+             * أو
+             *
+             * 2- الفواتير التي تم تحديثها/سدادها اليوم
+             *
+             * مع التأكد أن updated_at موجود.
+             */
+
+            let updatedDateStr =
+                x.updated_at
+                    ? getEgyptDateString(
+                        new Date(
+                            x.updated_at
+                        )
+                    )
+                    : null;
+
             let include = false;
 
             if (
-                type === 'daily' &&
-                invDateStr === todayStr
+                type === 'daily'
             ) {
-                include = true;
+
+                const isCreatedToday =
+                    invDateStr ===
+                    todayStr;
+
+                const isUpdatedToday =
+                    updatedDateStr ===
+                    todayStr;
+
+                if (
+                    isCreatedToday ||
+                    isUpdatedToday
+                ) {
+
+                    include = true;
+                }
             }
 
             if (
@@ -2461,6 +2779,7 @@ async function rep(type) {
                 invYear === currentYear &&
                 invMonth === currentMonth
             ) {
+
                 include = true;
             }
 
@@ -2468,6 +2787,7 @@ async function rep(type) {
                 type === 'yearly' &&
                 invYear === currentYear
             ) {
+
                 include = true;
             }
 
@@ -2488,6 +2808,7 @@ async function rep(type) {
                     x
                 );
             }
+
         }
     );
 
@@ -2514,7 +2835,8 @@ async function rep(type) {
         }
     );
 
-    let reportLines = '';
+    let reportLines =
+        '';
 
     filteredList.forEach(
         function(x) {
@@ -2530,7 +2852,8 @@ async function rep(type) {
                 ) || 0;
 
             let rem =
-                price - paid;
+                price -
+                paid;
 
             let invDate =
                 new Date(
@@ -2611,7 +2934,9 @@ async function rep(type) {
         );
 
     lnk.href =
-        URL.createObjectURL(b);
+        URL.createObjectURL(
+            b
+        );
 
     lnk.download =
         "Report_" +
@@ -2620,6 +2945,11 @@ async function rep(type) {
 
     lnk.click();
 }
+
+
+/* =========================================================
+   الأوردرات المسلمة
+   ========================================================= */
 
 async function loadDeliveredInvoices(
     filterType
@@ -2710,6 +3040,11 @@ async function loadDeliveredInvoices(
         false
     );
 }
+
+
+/* =========================================================
+   بحث الصنايعي
+   ========================================================= */
 
 async function searchByFractionNumber() {
 
@@ -2839,6 +3174,11 @@ async function searchByFractionNumber() {
     );
 }
 
+
+/* =========================================================
+   بحث الإدارة
+   ========================================================= */
+
 async function adminSearchByFractionNumber() {
 
     const numVal =
@@ -2967,6 +3307,11 @@ async function adminSearchByFractionNumber() {
     );
 }
 
+
+/* =========================================================
+   البحث بالاسم أو الهاتف
+   ========================================================= */
+
 async function searchInvoices() {
 
     const query =
@@ -3027,6 +3372,11 @@ async function searchInvoices() {
     );
 }
 
+
+/* =========================================================
+   عرض نتائج البحث
+   ========================================================= */
+
 function renderSearchResults(
     data,
     error,
@@ -3069,13 +3419,16 @@ function renderSearchResults(
                             );
 
                     const price =
-                        inv.price || 0;
+                        inv.price ||
+                        0;
 
                     const paid =
-                        inv.paid || 0;
+                        inv.paid ||
+                        0;
 
                     const rem =
-                        price - paid;
+                        price -
+                        paid;
 
                     let invDate =
                         new Date(
@@ -3275,10 +3628,12 @@ function renderSearchResults(
                                 '<span class="status-badge ' +
                                 statusClass +
                                 '">' +
+
                                 (
                                     inv.status ||
                                     'تحت الصيانة'
                                 ) +
+
                                 '</span>' +
 
                             '</div>' +
@@ -3349,6 +3704,11 @@ function renderSearchResults(
             )
             .join('');
 }
+
+
+/* =========================================================
+   الصور الإضافية
+   ========================================================= */
 
 async function uploadExtraImagesForInvoice(
     invoiceId
@@ -3516,6 +3876,11 @@ async function uploadExtraImagesForInvoice(
     }
 }
 
+
+/* =========================================================
+   تحديث السداد
+   ========================================================= */
+
 async function updatePaymentStatus(
     invoiceId,
     totalPrice,
@@ -3527,14 +3892,34 @@ async function updatePaymentStatus(
             ? totalPrice
             : totalPrice - targetRem;
 
+    /*
+     * نأخذ الوقت الحالي من مصدر الوقت المستخدم
+     * في النظام، ثم نحفظه في updated_at.
+     *
+     * مهم:
+     * updated_at لن يغير created_at.
+     * وبالتالي تاريخ ورقم الأوردر الأصلي يظل كما هو.
+     */
+
+    const egyptNow =
+        await getAccurateEgyptNow();
+
+    const paymentUpdatedAt =
+        egyptNow.toISOString();
+
     const {
         error
     } =
         await supabaseClient
             .from('invoices')
             .update({
+
                 paid:
-                    newPaid
+                    newPaid,
+
+                updated_at:
+                    paymentUpdatedAt
+
             })
             .eq(
                 'id',
@@ -3552,12 +3937,20 @@ async function updatePaymentStatus(
     } else {
 
         alert(
-            "حدث خطأ!"
+            "حدث خطأ أثناء تحديث حالة السداد:\n" +
+            error.message
         );
     }
 }
 
-async function updateShelfLocation(id) {
+
+/* =========================================================
+   تحديث الرف
+   ========================================================= */
+
+async function updateShelfLocation(
+    id
+) {
 
     const newShelf =
         document
@@ -3603,7 +3996,9 @@ async function updateShelfLocation(id) {
                             'الرف'
                         )
                 )
-                .join(' | ');
+                .join(
+                    ' | '
+                );
 
         let updatedDetails =
             cleanDetails
@@ -3646,6 +4041,11 @@ async function updateShelfLocation(id) {
         }
     }
 }
+
+
+/* =========================================================
+   تحديث حالة الأوردر
+   ========================================================= */
 
 async function updateStatus(
     id,
