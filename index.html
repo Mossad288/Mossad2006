@@ -2411,15 +2411,12 @@ async function rep(type) {
     }
 
     let totalVaultAll = 0;
-    let totalRemainingAll = 0;
-    let totalOverallAll = 0;
-    let oldCollectedOverall = 0; 
-
-    let uniqueInvoicesMap =
-        new Map();
-
-    let oldCollectedLines = ''; 
+    let totalRemainingToday = 0;
+    let totalOverallToday = 0;
+    
     let todayLines = '';
+    let oldCollectedLines = '';
+    let oldCollectedVaultSum = 0;
 
     list.forEach(
         function(x) {
@@ -2445,39 +2442,9 @@ async function rep(type) {
                     invDate
                 );
             
-            // تحقق من تاريخ التسليم
             let deliveryDateStr = null;
             if (x.delivery_date) {
                  deliveryDateStr = getEgyptDateString(new Date(x.delivery_date));
-            }
-
-
-            let includeToday = false;
-            let includeOldCollected = false;
-
-
-            if (type === 'daily') {
-                if (invDateStr === todayStr) {
-                    includeToday = true;
-                } else if (x.status === 'تم التسليم' && deliveryDateStr === todayStr) {
-                    includeOldCollected = true;
-                }
-            }
-
-
-            if (
-                type === 'monthly' &&
-                invYear === currentYear &&
-                invMonth === currentMonth
-            ) {
-                includeToday = true;
-            }
-
-            if (
-                type === 'yearly' &&
-                invYear === currentYear
-            ) {
-                includeToday = true;
             }
 
             let price =
@@ -2493,64 +2460,65 @@ async function rep(type) {
             let rem =
                 price - paid;
 
-            if (includeToday) {
-                 totalVaultAll += paid;
-                 totalRemainingAll += rem;
-                 totalOverallAll += price;
+            if (type === 'daily') {
+                if (invDateStr === todayStr) {
+                     totalVaultAll += paid;
+                     totalRemainingToday += rem;
+                     totalOverallToday += price;
 
-                 todayLines +=
-                'أوردر (' +
-                x.daily_number +
-                '/' +
-                getEgyptDay(
-                    invDate
-                ) +
-                ') - ' +
-                x.customer_name +
-                ' | الإجمالي: ' +
-                price +
-                ' ج | المدفوع: ' +
-                paid +
-                ' ج | الباقي: ' +
-                rem +
-                ' ج\n';
-
-                let dayNum =
-                    getEgyptDay(
-                        invDate
-                    );
-
-                let uniqueKey =
+                     todayLines +=
+                    'أوردر (' +
                     x.daily_number +
                     '/' +
-                    dayNum;
+                    getEgyptDay(invDate) +
+                    ') - ' +
+                    x.customer_name +
+                    ' | الإجمالي: ' +
+                    price +
+                    ' ج | المدفوع: ' +
+                    paid +
+                    ' ج | الباقي: ' +
+                    rem +
+                    ' ج\n';
+                } 
+                else if (x.status === 'تم التسليم' && deliveryDateStr === todayStr) {
+                     totalVaultAll += paid;
+                     oldCollectedVaultSum += paid;
+                     
+                     oldCollectedLines +=
+                    'أوردر قديم [تاريخه: ' + invDateStr + '] (' +
+                    x.daily_number +
+                    '/' +
+                    getEgyptDay(invDate) +
+                    ') - ' +
+                    x.customer_name +
+                    ' | التحصيل: ' +
+                    paid +
+                    ' ج (مدفوع كامل)\n';
+                }
+            } else {
+                if (
+                    (type === 'monthly' && invYear === currentYear && invMonth === currentMonth) ||
+                    (type === 'yearly' && invYear === currentYear)
+                ) {
+                    totalVaultAll += paid;
+                    totalOverallToday += price;
 
-                uniqueInvoicesMap.set(
-                    uniqueKey,
-                    x
-                );
-            }
-
-            if(includeOldCollected){
-                 oldCollectedOverall += price; // افترضت انك عايز اجمالي الفواتير القديمة المحصلة
-                 totalVaultAll += paid;
-                 totalOverallAll += price;
-                 
-                  oldCollectedLines +=
-                'أوردر قديم (' +
-                x.daily_number +
-                '/' +
-                getEgyptDay(
-                    invDate
-                ) +
-                ') - ' +
-                x.customer_name +
-                ' | تاريخ الأوردر: ' + invDateStr +
-                ' | الإجمالي: ' +
-                price +
-                ' ج | تم سداد: ' +
-                paid +
-                ' ج \n';
+                    todayLines +=
+                    'أوردر (' +
+                    x.daily_number +
+                    '/' +
+                    getEgyptDay(invDate) +
+                    ') - ' +
+                    x.customer_name +
+                    ' | الإجمالي: ' +
+                    price +
+                    ' ج | المدفوع: ' +
+                    paid +
+                    ' ج | الباقي: ' +
+                    rem +
+                    ' ج\n';
+                }
             }
         }
     );
@@ -2564,32 +2532,29 @@ async function rep(type) {
     txt += 'فواتير اليوم:\n';
     txt += "-------------\n";
     txt +=
-        todayLines || 'لا توجد فواتير اليوم.\n';
+        todayLines || 'لا توجد فواتير جديدة اليوم.\n';
         
     if (type === 'daily' && oldCollectedLines !== '') {
-         txt += "\nفواتير قديمة تم تحصيلها اليوم:\n";
-         txt += "------------------------------\n";
+         txt += "\nأوردرات قديمة (تم تسليمها وتحصيلها اليوم):\n";
+         txt += "--------------------------------------\n";
          txt += oldCollectedLines;
     }
-
 
     txt +=
         "\n====================\n";
 
     txt +=
-        "إجمالي الحساب الكلي (يشمل الفواتير القديمة المحصلة): " +
-        totalOverallAll +
-        ' ج\n';
-
-    txt +=
-        "إجمالي الخزنة (المدفوع): " +
+        "إجمالي الخزنة اليوم (شامل الجديد والقديم المحصل): " +
         totalVaultAll +
         ' ج\n';
 
-    txt +=
-        "إجمالي المبلغ المتبقي لفواتير اليوم: " +
-        totalRemainingAll +
+    if (type === 'daily') {
+        txt += "  - من فواتير اليوم: " + (totalVaultAll - oldCollectedVaultSum) + " ج\n";
+        txt += "  - من الأوردرات القديمة المسلمة اليوم: " + oldCollectedVaultSum + " ج\n";
+        txt += "إجمالي المبلغ المتبقي (لفواتير اليوم فقط): " +
+        totalRemainingToday +
         ' ج';
+    }
 
     var b =
         new Blob(
