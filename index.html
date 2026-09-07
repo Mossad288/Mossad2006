@@ -1138,7 +1138,6 @@ var trustedPerformanceMs = null;
 var midnightTimer = null;
 var timeSyncTimer = null;
 
-
 async function getAccurateEgyptNow() {
 
     const endpoints = [
@@ -1210,7 +1209,6 @@ async function getAccurateEgyptNow() {
     return new Date();
 }
 
-
 function scheduleMidnightRefresh(nowEgypt) {
 
     if (midnightTimer) {
@@ -1275,7 +1273,6 @@ function scheduleMidnightRefresh(nowEgypt) {
         );
 }
 
-
 function startTimeSynchronization() {
 
     if (timeSyncTimer) {
@@ -1302,7 +1299,6 @@ function startTimeSynchronization() {
             5 * 60 * 1000
         );
 }
-
 
 function getEgyptParts(
     dateValue = new Date()
@@ -1344,7 +1340,6 @@ function getEgyptParts(
     return result;
 }
 
-
 function getEgyptDateString(
     dateValue = new Date()
 ) {
@@ -1363,7 +1358,6 @@ function getEgyptDateString(
     );
 }
 
-
 function getEgyptDay(
     dateValue = new Date()
 ) {
@@ -1375,7 +1369,6 @@ function getEgyptDay(
     );
 }
 
-
 function getEgyptYear(
     dateValue = new Date()
 ) {
@@ -1386,7 +1379,6 @@ function getEgyptYear(
         ).year
     );
 }
-
 
 function getEgyptMonth(
     dateValue = new Date()
@@ -1400,7 +1392,6 @@ function getEgyptMonth(
         ) - 1
     );
 }
-
 
 function getEgyptOffset(
     dateValue = new Date()
@@ -1464,7 +1455,6 @@ function getEgyptOffset(
     );
 }
 
-
 function getEgyptStartOfDayISO(
     dateInput = null
 ) {
@@ -1493,7 +1483,6 @@ function getEgyptStartOfDayISO(
         offset
     ).toISOString();
 }
-
 
 function getEgyptEndOfDayISO(
     dateInput = null
@@ -1524,7 +1513,6 @@ function getEgyptEndOfDayISO(
     ).toISOString();
 }
 
-
 function getDateRangeISO(
     dateInput
 ) {
@@ -1541,7 +1529,6 @@ function getDateRangeISO(
             )
     };
 }
-
 
 async function initApp() {
 
@@ -1616,7 +1603,6 @@ async function initApp() {
         'none';
 }
 
-
 function submitPassword() {
 
     let pass =
@@ -1684,7 +1670,6 @@ function submitPassword() {
     }
 }
 
-
 function logoutApp() {
 
     sessionStorage.removeItem(
@@ -1697,7 +1682,6 @@ function logoutApp() {
 
     location.reload();
 }
-
 
 function grantAccess(role) {
 
@@ -1770,7 +1754,6 @@ function grantAccess(role) {
             'block';
     }
 }
-
 
 function resetFormInputs() {
 
@@ -1851,7 +1834,6 @@ function resetFormInputs() {
     isCurrentInvoiceSaved = false;
 }
 
-
 function openScreen(
     screenId
 ) {
@@ -1891,7 +1873,6 @@ function openScreen(
         behavior: 'smooth'
     });
 }
-
 
 function closeScreen() {
 
@@ -1940,7 +1921,6 @@ function closeScreen() {
     });
 }
 
-
 function calc() {
 
     var t =
@@ -1975,7 +1955,6 @@ function calc() {
                 t - p
             );
 }
-
 
 async function fetchNextInvoiceNum() {
 
@@ -2082,7 +2061,6 @@ async function fetchNextInvoiceNum() {
     }
 }
 
-
 function handleImagesSelection(
     event
 ) {
@@ -2139,9 +2117,7 @@ function handleImagesSelection(
                 );
             }
         );
-    }
 }
-
 
 async function uploadAllImages() {
 
@@ -2246,7 +2222,6 @@ async function uploadAllImages() {
     }
 }
 
-
 function getItemsSummary() {
 
     let items = [];
@@ -2346,7 +2321,6 @@ function getItemsSummary() {
         'أصناف متعددة'
     );
 }
-
 
 async function sendTo(m) {
 
@@ -2643,7 +2617,6 @@ async function sendTo(m) {
     }
 }
 
-
 /* =========================================================
    التقرير
    ========================================================= */
@@ -2727,20 +2700,6 @@ async function rep(type) {
                 getEgyptDateString(
                     invDate
                 );
-
-            /*
-             * التعديل الأساسي:
-             *
-             * التقرير اليومي يعرض:
-             *
-             * 1- الفواتير التي تم إنشاؤها اليوم
-             *
-             * أو
-             *
-             * 2- الفواتير التي تم تحديثها/سدادها اليوم
-             *
-             * مع التأكد أن updated_at موجود.
-             */
 
             let updatedDateStr =
                 x.updated_at
@@ -2946,7 +2905,6 @@ async function rep(type) {
     lnk.click();
 }
 
-
 /* =========================================================
    الأوردرات المسلمة
    ========================================================= */
@@ -3014,12 +2972,32 @@ async function loadDeliveredInvoices(
                 nowEgypt
             );
 
+        /*
+         * التعديل الجديد:
+         *
+         * "مسلمات اليوم فقط" تعتمد على delivered_at
+         * وليس created_at أو updated_at.
+         *
+         * لذلك:
+         *
+         * أوردر قديم + تم الضغط على "تم التسليم" اليوم
+         * = يظهر في مسلمات اليوم.
+         */
+
         filteredData =
             data.filter(
-                inv =>
-                    getEgyptDateString(
-                        inv.created_at
-                    ) === todayStr
+                function(inv) {
+
+                    const deliveredToday =
+                        inv.delivered_at &&
+                        getEgyptDateString(
+                            new Date(
+                                inv.delivered_at
+                            )
+                        ) === todayStr;
+
+                    return deliveredToday;
+                }
             );
 
         if (
@@ -3040,7 +3018,6 @@ async function loadDeliveredInvoices(
         false
     );
 }
-
 
 /* =========================================================
    بحث الصنايعي
@@ -3174,7 +3151,6 @@ async function searchByFractionNumber() {
     );
 }
 
-
 /* =========================================================
    بحث الإدارة
    ========================================================= */
@@ -3307,7 +3283,6 @@ async function adminSearchByFractionNumber() {
     );
 }
 
-
 /* =========================================================
    البحث بالاسم أو الهاتف
    ========================================================= */
@@ -3371,7 +3346,6 @@ async function searchInvoices() {
         true
     );
 }
-
 
 /* =========================================================
    عرض نتائج البحث
@@ -3705,7 +3679,6 @@ function renderSearchResults(
             .join('');
 }
 
-
 /* =========================================================
    الصور الإضافية
    ========================================================= */
@@ -3876,7 +3849,6 @@ async function uploadExtraImagesForInvoice(
     }
 }
 
-
 /* =========================================================
    تحديث السداد
    ========================================================= */
@@ -3891,15 +3863,6 @@ async function updatePaymentStatus(
         targetRem === 0
             ? totalPrice
             : totalPrice - targetRem;
-
-    /*
-     * نأخذ الوقت الحالي من مصدر الوقت المستخدم
-     * في النظام، ثم نحفظه في updated_at.
-     *
-     * مهم:
-     * updated_at لن يغير created_at.
-     * وبالتالي تاريخ ورقم الأوردر الأصلي يظل كما هو.
-     */
 
     const egyptNow =
         await getAccurateEgyptNow();
@@ -3942,7 +3905,6 @@ async function updatePaymentStatus(
         );
     }
 }
-
 
 /* =========================================================
    تحديث الرف
@@ -4012,16 +3974,16 @@ async function updateShelfLocation(
         const {
             error
         } =
-            await supabaseClient
-                .from('invoices')
-                .update({
-                    details:
-                        updatedDetails
-                })
-                .eq(
-                    'id',
-                    id
-                );
+        await supabaseClient
+            .from('invoices')
+            .update({
+                details:
+                    updatedDetails
+            })
+            .eq(
+                'id',
+                id
+            );
 
         if (!error) {
 
@@ -4042,7 +4004,6 @@ async function updateShelfLocation(
     }
 }
 
-
 /* =========================================================
    تحديث حالة الأوردر
    ========================================================= */
@@ -4052,15 +4013,51 @@ async function updateStatus(
     newStatus
 ) {
 
+    /*
+     * created_at لا يتغير.
+     *
+     * updated_at يتحدث عند أي تغيير للحالة.
+     *
+     * delivered_at يتسجل فقط عند اختيار
+     * "تم التسليم".
+     */
+
+    const egyptNow =
+        await getAccurateEgyptNow();
+
+    const statusUpdatedAt =
+        egyptNow.toISOString();
+
+    let updateData = {
+
+        status:
+            newStatus,
+
+        updated_at:
+            statusUpdatedAt
+    };
+
+    /*
+     * لو الحالة أصبحت "تم التسليم"
+     * نسجل وقت التسليم الحقيقي.
+     */
+
+    if (
+        newStatus === 'تم التسليم'
+    ) {
+
+        updateData.delivered_at =
+            statusUpdatedAt;
+    }
+
     const {
         error
     } =
         await supabaseClient
             .from('invoices')
-            .update({
-                status:
-                    newStatus
-            })
+            .update(
+                updateData
+            )
             .eq(
                 'id',
                 id
@@ -4077,7 +4074,8 @@ async function updateStatus(
     } else {
 
         alert(
-            'حدث خطأ!'
+            'حدث خطأ أثناء تحديث الحالة:\n' +
+            error.message
         );
     }
 }
