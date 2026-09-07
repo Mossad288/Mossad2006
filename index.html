@@ -3,3786 +3,452 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALESKAFY SHOES - النظام الذكي</title>
-
-    <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-
+    <title>ALESKAFY SHOES - نظام إدارة الورشة</title>
+    <!-- تضمين مكتبة Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- تضمين الخطوط والأيقونات -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @keyframes goldGlow {
-            0% {
-                border-color: #bf953f;
-                box-shadow: 0 0 15px rgba(191, 149, 63, 0.3);
-            }
-            50% {
-                border-color: #ffc107;
-                box-shadow: 0 0 25px rgba(255, 193, 7, 0.6);
-            }
-            100% {
-                border-color: #bf953f;
-                box-shadow: 0 0 15px rgba(191, 149, 63, 0.3);
-            }
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e67e22;
+            --accent: #27ae60;
+            --danger: #c0392b;
+            --light: #f8f9fa;
+            --dark: #2c3e50;
+            --border: #dcdde1;
         }
 
-        @keyframes shimmerText {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
         }
 
         body {
-            font-family: sans-serif;
-            background: #000;
-            margin: 0;
-            padding: 15px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            box-sizing: border-box;
+            background-color: #f1f2f6;
+            color: #333;
+            direction: rtl;
+            padding-bottom: 50px;
         }
 
-        #authScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background:
-                linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
-                url('https://iili.io/CpkSHbf.jpg') no-repeat center center;
-            background-size: cover;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .auth-card {
-            width: 100%;
-            max-width: 380px;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            padding: 30px 20px;
-            border-radius: 20px;
-            border: 2px solid #bf953f;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+        header {
+            background: linear-gradient(135deg, var(--primary), #1a252f);
+            color: white;
+            padding: 15px 20px;
             text-align: center;
-            animation: fadeIn 0.4s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .auth-title {
-            font-size: 24px;
-            font-weight: 900;
+        header h1 {
+            font-size: 1.5rem;
             margin-bottom: 5px;
-            background: linear-gradient(135deg,#bf953f,#fcf6ba,#b38728);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
         }
 
-        .auth-subtitle {
-            font-size: 13px;
-            color: #cbd5e1;
-            margin-bottom: 25px;
+        header p {
+            font-size: 0.85rem;
+            color: #bdc3c7;
         }
 
         .container {
-            width: 100%;
-            max-width: 450px;
-            background: #0c0c0c;
-            padding: 22px;
-            border-radius: 16px;
-            border: 2px solid #bf953f;
-            animation: goldGlow 4s infinite ease-in-out;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            position: relative;
-            display: none;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
         }
 
-        @media (min-width: 768px) {
-            .container {
-                max-width: 950px;
-                padding: 30px;
-            }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
         }
 
-        .header-logo-area {
+        .card h2 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--secondary);
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 5px;
         }
 
-        .sys-logo {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 2px solid #bf953f;
-            box-shadow: 0 0 10px rgba(191,149,63,0.4);
+        .form-group {
+            margin-bottom: 15px;
         }
 
-        h1 {
-            text-align: center;
-            margin: 0;
-            font-size: 26px;
-            font-weight: 900;
-            background: linear-gradient(135deg,#bf953f,#fcf6ba,#b38728);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-size: 200% auto;
-            animation: shimmerText 5s linear infinite;
-        }
-
-        .badge {
-            background: linear-gradient(135deg,#bf953f,#aa771c);
-            color: #000;
-            font-weight: bold;
-            padding: 10px 14px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin: 12px 0;
-            font-size: 14px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .fraction {
-            display: inline-flex;
-            flex-direction: column;
-            vertical-align: middle;
-            text-align: center;
-            font-weight: bold;
-            line-height: 1.1;
-        }
-
-        .fraction .numerator {
-            border-bottom: 2px solid currentColor;
-            padding-bottom: 1px;
-        }
-
-        .fraction .denominator {
-            padding-top: 1px;
-        }
-
-        label {
+        .form-group label {
             display: block;
-            margin-top: 12px;
-            font-size: 13px;
-            color: #d4af37;
+            margin-bottom: 5px;
             font-weight: 600;
+            font-size: 0.9rem;
+            color: #555;
         }
 
-        input,
-        select {
+        .form-control {
             width: 100%;
-            padding: 11px;
-            margin-top: 5px;
-            border: 1px solid #33270a;
+            padding: 12px;
+            border: 1px solid var(--border);
             border-radius: 8px;
-            background: #141414;
-            color: #fff;
-            box-sizing: border-box;
-            font-size: 14px;
-            text-align: center;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
         }
 
-        input:focus,
-        select:focus {
-            border-color: #f3e5ab;
-            outline: none;
+        .form-control:focus {
+            border-color: var(--secondary);
         }
 
         .row {
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        .row div {
+        .col {
             flex: 1;
-            min-width: 30%;
         }
 
         .btn {
-            width: 100%;
-            color: #fff;
-            padding: 12px;
+            background-color: var(--secondary);
+            color: white;
             border: none;
+            padding: 12px 20px;
             border-radius: 8px;
-            font-weight: bold;
+            font-size: 1rem;
+            font-weight: 700;
             cursor: pointer;
-            margin-top: 12px;
+            width: 100%;
+            transition: background 0.3s, transform 0.1s;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             gap: 8px;
-            text-decoration: none;
-            box-sizing: border-box;
-            font-size: 14px;
         }
 
-        .notice-box {
-            background: rgba(239,68,68,0.1);
-            border: 1px solid rgba(239,68,68,0.3);
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-success { background-color: var(--accent); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-dark { background-color: var(--primary); }
+
+        #auth-screen {
+            max-width: 400px;
+            margin: 80px auto;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .order-badge {
+            background: #e1b12c;
+            color: #2f3640;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 900;
+        }
+
+        .orders-list {
+            margin-top: 15px;
+        }
+
+        .order-item {
+            background: var(--light);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 12px;
-            margin-top: 20px;
-            text-align: center;
-            font-size: 13px;
-            color: #fca5a5;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
         }
 
-        .camera-btn {
-            background: linear-gradient(135deg,#7c3aed,#4c1d95);
+        .order-info h4 {
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 3px;
         }
 
-        .track-btn {
-            background: linear-gradient(135deg,#0891b2,#164e63);
+        .order-info p {
+            font-size: 0.85rem;
+            color: #666;
         }
 
-        #previewsContainer {
+        .order-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: white;
+            border: 1px solid var(--border);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--border);
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .image-preview-container {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
             margin-top: 10px;
-            max-height: 160px;
-            overflow-y: auto;
-            padding: 5px;
-            background: #141414;
-            border-radius: 8px;
-            border: 1px solid #33270a;
         }
 
         .preview-thumb {
-            width: 75px;
-            height: 75px;
-            object-fit: cover;
+            width: 70px;
+            height: 70px;
             border-radius: 6px;
-            border: 2px solid #bf953f;
-            flex-shrink: 0;
-        }
-
-        .result-box {
-            margin-top: 10px;
-            padding: 10px;
-            background: #141414;
-            border-radius: 8px;
-            border: 1px solid #33270a;
-            font-size: 13px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .status-badge {
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 11px;
-        }
-
-        .bg-pending {
-            background: #d97706;
-            color: white;
-        }
-
-        .bg-done {
-            background: #16a34a;
-            color: white;
-        }
-
-        .bg-delivered {
-            background: #0284c7;
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 6px 10px;
-            font-size: 11px;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 4px;
-        }
-
-        .loading-text {
-            color: #f3e5ab;
-            font-size: 13px;
-            text-align: center;
-            margin-top: 8px;
-            font-weight: bold;
-            display: none;
-        }
-
-        .footer-credits {
-            text-align: center;
-            margin-top: 22px;
-            padding-top: 14px;
-            border-top: 1px solid #221a05;
-            font-size: 12px;
-            color: #94a3b8;
-            font-weight: 500;
-        }
-
-        .footer-credits span {
-            background: linear-gradient(135deg,#bf953f,#fcf6ba);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 900;
-        }
-
-        .sub-screen {
-            display: none;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        .back-btn {
-            background: linear-gradient(135deg,#475569,#1e293b);
-            color: #f8fafc;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-
-        .admin-toolbar {
-            display: grid;
-            grid-template-columns: repeat(3,1fr);
-            gap: 8px;
-            margin: 15px 0;
-        }
-
-        .mini-icon-btn {
-            padding: 10px 5px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: bold;
-            color: #fff;
-            border: 1px solid #33270a;
-            cursor: pointer;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            transition: 0.2s;
-        }
-
-        .mini-icon-btn:hover {
-            transform: translateY(-2px);
-            border-color: #bf953f;
-        }
-
-        .worker-thumb {
-            width: 55px;
-            height: 55px;
             object-fit: cover;
-            border-radius: 6px;
-            border: 1.5px solid #bf953f;
-            transition: transform 0.2s;
+            border: 1px solid var(--border);
         }
 
-        .worker-thumb:hover {
-            transform: scale(1.1);
+        @media(max-width: 600px) {
+            .row {
+                flex-direction: column;
+                gap: 0;
+            }
         }
     </style>
 </head>
+<body>
 
-<body onload="initApp();">
+    <header>
+        <h1>ALESKAFY SHOES</h1>
+        <p>نظام إبادة المشاكل وإدارة ورشة الأحذية الذكي</p>
+    </header>
 
-<div id="authScreen" style="display:none;">
-    <div class="auth-card">
-
-        <div class="auth-title">
-            ALESKAFY SHOES
+    <!-- شاشة تسجيل الدخول -->
+    <div id="auth-screen" class="container">
+        <div class="card">
+            <h2><i class="fa-solid fa-lock"></i> تسجيل الدخول</h2>
+            <div class="form-group">
+                <label>كلمة المرور:</label>
+                <input type="password" id="auth-pass" class="form-control" placeholder="أدخل كلمة المرور...">
+            </div>
+            <button class="btn" onclick="checkAuth()"><i class="fa-solid fa-right-to-bracket"></i> دخول</button>
         </div>
-
-        <div class="auth-subtitle" id="authSubtitleText">
-            النظام الذكي لإدارة الصيانة
-        </div>
-
-        <input
-            type="password"
-            id="passwordInput"
-            placeholder="أدخل الباسورد هنا"
-            autocomplete="new-password"
-            style="text-align:center;font-size:16px;letter-spacing:2px;"
-            onkeydown="if(event.key === 'Enter') submitPassword()"
-        >
-
-        <button
-            type="button"
-            class="btn"
-            style="background:linear-gradient(135deg,#bf953f,#aa771c);color:#000;font-weight:900;margin-top:15px;"
-            onclick="submitPassword()"
-        >
-            دخول للنظام
-        </button>
-
-        <button
-            type="button"
-            class="btn"
-            style="background:transparent;color:#ef4444;border:1px solid #ef4444;font-size:12px;margin-top:10px;"
-            onclick="logoutApp()"
-        >
-            مسح الجلسة وتسجيل الخروج
-        </button>
-
-    </div>
-</div>
-
-<div class="container" id="mainContainer" style="display:none;">
-
-    <div style="text-align:center;">
-
-        <div class="header-logo-area">
-
-            <img
-                src="https://iili.io/CpkSHbf.jpg"
-                class="sys-logo"
-                alt="Logo"
-            >
-
-            <h1>
-                ALESKAFY SHOES
-            </h1>
-
-        </div>
-
-        <div class="badge" id="badge" style="display:none;">
-            رقم الأوردر: جاري التحميل...
-        </div>
-
     </div>
 
-    <div class="admin-toolbar" id="portalMenu" style="display:none;">
+    <!-- التطبيق الرئيسي -->
+    <div id="app-screen" class="container hidden">
+        
+        <div class="top-nav">
+            <span id="user-role-badge" class="order-badge">مدير النظام</span>
+            <button class="btn btn-danger" style="width: auto; padding: 6px 15px; font-size: 0.85rem;" onclick="logout()">
+                <i class="fa-solid fa-power-off"></i> خروج
+            </button>
+        </div>
 
-        <button
-            type="button"
-            class="mini-icon-btn track-btn"
-            onclick="openScreen('searchScreen')"
-        >
-            <span>البحث والتتبع</span>
-        </button>
-
-        <button
-            type="button"
-            class="mini-icon-btn"
-            style="background:linear-gradient(135deg,#059669,#047857);"
-            onclick="openScreen('deliveryScreen')"
-        >
-            <span>المسلمة</span>
-        </button>
-
-        <button
-            type="button"
-            class="mini-icon-btn"
-            style="background:linear-gradient(135deg,#bf953f,#aa771c);color:#000;"
-            onclick="openScreen('reportsScreen')"
-        >
-            <span>التقارير</span>
-        </button>
-
-    </div>
-
-    <div id="mainDashboardScreen">
-
-        <form id="invoiceForm" style="display:none;" autocomplete="off">
-
-            <label>اسم العميل:</label>
-
-            <input
-                type="text"
-                id="name"
-                placeholder="اسم العميل"
-                autocomplete="off"
-                value=""
-            >
-
-            <label>واتساب العميل:</label>
-
-            <input
-                type="text"
-                id="phone"
-                placeholder="01012345678"
-                autocomplete="off"
-                value=""
-            >
-
+        <!-- قسم إضافة أوردر جديد -->
+        <div class="card" id="new-order-card">
+            <h2>
+                <span><i class="fa-solid fa-plus-circle"></i> أوردر جديد</span>
+                <span id="daily-order-num" class="order-badge">أوردر رقم: --</span>
+            </h2>
+            
             <div class="row">
-
-                <div>
-
-                    <label>تاريخ الاستلام:</label>
-
-                    <input
-                        type="date"
-                        id="rDate"
-                        autocomplete="off"
-                        value=""
-                    >
-
+                <div class="form-group col">
+                    <label>اسم العميل:</label>
+                    <input type="text" id="cust-name" class="form-control" placeholder="اسم العميل الكريم">
                 </div>
-
-                <div>
-
-                    <label>تاريخ التسليم:</label>
-
-                    <input
-                        type="date"
-                        id="dDate"
-                        autocomplete="off"
-                        value=""
-                    >
-
+                <div class="form-group col">
+                    <label>رقم الموبايل:</label>
+                    <input type="tel" id="cust-phone" class="form-control" placeholder="010xxxxxxxx">
                 </div>
-
             </div>
 
             <div class="row">
-
-                <div>
-                    <label>كوتشيات:</label>
-
-                    <input
-                        type="number"
-                        id="snk"
-                        autocomplete="off"
-                        value=""
-                    >
+                <div class="form-group col">
+                    <label>نوع الحذاء / القطعة:</label>
+                    <input type="text" id="item-type" class="form-control" placeholder="مثال: كوتش، حذاء كلاسيك، شنطة...">
                 </div>
-
-                <div>
-                    <label>جزم:</label>
-
-                    <input
-                        type="number"
-                        id="shs"
-                        autocomplete="off"
-                        value=""
-                    >
+                <div class="form-group col">
+                    <label>نوع الإصلاح المطلوب:</label>
+                    <input type="text" id="repair-desc" class="form-control" placeholder="مثال: خياطة نعل، لزق، توسيع...">
                 </div>
-
-                <div>
-                    <label>شبشب:</label>
-
-                    <input
-                        type="number"
-                        id="slp"
-                        autocomplete="off"
-                        value=""
-                    >
-                </div>
-
             </div>
 
             <div class="row">
-
-                <div>
-                    <label>صندل:</label>
-
-                    <input
-                        type="number"
-                        id="snd"
-                        autocomplete="off"
-                        value=""
-                    >
+                <div class="form-group col">
+                    <label>الإجمالي (جيم):</label>
+                    <input type="number" id="total-price" class="form-control" placeholder="0" oninput="calcRemaining()">
                 </div>
-
-                <div>
-                    <label>فردة:</label>
-
-                    <input
-                        type="number"
-                        id="sng"
-                        autocomplete="off"
-                        value=""
-                    >
+                <div class="form-group col">
+                    <label>المدفوع (مقدم):</label>
+                    <input type="number" id="paid-price" class="form-control" placeholder="0" oninput="calcRemaining()">
                 </div>
-
-                <div>
-                    <label>شنط:</label>
-
-                    <input
-                        type="number"
-                        id="bags"
-                        autocomplete="off"
-                        value=""
-                    >
+                <div class="form-group col">
+                    <label>المتبقي:</label>
+                    <input type="number" id="remaining-price" class="form-control" readonly placeholder="0" style="background: #e9ecef;">
                 </div>
-
             </div>
 
-            <label>الخدمة المطلوبة:</label>
-
-            <input
-                type="text"
-                id="srv"
-                placeholder="غسيل، خياطة"
-                autocomplete="off"
-                value=""
-            >
-
-            <label>
-                مكان التخزين (الرف بالمحل):
-            </label>
-
-            <select id="shelfLocation">
-
-                <option value="الرف : أ">
-                    الرف : أ
-                </option>
-
-                <option value="الرف : ب">
-                    الرف : ب
-                </option>
-
-                <option value="الرف : ج">
-                    الرف : ج
-                </option>
-
-                <option value="الرف : د">
-                    الرف : د
-                </option>
-
-                <option value="الرف : هـ">
-                    الرف : هـ
-                </option>
-
-                <option value="الرف : و">
-                    الرف : و
-                </option>
-
-            </select>
-
-            <label>
-                تصوير القطع قبل الصيانة:
-            </label>
-
-            <input
-                type="file"
-                id="itemImages"
-                accept="image/*"
-                multiple
-                style="display:none;"
-                onchange="handleImagesSelection(event)"
-            >
-
-            <button
-                type="button"
-                class="btn camera-btn"
-                onclick="document.getElementById('itemImages').click();"
-            >
-                تصوير / اختيار عدة صور
-            </button>
-
-            <div id="previewsContainer"></div>
-
-            <div
-                id="uploadStatus"
-                class="loading-text"
-            >
-                جاري رفع الصور، انتظر لحظة...
+            <div class="form-group">
+                <label>مكان التخزين (الرف / الدولاب):</label>
+                <input type="text" id="storage-loc" class="form-control" placeholder="مثال: رف أ - القسم الأيمن">
             </div>
 
-            <div class="row">
-
-                <div>
-
-                    <label>
-                        الحساب الكلي:
-                    </label>
-
-                    <input
-                        type="number"
-                        id="tot"
-                        oninput="calc()"
-                        autocomplete="off"
-                        value=""
-                    >
-
-                </div>
-
-                <div>
-
-                    <label>
-                        المدفوع مقدمًا:
-                    </label>
-
-                    <input
-                        type="number"
-                        id="paid"
-                        oninput="calc()"
-                        autocomplete="off"
-                        value=""
-                    >
-
-                </div>
-
+            <div class="form-group">
+                <label>صور القطعة (قبل الإصلاح):</label>
+                <input type="file" id="item-images" class="form-control" accept="image/*" multiple onchange="previewImages()">
+                <div id="images-preview" class="image-preview-container"></div>
             </div>
 
-            <label>
-                المبلغ المتبقي:
-            </label>
-
-            <input
-                type="number"
-                id="rem"
-                readonly
-                autocomplete="off"
-                value=""
-                style="color:#ef4444;font-weight:bold;background:#0c0c0c;"
-            >
-
-            <button
-                type="button"
-                class="btn"
-                style="background:linear-gradient(135deg,#16a34a,#15803d);margin-top:15px;"
-                onclick="sendTo('client')"
-            >
-                1. إرسال للعميل
-            </button>
-
-            <button
-                type="button"
-                class="btn"
-                style="background:linear-gradient(135deg,#2563eb,#1d4ed8);"
-                onclick="sendTo('owner')"
-            >
-                2. إرسال للمحل
-            </button>
-
-        </form>
-
-        <a
-            href="https://www.facebook.com/61560847583033"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn"
-            id="socialBtn"
-            style="background:linear-gradient(135deg,#1877f2,#0c4a6e);display:none;"
-        >
-            السوشيال ميديا للمحل
-        </a>
-
-    </div>
-
-    <div
-        id="workerQuerySection"
-        style="display:none;margin-top:10px;"
-    >
-
-        <h3 style="color:#bf953f;text-align:center;margin-top:5px;">
-            استعلام الصنايعي عن الأوردر
-        </h3>
-
-        <label style="text-align:center;margin-bottom:8px;">
-            ابحث برقم الأوردر (بسط ومقام) أو بالتاريخ:
-        </label>
-
-        <div
-            style="background:#141414;padding:15px;border:1px solid #33270a;border-radius:12px;margin-bottom:10px;text-align:center;"
-        >
-
-            <div
-                style="display:inline-flex;flex-direction:column;width:110px;vertical-align:middle;margin-bottom:10px;"
-            >
-
-                <input
-                    type="number"
-                    id="searchNumerator"
-                    placeholder="رقم"
-                    autocomplete="off"
-                    value=""
-                    style="text-align:center;padding:8px;border-bottom:none;font-weight:bold;color:#f3e5ab;font-size:16px;"
-                >
-
-                <div
-                    style="background:#bf953f;height:3px;width:100%;"
-                ></div>
-
-                <input
-                    type="number"
-                    id="searchDenominator"
-                    placeholder="اليوم"
-                    autocomplete="off"
-                    value=""
-                    style="text-align:center;padding:8px;border-top:none;font-weight:bold;color:#38bdf8;font-size:16px;"
-                >
-
-            </div>
-
-            <div style="margin-top:10px;text-align:right;">
-
-                <label style="font-size:12px;color:#38bdf8;margin-bottom:3px;">
-                    اختر التاريخ:
-                </label>
-
-                <input
-                    type="date"
-                    id="searchDate"
-                    autocomplete="off"
-                    value=""
-                    style="text-align:center;font-size:13px;padding:8px;"
-                >
-
-            </div>
-
-            <button
-                type="button"
-                class="btn track-btn"
-                style="width:100%;margin-top:12px;"
-                onclick="searchByFractionNumber()"
-            >
-                بحث الصنايعي
-            </button>
-
+            <button class="btn btn-success" onclick="saveOrder()"><i class="fa-solid fa-floppy-disk"></i> حفظ وطباعة الإيصال / واتساب</button>
         </div>
 
-        <div
-            id="workerSearchResults"
-            class="result-box"
-            style="display:none;"
-        ></div>
-
-    </div>
-
-    <div id="searchScreen" class="sub-screen">
-
-        <button
-            type="button"
-            class="btn back-btn"
-            onclick="closeScreen()"
-        >
-            رجوع لوحة التحكم الرئيسية
-        </button>
-
-        <h3 style="color:#bf953f;text-align:center;margin-top:0;">
-            البحث والتتبع الشامل
-        </h3>
-
-        <label style="text-align:center;margin-bottom:8px;">
-            البحث برقم الأوردر أو التاريخ:
-        </label>
-
-        <div
-            style="background:#141414;padding:15px;border:1px solid #33270a;border-radius:12px;margin-bottom:10px;text-align:center;"
-        >
-
-            <div
-                style="display:inline-flex;flex-direction:column;width:110px;vertical-align:middle;margin-bottom:10px;"
-            >
-
-                <input
-                    type="number"
-                    id="adminSearchNumerator"
-                    placeholder="رقم"
-                    autocomplete="off"
-                    value=""
-                    style="text-align:center;padding:8px;border-bottom:none;font-weight:bold;color:#f3e5ab;font-size:16px;"
-                >
-
-                <div
-                    style="background:#bf953f;height:3px;width:100%;"
-                ></div>
-
-                <input
-                    type="number"
-                    id="adminSearchDenominator"
-                    placeholder="اليوم"
-                    autocomplete="off"
-                    value=""
-                    style="text-align:center;padding:8px;border-top:none;font-weight:bold;color:#38bdf8;font-size:16px;"
-                >
-
+        <!-- قسم البحث وعرض الأوردرات -->
+        <div class="card">
+            <h2><span><i class="fa-solid fa-list-check"></i> الفواتير الحالية</span></h2>
+            
+            <div class="form-group">
+                <input type="text" id="search-box" class="form-control" placeholder="بحث برقم الفاتورة، اسم العميل، أو الموبايل..." oninput="filterOrders()">
             </div>
 
-            <div style="margin-top:10px;text-align:right;">
-
-                <label style="font-size:12px;color:#38bdf8;margin-bottom:3px;">
-                    اختر التاريخ:
-                </label>
-
-                <input
-                    type="date"
-                    id="adminSearchDate"
-                    autocomplete="off"
-                    value=""
-                    style="text-align:center;font-size:13px;padding:8px;"
-                >
-
+            <div id="orders-container" class="orders-list">
+                <!-- يتم حقن الفواتير هنا برمجياً -->
             </div>
-
-            <button
-                type="button"
-                class="btn track-btn"
-                style="width:100%;margin-top:12px;"
-                onclick="adminSearchByFractionNumber()"
-            >
-                بحث برقم الأوردر أو التاريخ
-            </button>
-
         </div>
 
-        <div>
-
-            <label>
-                أو البحث باسم العميل أو رقم الموبايل:
-            </label>
-
-            <div style="display:flex;gap:5px;">
-
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="الاسم أو الرقم..."
-                    autocomplete="off"
-                    value=""
-                    style="margin-top:0;text-align:right;"
-                >
-
-                <button
-                    type="button"
-                    class="btn track-btn"
-                    style="width:auto;margin-top:0;padding:0 15px;"
-                    onclick="searchInvoices()"
-                >
-                    بحث بالاسم
-                </button>
-
-            </div>
-
-        </div>
-
-        <div
-            id="searchResults"
-            class="result-box"
-            style="display:none;"
-        ></div>
-
     </div>
 
-    <div id="deliveryScreen" class="sub-screen">
+    <script>
+        // إعدادات Supabase الخاصة بك
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        <button
-            type="button"
-            class="btn back-btn"
-            onclick="closeScreen()"
-        >
-            رجوع لوحة التحكم الرئيسية
-        </button>
+        let currentRole = '';
+        let uploadedFiles = [];
 
-        <h3 style="color:#38bdf8;text-align:center;margin-top:0;">
-            الأوردرات المسلمة للعملاء
-        </h3>
+        function checkAuth() {
+            const pass = document.getElementById('auth-pass').value.trim();
+            if (pass === '1234') {
+                currentRole = 'admin';
+                initApp();
+            } else if (pass === '5678') {
+                currentRole = 'worker';
+                initApp();
+            } else {
+                alert('كلمة المرور غير صحيحة!');
+            }
+        }
 
-        <div class="row" style="margin-bottom:10px;">
+        function initApp() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            
+            if (currentRole === 'worker') {
+                document.getElementById('new-order-card').classList.add('hidden');
+                document.getElementById('user-role-badge').innerText = 'صنايعي (عرض وفحص)';
+            } else {
+                document.getElementById('user-role-badge').innerText = 'مدير النظام (إدارة كاملة)';
+                generateOrderNumber();
+            }
+            loadOrders();
+        }
 
-            <div>
+        function logout() {
+            location.reload();
+        }
 
-                <button
-                    type="button"
-                    class="btn"
-                    style="background:linear-gradient(135deg,#059669,#047857);margin-top:0;"
-                    onclick="loadDeliveredInvoices('today')"
-                >
-                    مسلمات اليوم فقط
-                </button>
+        function calcRemaining() {
+            const total = parseFloat(document.getElementById('total-price').value) || 0;
+            const paid = parseFloat(document.getElementById('paid-price').value) || 0;
+            document.getElementById('remaining-price').value = total - paid;
+        }
 
-            </div>
+        function generateOrderNumber() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '');
+            document.getElementById('daily-order-num').innerText = `أوردر رقم: 1 / ${dateStr}`;
+        }
 
-            <div>
+        function previewImages() {
+            const previewContainer = document.getElementById('images-preview');
+            previewContainer.innerHTML = '';
+            const files = document.getElementById('item-images').files;
+            uploadedFiles = files;
 
-                <button
-                    type="button"
-                    class="btn"
-                    style="background:linear-gradient(135deg,#0284c7,#0369a1);margin-top:0;"
-                    onclick="loadDeliveredInvoices('all')"
-                >
-                    كل الأوردرات المسلمة
-                </button>
-
-            </div>
-
-        </div>
-
-        <div
-            id="deliveryResults"
-            class="result-box"
-            style="display:none;"
-        ></div>
-
-    </div>
-
-    <div id="reportsScreen" class="sub-screen">
-
-        <button
-            type="button"
-            class="btn back-btn"
-            onclick="closeScreen()"
-        >
-            رجوع لوحة التحكم الرئيسية
-        </button>
-
-        <h3 style="color:#f3e5ab;text-align:center;margin-top:0;">
-            تقارير المحل الإدارية
-        </h3>
-
-        <button
-            type="button"
-            class="btn"
-            style="background:linear-gradient(135deg,#bf953f,#aa771c);color:#000;"
-            onclick="rep('daily')"
-        >
-            تحميل التقرير اليومي
-        </button>
-
-        <button
-            type="button"
-            class="btn"
-            style="background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;"
-            onclick="rep('monthly')"
-        >
-            تحميل التقرير الشهري
-        </button>
-
-        <button
-            type="button"
-            class="btn"
-            style="background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;"
-            onclick="rep('yearly')"
-        >
-            تحميل التقرير السنوي
-        </button>
-
-        <div
-            id="reportPreviewBox"
-            class="result-box"
-            style="display:none;"
-        ></div>
-
-    </div>
-
-    <div class="notice-box">
-        تنبيه: المحل غير مسؤول عن أي شيء بعد 15 يوم من ميعاد الاستلام.
-    </div>
-
-    <div class="footer-credits">
-        جميع الحقوق محفوظة لي
-        <span>
-            المهندس مسعد سالم _ الاسكافي شوز
-        </span>
-    </div>
-
-</div>
-
-<script>
-
-const SUPABASE_URL =
-    'https://ekozcfasqvuuikdjwmtj.supabase.co';
-
-const SUPABASE_KEY =
-    'sb_publishable_qfv5sexqStJWEOJY0RxGkA_6iOiVVjf';
-
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
-
-var OWNER_PHONE = "201090274601";
-
-const FACEBOOK_PAGE =
-    "https://www.facebook.com/61560847583033";
-
-var uploadedImageUrls = [];
-var selectedFilesList = [];
-
-var currentDailyNum = 1;
-var currentDayNum = 1;
-
-var formattedOrderCode = "";
-var isCurrentInvoiceSaved = false;
-
-var trustedEgyptTimeMs = null;
-var trustedPerformanceMs = null;
-var midnightTimer = null;
-var timeSyncTimer = null;
-
-async function getAccurateEgyptNow() {
-
-    const endpoints = [
-        'https://worldtimeapi.org/api/timezone/Africa/Cairo?cb=' + Math.random(),
-        'https://timeapi.io/api/Time/current/zone?timeZone=Africa/Cairo&cb=' + Math.random()
-    ];
-
-    for (let i = 0; i < endpoints.length; i++) {
-
-        try {
-
-            const response =
-                await fetch(
-                    endpoints[i],
-                    {
-                        cache: 'no-store'
-                    }
-                );
-
-            if (response.ok) {
-
-                const data =
-                    await response.json();
-
-                const dateText =
-                    data.datetime ||
-                    data.dateTime ||
-                    data.currentLocalTime;
-
-                if (dateText) {
-
-                    const serverMs =
-                        new Date(
-                            dateText
-                        ).getTime();
-
-                    if (!isNaN(serverMs)) {
-
-                        trustedEgyptTimeMs =
-                            serverMs;
-
-                        trustedPerformanceMs =
-                            performance.now();
-
-                        return new Date(
-                            serverMs
-                        );
-                    }
+            for (let i = 0; i < files.length; i++) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-thumb';
+                    previewContainer.appendChild(img);
                 }
+                reader.readAsDataURL(files[i]);
             }
-
-        } catch (e) {}
-    }
-
-    if (
-        trustedEgyptTimeMs !== null &&
-        trustedPerformanceMs !== null
-    ) {
-
-        return new Date(
-            trustedEgyptTimeMs +
-            (
-                performance.now() -
-                trustedPerformanceMs
-            )
-        );
-    }
-
-    return new Date();
-}
-
-function scheduleMidnightRefresh(nowEgypt) {
-
-    if (midnightTimer) {
-        clearTimeout(midnightTimer);
-    }
-
-    const currentDateStr =
-        getEgyptDateString(
-            nowEgypt
-        );
-
-    const nextDate =
-        new Date(
-            currentDateStr +
-            'T12:00:00Z'
-        );
-
-    nextDate.setUTCDate(
-        nextDate.getUTCDate() + 1
-    );
-
-    const nextDateStr =
-        nextDate.toISOString().slice(
-            0,
-            10
-        );
-
-    const nextMidnightISO =
-        getEgyptStartOfDayISO(
-            nextDateStr
-        );
-
-    const delay =
-        Math.max(
-            1000,
-            new Date(
-                nextMidnightISO
-            ).getTime() -
-            nowEgypt.getTime()
-        );
-
-    midnightTimer =
-        setTimeout(
-            async function() {
-
-                const freshNow =
-                    await getAccurateEgyptNow();
-
-                currentDayNum =
-                    getEgyptDay(
-                        freshNow
-                    );
-
-                await fetchNextInvoiceNum();
-
-                scheduleMidnightRefresh(
-                    freshNow
-                );
-
-            },
-            delay
-        );
-}
-
-function startTimeSynchronization() {
-
-    if (timeSyncTimer) {
-        clearInterval(timeSyncTimer);
-    }
-
-    timeSyncTimer =
-        setInterval(
-            async function() {
-
-                const nowEgypt =
-                    await getAccurateEgyptNow();
-
-                currentDayNum =
-                    getEgyptDay(
-                        nowEgypt
-                    );
-
-                scheduleMidnightRefresh(
-                    nowEgypt
-                );
-
-            },
-            5 * 60 * 1000
-        );
-}
-
-function getEgyptParts(
-    dateValue = new Date()
-) {
-
-    const parts =
-        new Intl.DateTimeFormat(
-            'en-US',
-            {
-                timeZone: 'Africa/Cairo',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hourCycle: 'h23'
-            }
-        ).formatToParts(
-            new Date(dateValue)
-        );
-
-    const result = {};
-
-    parts.forEach(
-        function(part) {
-
-            if (
-                part.type !== 'literal'
-            ) {
-
-                result[part.type] =
-                    part.value;
-            }
-
-        }
-    );
-
-    return result;
-}
-
-function getEgyptDateString(
-    dateValue = new Date()
-) {
-
-    const p =
-        getEgyptParts(
-            dateValue
-        );
-
-    return (
-        p.year +
-        '-' +
-        p.month +
-        '-' +
-        p.day
-    );
-}
-
-function getEgyptDay(
-    dateValue = new Date()
-) {
-
-    return Number(
-        getEgyptParts(
-            dateValue
-        ).day
-    );
-}
-
-function getEgyptYear(
-    dateValue = new Date()
-) {
-
-    return Number(
-        getEgyptParts(
-            dateValue
-        ).year
-    );
-}
-
-function getEgyptMonth(
-    dateValue = new Date()
-) {
-
-    return (
-        Number(
-            getEgyptParts(
-                dateValue
-            ).month
-        ) - 1
-    );
-}
-
-function getEgyptOffset(
-    dateValue = new Date()
-) {
-
-    const parts =
-        new Intl.DateTimeFormat(
-            'en-US',
-            {
-                timeZone: 'Africa/Cairo',
-                timeZoneName: 'longOffset'
-            }
-        ).formatToParts(
-            new Date(dateValue)
-        );
-
-    const zone =
-        parts.find(
-            p =>
-                p.type ===
-                'timeZoneName'
-        );
-
-    if (
-        !zone ||
-        !zone.value
-    ) {
-
-        return '+03:00';
-    }
-
-    const match =
-        zone.value.match(
-            /GMT([+-])(\d{1,2})(?::(\d{2}))?/
-        );
-
-    if (!match) {
-        return '+03:00';
-    }
-
-    const sign =
-        match[1];
-
-    const hour =
-        String(
-            match[2]
-        ).padStart(
-            2,
-            '0'
-        );
-
-    const minute =
-        match[3] ||
-        '00';
-
-    return (
-        sign +
-        hour +
-        ':' +
-        minute
-    );
-}
-
-function getEgyptStartOfDayISO(
-    dateInput = null
-) {
-
-    let dateString =
-        dateInput
-            ? dateInput
-            : getEgyptDateString(
-                new Date()
-            );
-
-    const testDate =
-        new Date(
-            dateString +
-            "T12:00:00Z"
-        );
-
-    const offset =
-        getEgyptOffset(
-            testDate
-        );
-
-    return new Date(
-        dateString +
-        "T00:00:00" +
-        offset
-    ).toISOString();
-}
-
-function getEgyptEndOfDayISO(
-    dateInput = null
-) {
-
-    let dateString =
-        dateInput
-            ? dateInput
-            : getEgyptDateString(
-                new Date()
-            );
-
-    const testDate =
-        new Date(
-            dateString +
-            "T12:00:00Z"
-        );
-
-    const offset =
-        getEgyptOffset(
-            testDate
-        );
-
-    return new Date(
-        dateString +
-        "T23:59:59.999" +
-        offset
-    ).toISOString();
-}
-
-function getDateRangeISO(
-    dateInput
-) {
-
-    return {
-        start:
-            getEgyptStartOfDayISO(
-                dateInput
-            ),
-
-        end:
-            getEgyptEndOfDayISO(
-                dateInput
-            )
-    };
-}
-
-async function initApp() {
-
-    const nowEgypt =
-        await getAccurateEgyptNow();
-
-    currentDayNum =
-        getEgyptDay(
-            nowEgypt
-        );
-
-    scheduleMidnightRefresh(
-        nowEgypt
-    );
-
-    startTimeSynchronization();
-
-    const urlParams =
-        new URLSearchParams(
-            window.location.search
-        );
-
-    const isAdminLink =
-        urlParams.get('admin') ===
-        'masad2026';
-
-    if (isAdminLink) {
-
-        document.getElementById(
-            'authSubtitleText'
-        ).innerText =
-            "تسجيل دخول الإدارة (المحل)";
-
-        if (
-            sessionStorage.getItem(
-                'aleskafy_admin_logged'
-            ) === 'true'
-        ) {
-
-            grantAccess('admin');
-
-            return;
         }
 
-    } else {
-
-        document.getElementById(
-            'authSubtitleText'
-        ).innerText =
-            "تسجيل دخول الصنايعي";
-
-        if (
-            sessionStorage.getItem(
-                'aleskafy_worker_logged'
-            ) === 'true'
-        ) {
-
-            grantAccess('worker');
-
-            return;
-        }
-    }
-
-    document.getElementById(
-        'authScreen'
-    ).style.display =
-        'flex';
-
-    document.getElementById(
-        'mainContainer'
-    ).style.display =
-        'none';
-}
-
-function submitPassword() {
-
-    let pass =
-        document
-            .getElementById(
-                'passwordInput'
-            )
-            .value
-            .trim();
-
-    const urlParams =
-        new URLSearchParams(
-            window.location.search
-        );
-
-    const isAdminLink =
-        urlParams.get('admin') ===
-        'masad2026';
-
-    if (isAdminLink) {
-
-        if (pass === "2020") {
-
-            sessionStorage.setItem(
-                'aleskafy_admin_logged',
-                'true'
-            );
-
-            grantAccess('admin');
-
-        } else {
-
-            alert(
-                "كلمة مرور الإدارة غير صحيحة!"
-            );
-
-            document.getElementById(
-                'passwordInput'
-            ).value =
-                "";
+        function saveOrder() {
+            alert('جاهز لحفظ الفاتورة في جدول invoices في Supabase!');
         }
 
-    } else {
-
-        if (pass === "3030") {
-
-            sessionStorage.setItem(
-                'aleskafy_worker_logged',
-                'true'
-            );
-
-            grantAccess('worker');
-
-        } else {
-
-            alert(
-                "كلمة مرور الصنايعي غير صحيحة!"
-            );
-
-            document.getElementById(
-                'passwordInput'
-            ).value =
-                "";
-        }
-    }
-}
-
-function logoutApp() {
-
-    sessionStorage.removeItem(
-        'aleskafy_admin_logged'
-    );
-
-    sessionStorage.removeItem(
-        'aleskafy_worker_logged'
-    );
-
-    location.reload();
-}
-
-function grantAccess(role) {
-
-    document.getElementById(
-        'authScreen'
-    ).style.display =
-        'none';
-
-    document.getElementById(
-        'mainContainer'
-    ).style.display =
-        'block';
-
-    if (role === 'admin') {
-
-        document.getElementById(
-            'invoiceForm'
-        ).style.display =
-            'block';
-
-        document.getElementById(
-            'badge'
-        ).style.display =
-            'flex';
-
-        document.getElementById(
-            'socialBtn'
-        ).style.display =
-            'flex';
-
-        document.getElementById(
-            'portalMenu'
-        ).style.display =
-            'grid';
-
-        document.getElementById(
-            'workerQuerySection'
-        ).style.display =
-            'none';
-
-        resetFormInputs();
-
-        fetchNextInvoiceNum();
-
-    } else {
-
-        document.getElementById(
-            'invoiceForm'
-        ).style.display =
-            'none';
-
-        document.getElementById(
-            'badge'
-        ).style.display =
-            'none';
-
-        document.getElementById(
-            'socialBtn'
-        ).style.display =
-            'none';
-
-        document.getElementById(
-            'portalMenu'
-        ).style.display =
-            'none';
-
-        document.getElementById(
-            'workerQuerySection'
-        ).style.display =
-            'block';
-    }
-}
-
-function resetFormInputs() {
-
-    document.getElementById('name').value = '';
-    document.getElementById('phone').value = '';
-    document.getElementById('rDate').value = '';
-    document.getElementById('dDate').value = '';
-    document.getElementById('snk').value = '';
-    document.getElementById('shs').value = '';
-    document.getElementById('slp').value = '';
-    document.getElementById('snd').value = '';
-    document.getElementById('sng').value = '';
-    document.getElementById('bags').value = '';
-    document.getElementById('srv').value = '';
-    document.getElementById('shelfLocation').selectedIndex = 0;
-    document.getElementById('itemImages').value = '';
-    document.getElementById('previewsContainer').innerHTML = '';
-    document.getElementById('tot').value = '';
-    document.getElementById('paid').value = '';
-    document.getElementById('rem').value = '';
-
-    uploadedImageUrls = [];
-    selectedFilesList = [];
-    isCurrentInvoiceSaved = false;
-}
-
-function openScreen(screenId) {
-
-    document.getElementById('mainDashboardScreen').style.display = 'none';
-    document.getElementById('portalMenu').style.display = 'none';
-    document.getElementById('searchScreen').style.display = 'none';
-    document.getElementById('deliveryScreen').style.display = 'none';
-    document.getElementById('reportsScreen').style.display = 'none';
-
-    document.getElementById(screenId).style.display = 'block';
-
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-}
-
-function closeScreen() {
-
-    document.getElementById('searchScreen').style.display = 'none';
-    document.getElementById('deliveryScreen').style.display = 'none';
-    document.getElementById('reportsScreen').style.display = 'none';
-
-    document.getElementById('mainDashboardScreen').style.display = 'block';
-
-    const urlParams =
-        new URLSearchParams(
-            window.location.search
-        );
-
-    if (
-        urlParams.get('admin') === 'masad2026' ||
-        sessionStorage.getItem('aleskafy_admin_logged') === 'true'
-    ) {
-
-        document.getElementById(
-            'portalMenu'
-        ).style.display =
-            'grid';
-    }
-
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-}
-
-function calc() {
-
-    var t =
-        parseFloat(
-            document.getElementById('tot').value
-        ) || 0;
-
-    var p =
-        parseFloat(
-            document.getElementById('paid').value
-        ) || 0;
-
-    document.getElementById('rem').value =
-        (
-            document.getElementById('tot').value === '' &&
-            document.getElementById('paid').value === ''
-        )
-            ? ''
-            : t - p;
-}
-
-async function fetchNextInvoiceNum() {
-
-    try {
-
-        const nowEgypt =
-            await getAccurateEgyptNow();
-
-        const todayStr =
-            getEgyptDateString(
-                nowEgypt
-            );
-
-        currentDayNum =
-            getEgyptDay(
-                nowEgypt
-            );
-
-        const range =
-            getDateRangeISO(
-                todayStr
-            );
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .from('invoices')
-                .select('daily_number')
-                .gte('created_at', range.start)
-                .lte('created_at', range.end);
-
-        if (
-            !error &&
-            data &&
-            data.length > 0
-        ) {
-
-            const numbers =
-                data
-                    .map(
-                        inv =>
-                            parseInt(
-                                inv.daily_number
-                            )
-                    )
-                    .filter(
-                        n =>
-                            !isNaN(n)
-                    );
-
-            currentDailyNum =
-                numbers.length > 0
-                    ? Math.max(...numbers) + 1
-                    : 1;
-
-        } else {
-
-            currentDailyNum =
-                1;
+        function loadOrders() {
+            const container = document.getElementById('orders-container');
+            container.innerHTML = `<p style="text-align:center; color:#888;">جاري تحميل الفواتير...</p>`;
         }
 
-    } catch (e) {
-
-        currentDailyNum =
-            1;
-    }
-
-    formattedOrderCode =
-        currentDailyNum +
-        '/' +
-        currentDayNum;
-
-    const badgeEl =
-        document.getElementById('badge');
-
-    if (badgeEl) {
-
-        badgeEl.innerHTML =
-            '<span>رقم أوردر اليوم:</span>' +
-            '<span class="fraction" style="font-size:16px;">' +
-                '<span class="numerator">' +
-                    currentDailyNum +
-                '</span>' +
-                '<span class="denominator">' +
-                    currentDayNum +
-                '</span>' +
-            '</span>';
-    }
-}
-
-/* =========================================================
-   اختيار الصور
-   ========================================================= */
-
-function handleImagesSelection(event) {
-
-    const files =
-        event.target.files;
-
-    if (
-        files &&
-        files.length > 0
-    ) {
-
-        const previewContainer =
-            document.getElementById(
-                'previewsContainer'
-            );
-
-        previewContainer.innerHTML =
-            '';
-
-        selectedFilesList = [];
-
-        for (
-            let i = 0;
-            i < files.length;
-            i++
-        ) {
-
-            selectedFilesList.push(
-                files[i]
-            );
-        }
-
-        uploadedImageUrls = [];
-
-        selectedFilesList.forEach(
-            function(file) {
-
-                const img =
-                    document.createElement(
-                        'img'
-                    );
-
-                img.className =
-                    'preview-thumb';
-
-                img.src =
-                    URL.createObjectURL(
-                        file
-                    );
-
-                previewContainer.appendChild(
-                    img
-                );
-            }
-        );
-    }
-}
-
-/* =========================================================
-   رفع الصور
-   ========================================================= */
-
-async function uploadAllImages() {
-
-    if (
-        selectedFilesList.length === 0
-    ) {
-        return [];
-    }
-
-    const statusEl =
-        document.getElementById(
-            'uploadStatus'
-        );
-
-    statusEl.innerText =
-        'جاري رفع الصور، انتظر لحظة...';
-
-    statusEl.style.display =
-        'block';
-
-    let urls = [];
-
-    try {
-
-        for (
-            let i = 0;
-            i < selectedFilesList.length;
-            i++
-        ) {
-
-            const file =
-                selectedFilesList[i];
-
-            const fileName =
-                'inv_' +
-                Date.now() +
-                '_' +
-                i +
-                '_' +
-                Math.random()
-                    .toString(36)
-                    .substring(2,7) +
-                '.jpg';
-
-            const {
-                data,
-                error: uploadError
-            } =
-                await supabaseClient.storage
-                    .from('images')
-                    .upload(
-                        fileName,
-                        file,
-                        {
-                            cacheControl: '3600',
-                            upsert: true
-                        }
-                    );
-
-            if (uploadError) {
-
-                throw new Error(
-                    uploadError.message
-                );
-            }
-
-            const {
-                data: publicUrlData
-            } =
-                supabaseClient.storage
-                    .from('images')
-                    .getPublicUrl(
-                        fileName
-                    );
-
-            urls.push(
-                publicUrlData.publicUrl
-            );
-        }
-
-        uploadedImageUrls =
-            urls;
-
-        statusEl.style.display =
-            'none';
-
-        return uploadedImageUrls;
-
-    } catch (err) {
-
-        statusEl.style.display =
-            'none';
-
-        alert(
-            "خطأ أثناء رفع الصور:\n" +
-            err.message
-        );
-
-        return [];
-    }
-}
-
-function getItemsSummary() {
-
-    let items = [];
-
-    const sk = document.getElementById('snk').value;
-    const ss = document.getElementById('shs').value;
-    const sl = document.getElementById('slp').value;
-    const sn = document.getElementById('snd').value;
-    const sg = document.getElementById('sng').value;
-    const bg = document.getElementById('bags').value;
-
-    if (parseInt(sk) > 0) {
-        items.push('كوتشيات: ' + sk);
-    }
-
-    if (parseInt(ss) > 0) {
-        items.push('جزم: ' + ss);
-    }
-
-    if (parseInt(sl) > 0) {
-        items.push('شبشب: ' + sl);
-    }
-
-    if (parseInt(sn) > 0) {
-        items.push('صندل: ' + sn);
-    }
-
-    if (parseInt(sg) > 0) {
-        items.push('فردة: ' + sg);
-    }
-
-    if (parseInt(bg) > 0) {
-        items.push('شنط: ' + bg);
-    }
-
-    return (
-        items.join(' | ') ||
-        'أصناف متعددة'
-    );
-}
-
-async function sendTo(m) {
-
-    var n =
-        document.getElementById('name').value.trim();
-
-    var t =
-        document.getElementById('tot').value.trim();
-
-    var ph =
-        document.getElementById('phone').value.trim();
-
-    var shelf =
-        document.getElementById('shelfLocation').value;
-
-    if (
-        !n ||
-        !t ||
-        (
-            m === 'client' &&
-            !ph
-        )
-    ) {
-
-        alert(
-            "يرجى ملء كافة البيانات المطلوبة!"
-        );
-
-        return;
-    }
-
-    var r =
-        document.getElementById('rDate').value ||
-        'غير محدد';
-
-    var d =
-        document.getElementById('dDate').value ||
-        'غير محدد';
-
-    var sk = document.getElementById('snk').value || '0';
-    var ss = document.getElementById('shs').value || '0';
-    var sl = document.getElementById('slp').value || '0';
-    var sn = document.getElementById('snd').value || '0';
-    var sg = document.getElementById('sng').value || '0';
-    var bg = document.getElementById('bags').value || '0';
-    var sv = document.getElementById('srv').value || '';
-    var p = document.getElementById('paid').value || '0';
-    var rm = document.getElementById('rem').value || '0';
-
-    if (!isCurrentInvoiceSaved) {
-
-        var imgUrls =
-            await uploadAllImages();
-
-        var imagesForDatabase =
-            imgUrls.join('\n');
-
-        const {
-            error
-        } =
-            await supabaseClient
-                .from('invoices')
-                .insert([
-                    {
-                        customer_name: n,
-                        phone: ph,
-                        item_type: getItemsSummary(),
-                        details: sv + ' | ' + shelf,
-                        price: parseFloat(t) || 0,
-                        paid: parseFloat(p) || 0,
-                        image_url: imagesForDatabase,
-                        status: 'تحت الصيانة',
-                        daily_number: currentDailyNum
-                    }
-                ]);
-
-        if (error) {
-
-            alert(
-                "خطأ في حفظ الفاتورة: " +
-                error.message
-            );
-
-            return;
-        }
-
-        isCurrentInvoiceSaved =
-            true;
-    }
-
-    var baseTxt =
-        'اسم العميل: ' +
-        n +
-        '\n' +
-
-        'تاريخ الاستلام: ' +
-        r +
-        '\n' +
-
-        'تاريخ التسليم: ' +
-        d +
-        '\n' +
-
-        'مكان التخزين: ' +
-        shelf +
-        '\n\n' +
-
-        'كوتشيات: ' +
-        sk +
-        ' | جزم: ' +
-        ss +
-        ' | شبشب: ' +
-        sl +
-        '\n' +
-
-        'صندل: ' +
-        sn +
-        ' | فردة: ' +
-        sg +
-        ' | شنط: ' +
-        bg +
-        '\n' +
-
-        'الخدمة: ' +
-        sv +
-        '\n\n' +
-
-        'الحساب الكلي: ' +
-        t +
-        ' جنيه\n' +
-
-        'المدفوع مقدمًا: ' +
-        p +
-        ' جنيه\n' +
-
-        'المبلغ المتبقي: ' +
-        rm +
-        ' جنيه';
-
-    if (m === 'client') {
-
-        var cleanPh =
-            ph.replace(
-                /\D/g,
-                ''
-            );
-
-        if (
-            cleanPh.startsWith("0")
-        ) {
-
-            cleanPh =
-                "2" +
-                cleanPh;
-        }
-
-        var msg =
-            'ALESKAFY SHOES\n' +
-
-            'إيصال استلام صيانة - رقم (' +
-            formattedOrderCode +
-            ')\n\n' +
-
-            baseTxt +
-
-            '\n\n' +
-
-            'لمتابعة أخبار وعروض المحل:\n' +
-
-            FACEBOOK_PAGE +
-
-            '\n\n' +
-
-            'تنبيه: المحل غير مسؤول عن أي شيء بعد 15 يوم من ميعاد التسليم.\n\n' +
-
-            'نرحب بكم دائمًا في الاسكافي شوز';
-
-        var whatsappAppUrl =
-            "whatsapp://send?phone=" +
-            cleanPh +
-            "&text=" +
-            encodeURIComponent(
-                msg
-            );
-
-        location.href =
-            whatsappAppUrl;
-
-        return;
-    }
-
-    if (m === 'owner') {
-
-        var oMsg =
-            '[ALESKAFY SHOES - نسخة المحل]\n' +
-
-            'أرشيف أوردر رقم (' +
-            formattedOrderCode +
-            ') على (' +
-            shelf +
-            ')\n\n' +
-
-            baseTxt;
-
-        var ownerWhatsappAppUrl =
-            "whatsapp://send?phone=" +
-            OWNER_PHONE +
-            "&text=" +
-            encodeURIComponent(
-                oMsg
-            );
-
-        location.href =
-            ownerWhatsappAppUrl;
-
-        return;
-    }
-}
-
-/* =========================================================
-   التقرير
-   ========================================================= */
-
-async function rep(type) {
-
-    const egyptNow =
-        await getAccurateEgyptNow();
-
-    const currentYear =
-        getEgyptYear(
-            egyptNow
-        );
-
-    const currentMonth =
-        getEgyptMonth(
-            egyptNow
-        );
-
-    const todayStr =
-        getEgyptDateString(
-            egyptNow
-        );
-
-    const {
-        data: list,
-        error
-    } =
-        await supabaseClient
-            .from('invoices')
-            .select('*')
-            .order(
-                'created_at',
-                {
-                    ascending: true
-                }
-            );
-
-    if (
-        error ||
-        !list ||
-        list.length === 0
-    ) {
-
-        alert(
-            "لا توجد فواتير مسجلة!"
-        );
-
-        return;
-    }
-
-    let totalVaultAll = 0;
-    let totalRemainingAll = 0;
-    let totalOverallAll = 0;
-
-    let uniqueInvoicesMap =
-        new Map();
-
-    list.forEach(
-        function(x) {
-
-            let invDate =
-                new Date(
-                    x.created_at ||
-                    Date.now()
-                );
-
-            let invYear =
-                getEgyptYear(
-                    invDate
-                );
-
-            let invMonth =
-                getEgyptMonth(
-                    invDate
-                );
-
-            let invDateStr =
-                getEgyptDateString(
-                    invDate
-                );
-
-            let updatedDateStr =
-                x.updated_at
-                    ? getEgyptDateString(
-                        new Date(
-                            x.updated_at
-                        )
-                    )
-                    : null;
-
-            let include = false;
-
-            if (
-                type === 'daily'
-            ) {
-
-                const isCreatedToday =
-                    invDateStr ===
-                    todayStr;
-
-                const isUpdatedToday =
-                    updatedDateStr ===
-                    todayStr;
-
-                if (
-                    isCreatedToday ||
-                    isUpdatedToday
-                ) {
-
-                    include = true;
-                }
-            }
-
-            if (
-                type === 'monthly' &&
-                invYear === currentYear &&
-                invMonth === currentMonth
-            ) {
-
-                include = true;
-            }
-
-            if (
-                type === 'yearly' &&
-                invYear === currentYear
-            ) {
-
-                include = true;
-            }
-
-            if (include) {
-
-                let dayNum =
-                    getEgyptDay(
-                        invDate
-                    );
-
-                let uniqueKey =
-                    x.daily_number +
-                    '/' +
-                    dayNum;
-
-                uniqueInvoicesMap.set(
-                    uniqueKey,
-                    x
-                );
-            }
-
-        }
-    );
-
-    let filteredList =
-        Array.from(
-            uniqueInvoicesMap.values()
-        );
-
-    filteredList.sort(
-        function(a, b) {
-
-            return (
-                (
-                    parseInt(
-                        a.daily_number
-                    ) || 0
-                ) -
-                (
-                    parseInt(
-                        b.daily_number
-                    ) || 0
-                )
-            );
-        }
-    );
-
-    let reportLines =
-        '';
-
-    filteredList.forEach(
-        function(x) {
-
-            let price =
-                parseFloat(
-                    x.price
-                ) || 0;
-
-            let paid =
-                parseFloat(
-                    x.paid
-                ) || 0;
-
-            let rem =
-                price -
-                paid;
-
-            let invDate =
-                new Date(
-                    x.created_at ||
-                    Date.now()
-                );
-
-            totalVaultAll +=
-                paid;
-
-            totalRemainingAll +=
-                rem;
-
-            totalOverallAll +=
-                price;
-
-            reportLines +=
-                'أوردر (' +
-                x.daily_number +
-                '/' +
-                getEgyptDay(
-                    invDate
-                ) +
-                ') - ' +
-                x.customer_name +
-                ' | الإجمالي: ' +
-                price +
-                ' ج | المدفوع: ' +
-                paid +
-                ' ج | الباقي: ' +
-                rem +
-                ' ج\n';
-        }
-    );
-
-    let txt =
-        'تقرير الإسكافي شوز (' +
-        type.toUpperCase() +
-        ')\n' +
-        '====================\n\n';
-
-    txt +=
-        reportLines;
-
-    txt +=
-        "\n====================\n";
-
-    txt +=
-        "إجمالي الحساب الكلي: " +
-        totalOverallAll +
-        ' ج\n';
-
-    txt +=
-        "إجمالي الخزنة (المدفوع): " +
-        totalVaultAll +
-        ' ج\n';
-
-    txt +=
-        "إجمالي المبلغ المتبقي: " +
-        totalRemainingAll +
-        ' ج';
-
-    var b =
-        new Blob(
-            [
-                "\uFEFF" +
-                txt
-            ],
-            {
-                type:
-                    "text/plain;charset=utf-8"
-            }
-        );
-
-    var lnk =
-        document.createElement(
-            'a'
-        );
-
-    lnk.href =
-        URL.createObjectURL(
-            b
-        );
-
-    lnk.download =
-        "Report_" +
-        type +
-        ".txt";
-
-    lnk.click();
-}
-
-/* =========================================================
-   الأوردرات المسلمة
-   ========================================================= */
-
-async function loadDeliveredInvoices(
-    filterType
-) {
-
-    const resBox =
-        document.getElementById(
-            'deliveryResults'
-        );
-
-    resBox.style.display =
-        'block';
-
-    resBox.innerHTML =
-        'جاري التحميل...';
-
-    let query =
-        supabaseClient
-            .from('invoices')
-            .select('*')
-            .eq(
-                'status',
-                'تم التسليم'
-            )
-            .order(
-                'daily_number',
-                {
-                    ascending: true
-                }
-            );
-
-    const {
-        data,
-        error
-    } =
-        await query;
-
-    if (
-        error ||
-        !data ||
-        data.length === 0
-    ) {
-
-        resBox.innerHTML =
-            '<div style="color:#38bdf8;text-align:center;padding:10px;">لا توجد أوردرات مسلمة مسجلة حالياً!</div>';
-
-        return;
-    }
-
-    let filteredData =
-        data;
-
-    if (
-        filterType === 'today'
-    ) {
-
-        const nowEgypt =
-            await getAccurateEgyptNow();
-
-        const todayStr =
-            getEgyptDateString(
-                nowEgypt
-            );
-
-        filteredData =
-            data.filter(
-                function(inv) {
-
-                    const deliveredToday =
-                        inv.delivered_at &&
-                        getEgyptDateString(
-                            new Date(
-                                inv.delivered_at
-                            )
-                        ) === todayStr;
-
-                    return deliveredToday;
-                }
-            );
-
-        if (
-            filteredData.length === 0
-        ) {
-
-            resBox.innerHTML =
-                '<div style="color:#38bdf8;text-align:center;padding:10px;">لم يتم تسليم أي أوردرات اليوم حتى الآن!</div>';
-
-            return;
-        }
-    }
-
-    renderSearchResults(
-        filteredData,
-        null,
-        resBox,
-        false
-    );
-}
-
-/* =========================================================
-   بحث الصنايعي
-   ========================================================= */
-
-async function searchByFractionNumber() {
-
-    const numVal =
-        document
-            .getElementById(
-                'searchNumerator'
-            )
-            .value
-            .trim();
-
-    const denVal =
-        document
-            .getElementById(
-                'searchDenominator'
-            )
-            .value
-            .trim();
-
-    const dateInput =
-        document
-            .getElementById(
-                'searchDate'
-            )
-            .value;
-
-    const resBox =
-        document
-            .getElementById(
-                'workerSearchResults'
-            );
-
-    if (
-        !numVal &&
-        !denVal &&
-        !dateInput
-    ) {
-
-        alert(
-            'الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث'
-        );
-
-        return;
-    }
-
-    resBox.style.display =
-        'block';
-
-    resBox.innerHTML =
-        'جاري التحميل...';
-
-    let query =
-        supabaseClient
-            .from('invoices')
-            .select('*')
-            .order(
-                'daily_number',
-                {
-                    ascending: true
-                }
-            );
-
-    if (numVal) {
-
-        query =
-            query.eq(
-                'daily_number',
-                parseInt(
-                    numVal
-                )
-            );
-    }
-
-    if (dateInput) {
-
-        const range =
-            getDateRangeISO(
-                dateInput
-            );
-
-        query =
-            query
-                .gte(
-                    'created_at',
-                    range.start
-                )
-                .lte(
-                    'created_at',
-                    range.end
-                );
-    }
-
-    const {
-        data,
-        error
-    } =
-        await query;
-
-    let finalData =
-        data;
-
-    if (
-        !dateInput &&
-        denVal &&
-        data
-    ) {
-
-        const dNum =
-            parseInt(
-                denVal
-            );
-
-        finalData =
-            data.filter(
-                inv =>
-                    getEgyptDay(
-                        inv.created_at
-                    ) === dNum
-            );
-    }
-
-    renderSearchResults(
-        finalData,
-        error,
-        resBox,
-        false
-    );
-}
-
-/* =========================================================
-   بحث الإدارة
-   ========================================================= */
-
-async function adminSearchByFractionNumber() {
-
-    const numVal =
-        document
-            .getElementById(
-                'adminSearchNumerator'
-            )
-            .value
-            .trim();
-
-    const denVal =
-        document
-            .getElementById(
-                'adminSearchDenominator'
-            )
-            .value
-            .trim();
-
-    const dateInput =
-        document
-            .getElementById(
-                'adminSearchDate'
-            )
-            .value;
-
-    const resBox =
-        document
-            .getElementById(
-                'searchResults'
-            );
-
-    if (
-        !numVal &&
-        !denVal &&
-        !dateInput
-    ) {
-
-        alert(
-            'الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث'
-        );
-
-        return;
-    }
-
-    resBox.style.display =
-        'block';
-
-    resBox.innerHTML =
-        'جاري التحميل...';
-
-    let query =
-        supabaseClient
-            .from('invoices')
-            .select('*')
-            .order(
-                'daily_number',
-                {
-                    ascending: true
-                }
-            );
-
-    if (numVal) {
-
-        query =
-            query.eq(
-                'daily_number',
-                parseInt(
-                    numVal
-                )
-            );
-    }
-
-    if (dateInput) {
-
-        const range =
-            getDateRangeISO(
-                dateInput
-            );
-
-        query =
-            query
-                .gte(
-                    'created_at',
-                    range.start
-                )
-                .lte(
-                    'created_at',
-                    range.end
-                );
-    }
-
-    const {
-        data,
-        error
-    } =
-        await query;
-
-    let finalData =
-        data;
-
-    if (
-        !dateInput &&
-        denVal &&
-        data
-    ) {
-
-        const dNum =
-            parseInt(
-                denVal
-            );
-
-        finalData =
-            data.filter(
-                inv =>
-                    getEgyptDay(
-                        inv.created_at
-                    ) === dNum
-            );
-    }
-
-    renderSearchResults(
-        finalData,
-        error,
-        resBox,
-        true
-    );
-}
-
-/* =========================================================
-   البحث بالاسم أو الهاتف
-   ========================================================= */
-
-async function searchInvoices() {
-
-    const query =
-        document
-            .getElementById(
-                'searchInput'
-            )
-            .value
-            .trim();
-
-    const resBox =
-        document
-            .getElementById(
-                'searchResults'
-            );
-
-    if (!query) {
-
-        alert(
-            'أدخل اسم العميل أو رقم الموبايل'
-        );
-
-        return;
-    }
-
-    resBox.style.display =
-        'block';
-
-    resBox.innerHTML =
-        'جاري التحميل...';
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from('invoices')
-            .select('*')
-            .or(
-                'customer_name.ilike.%' +
-                query +
-                '%,phone.ilike.%' +
-                query +
-                '%'
-            )
-            .order(
-                'daily_number',
-                {
-                    ascending: true
-                }
-            );
-
-    renderSearchResults(
-        data,
-        error,
-        resBox,
-        true
-    );
-}
-
-/* =========================================================
-   عرض نتائج البحث
-   ========================================================= */
-
-function renderSearchResults(
-    data,
-    error,
-    resBox,
-    showAdminControls
-) {
-
-    if (
-        error ||
-        !data ||
-        data.length === 0
-    ) {
-
-        resBox.innerHTML =
-            '<div style="color:#ef4444;text-align:center;">لا توجد فواتير مطابقة لهذا البحث!</div>';
-
-        return;
-    }
-
-    resBox.innerHTML =
-        data
-            .map(
-                function(inv) {
-
-                    const isDone =
-                        inv.status ===
-                        'تم الانتهاء من الصيانة';
-
-                    const isDelivered =
-                        inv.status ===
-                        'تم التسليم';
-
-                    const statusClass =
-                        isDelivered
-                            ? 'bg-delivered'
-                            : (
-                                isDone
-                                    ? 'bg-done'
-                                    : 'bg-pending'
-                            );
-
-                    const price =
-                        inv.price ||
-                        0;
-
-                    const paid =
-                        inv.paid ||
-                        0;
-
-                    const rem =
-                        price -
-                        paid;
-
-                    let invDate =
-                        new Date(
-                            inv.created_at ||
-                            Date.now()
-                        );
-
-                    let numTop =
-                        inv.daily_number ||
-                        '#';
-
-                    let numBottom =
-                        getEgyptDay(
-                            invDate
-                        );
-
-                    let fractionHtml =
-                        '<span class="fraction" style="font-size:14px;">' +
-                            '<span class="numerator">' +
-                                numTop +
-                            '</span>' +
-                            '<span class="denominator">' +
-                                numBottom +
-                            '</span>' +
-                        '</span>';
-
-                    let imageGalleryHtml =
-                        '';
-
-                    if (inv.image_url) {
-
-                        const imageUrls =
-                            String(
-                                inv.image_url
-                            )
-                            .split(/\r?\n/)
-                            .map(
-                                u =>
-                                    u.trim()
-                            )
-                            .filter(
-                                u =>
-                                    u.length > 1
-                            );
-
-                        if (
-                            imageUrls.length > 0
-                        ) {
-
-                            imageGalleryHtml =
-                                '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">' +
-
-                                imageUrls
-                                    .map(
-                                        url =>
-
-                                            '<a href="' +
-                                            url +
-                                            '" target="_blank">' +
-
-                                                '<img src="' +
-                                                url +
-                                                '" class="worker-thumb">' +
-
-                                            '</a>'
-                                    )
-                                    .join('') +
-
-                                '</div>';
-                        }
-                    }
-
-                    let adminControlsHtml =
-                        '';
-
-                    if (
-                        showAdminControls
-                    ) {
-
-                        adminControlsHtml =
-
-                            '<div style="margin-top:10px;padding:10px;background:#1a1500;border:1px solid #bf953f;border-radius:8px;">' +
-
-                                '<div style="font-size:13px;color:#f3e5ab;margin-bottom:6px;font-weight:bold;">حالة الدفع: ' +
-
-                                    (
-                                        rem > 0
-
-                                            ? '<span style="color:#ef4444;">متبقي (' +
-                                              rem +
-                                              ' ج)</span>'
-
-                                            : '<span style="color:#16a34a;">تم السداد</span>'
-                                    ) +
-
-                                '</div>' +
-
-                                '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
-
-                                    '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updatePaymentStatus(' +
-                                    inv.id +
-                                    ', ' +
-                                    price +
-                                    ',0)">تم سداد المبلغ</button>' +
-
-                                    '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updatePaymentStatus(' +
-                                    inv.id +
-                                    ', ' +
-                                    price +
-                                    ',' +
-                                    (
-                                        rem > 0
-                                            ? rem
-                                            : price
-                                    ) +
-                                    ')">لم يتم السداد</button>' +
-
-                                '</div>' +
-
-                                '<div style="margin-top:8px;">' +
-
-                                    '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">إضافة صور جديدة لهذا الأوردر:</label>' +
-
-                                    '<input type="file" id="extra_images_' +
-                                    inv.id +
-                                    '" accept="image/*" multiple style="display:none;" onchange="uploadExtraImagesForInvoice(' +
-                                    inv.id +
-                                    ')">' +
-
-                                    '<button type="button" class="btn-sm" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;width:100%;padding:8px;" onclick="document.getElementById(\'extra_images_' +
-                                    inv.id +
-                                    '\').click();">اختر صور وأضفها فوراً</button>' +
-
-                                '</div>' +
-
-                                '<div style="margin-top:10px;">' +
-
-                                    '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">تعديل مكان التخزين (الرف):</label>' +
-
-                                    '<div style="display:flex;gap:5px;">' +
-
-                                        '<select id="shelf_edit_' +
-                                        inv.id +
-                                        '" style="padding:6px;font-size:12px;margin-top:0;">' +
-
-                                            '<option value="الرف : أ">الرف : أ</option>' +
-                                            '<option value="الرف : ب">الرف : ب</option>' +
-                                            '<option value="الرف : ج">الرف : ج</option>' +
-                                            '<option value="الرف : د">الرف : د</option>' +
-                                            '<option value="الرف : هـ">الرف : هـ</option>' +
-                                            '<option value="الرف : و">الرف : و</option>' +
-
-                                        '</select>' +
-
-                                        '<button type="button" class="btn-sm" style="background:#bf953f;color:#000;padding:6px 12px;margin-top:0;" onclick="updateShelfLocation(' +
-                                        inv.id +
-                                        ')">تحديث الرف</button>' +
-
-                                    '</div>' +
-
-                                '</div>' +
-
-                            '</div>' +
-
-                            '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
-
-                                '<button type="button" class="btn-sm" style="background:#0284c7;color:#fff;flex:1;" onclick="updateStatus(' +
-                                inv.id +
-                                ', \'تم التسليم\')">تم التسليم</button>' +
-
-                                '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updateStatus(' +
-                                inv.id +
-                                ', \'تم الانتهاء من الصيانة\')">تم الانتهاء</button>' +
-
-                                '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updateStatus(' +
-                                inv.id +
-                                ', \'تحت الصيانة\')">تحت الصيانة</button>' +
-
-                            '</div>';
-                    }
-
-                    return (
-
-                        '<div style="border-bottom:1px dashed #33270a;padding-bottom:12px;margin-bottom:12px;">' +
-
-                            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-
-                                '<strong style="color:#f3e5ab;font-size:15px;">' +
-                                inv.customer_name +
-                                '</strong>' +
-
-                                '<span class="status-badge ' +
-                                statusClass +
-                                '">' +
-
-                                (
-                                    inv.status ||
-                                    'تحت الصيانة'
-                                ) +
-
-                                '</span>' +
-
-                            '</div>' +
-
-                            '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">التاريخ: ' +
-
-                            getEgyptDateString(
-                                inv.created_at ||
-                                Date.now()
-                            ) +
-
-                            '</div>' +
-
-                            '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;"><b>رقم الأوردر:</b> ' +
-
-                            fractionHtml +
-
-                            '</div>' +
-
-                            '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">الموبايل: ' +
-
-                            (
-                                inv.phone ||
-                                '-'
-                            ) +
-
-                            '</div>' +
-
-                            '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الأصناف:</b> ' +
-
-                            (
-                                inv.item_type ||
-                                '-'
-                            ) +
-
-                            '</div>' +
-
-                            '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الخدمة:</b> ' +
-
-                            (
-                                inv.details ||
-                                '-'
-                            ) +
-
-                            '</div>' +
-
-                            '<div style="font-size:13px;margin-bottom:4px;">الحساب: ' +
-
-                            price +
-
-                            ' ج | المدفوع: ' +
-
-                            paid +
-
-                            ' ج | المتبقي: <span style="color:#ef4444;font-weight:bold;">' +
-
-                            rem +
-
-                            ' ج</span></div>' +
-
-                            imageGalleryHtml +
-
-                            adminControlsHtml +
-
-                        '</div>'
-                    );
-                }
-            )
-            .join('');
-}
-
-/* =========================================================
-   الصور الإضافية
-   ========================================================= */
-
-async function uploadExtraImagesForInvoice(
-    invoiceId
-) {
-
-    const fileInput =
-        document.getElementById(
-            'extra_images_' +
-            invoiceId
-        );
-
-    if (
-        !fileInput.files ||
-        fileInput.files.length === 0
-    ) {
-        return;
-    }
-
-    alert(
-        "جاري رفع الصور الجديدة للأوردر، انتظر لحظة..."
-    );
-
-    try {
-
-        let newUrls = [];
-
-        for (
-            let i = 0;
-            i < fileInput.files.length;
-            i++
-        ) {
-
-            const file =
-                fileInput.files[i];
-
-            const fileName =
-                'inv_extra_' +
-                Date.now() +
-                '_' +
-                i +
-                '_' +
-                Math.random()
-                    .toString(36)
-                    .substring(2,7) +
-                '.jpg';
-
-            const {
-                error: uploadError
-            } =
-                await supabaseClient.storage
-                    .from('images')
-                    .upload(
-                        fileName,
-                        file,
-                        {
-                            cacheControl: '3600',
-                            upsert: true
-                        }
-                    );
-
-            if (uploadError) {
-
-                throw new Error(
-                    uploadError.message
-                );
-            }
-
-            const {
-                data:
-                    publicUrlData
-            } =
-                supabaseClient.storage
-                    .from('images')
-                    .getPublicUrl(
-                        fileName
-                    );
-
-            newUrls.push(
-                publicUrlData.publicUrl
-            );
-        }
-
-        const {
-            data: invData,
-            error: fetchErr
-        } =
-            await supabaseClient
-                .from('invoices')
-                .select('image_url')
-                .eq(
-                    'id',
-                    invoiceId
-                )
-                .single();
-
-        if (fetchErr) {
-
-            throw new Error(
-                fetchErr.message
-            );
-        }
-
-        let existingUrls =
-            invData.image_url
-                ? String(
-                    invData.image_url
-                )
-                    .split(/\r?\n/)
-                    .map(
-                        u =>
-                            u.trim()
-                    )
-                    .filter(
-                        u =>
-                            u.length > 1
-                    )
-                : [];
-
-        let combinedUrls =
-            existingUrls
-                .concat(
-                    newUrls
-                )
-                .join('\n');
-
-        const {
-            error: updateErr
-        } =
-            await supabaseClient
-                .from('invoices')
-                .update({
-                    image_url:
-                        combinedUrls
+        // دالة تسجيل التسليم المتوافقة مع جدول invoices وتاريخ التسليم (delivered_at)
+        async function markAsDelivered(invoiceId) {
+            // الحصول على تاريخ اليوم بتوقيت مصر المحلى بصيغة YYYY-MM-DD
+            const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+
+            const { data, error } = await supabase
+                .from('invoices') // اسم جدولك الفعلي في السحابة
+                .update({ 
+                    status: 'تم التسليم',        // تحديث الحالة في عمود status
+                    delivered_at: todayStr      // تسجيل تاريخ النهاردة ليظهر في "المسلم اليوم" وتقرير اليوم
                 })
-                .eq(
-                    'id',
-                    invoiceId
-                );
+                .eq('id', invoiceId);
 
-        if (updateErr) {
-
-            throw new Error(
-                updateErr.message
-            );
+            if (error) {
+                alert('حدث خطأ أثناء تحديث حالة التسليم: ' + error.message);
+                console.error(error);
+            } else {
+                alert('تم تسجيل التسليم بنجاح، وظهر في تقرير اليوم وقائمة المستلمين اليوم!');
+                loadOrders(); // إعادة تحميل القائمة لتحديث الشاشة
+            }
         }
 
-        alert(
-            "تم رفع وإضافة الصور بنجاح للأوردر"
-        );
-
-        adminSearchByFractionNumber();
-
-    } catch (err) {
-
-        alert(
-            "خطأ أثناء رفع الصور الإضافية:\n" +
-            err.message
-        );
-    }
-}
-
-/* =========================================================
-   تحديث السداد
-   ========================================================= */
-
-async function updatePaymentStatus(
-    invoiceId,
-    totalPrice,
-    targetRem
-) {
-
-    let newPaid =
-        targetRem === 0
-            ? totalPrice
-            : totalPrice - targetRem;
-
-    const egyptNow =
-        await getAccurateEgyptNow();
-
-    const paymentUpdatedAt =
-        egyptNow.toISOString();
-
-    const {
-        error
-    } =
-        await supabaseClient
-            .from('invoices')
-            .update({
-
-                paid:
-                    newPaid,
-
-                updated_at:
-                    paymentUpdatedAt
-
-            })
-            .eq(
-                'id',
-                invoiceId
-            );
-
-    if (!error) {
-
-        alert(
-            "تم تحديث حالة السداد بنجاح"
-        );
-
-        adminSearchByFractionNumber();
-
-    } else {
-
-        alert(
-            "حدث خطأ أثناء تحديث حالة السداد:\n" +
-            error.message
-        );
-    }
-}
-
-/* =========================================================
-   تحديث الرف
-   ========================================================= */
-
-async function updateShelfLocation(
-    id
-) {
-
-    const newShelf =
-        document
-            .getElementById(
-                'shelf_edit_' +
-                id
-            )
-            .value;
-
-    const {
-        data: invData
-    } =
-        await supabaseClient
-            .from('invoices')
-            .select('details')
-            .eq(
-                'id',
-                id
-            )
-            .single();
-
-    if (invData) {
-
-        let currentDetails =
-            invData.details ||
-            '';
-
-        let parts =
-            currentDetails
-                .split('|')
-                .map(
-                    p =>
-                        p.trim()
-                );
-
-        let cleanDetails =
-            parts
-                .filter(
-                    p =>
-                        !p.startsWith(
-                            'الرف'
-                        )
-                )
-                .join(
-                    ' | '
-                );
-
-        let updatedDetails =
-            cleanDetails
-                ? (
-                    cleanDetails +
-                    ' | ' +
-                    newShelf
-                )
-                : newShelf;
-
-        const {
-            error
-        } =
-            await supabaseClient
-                .from('invoices')
-                .update({
-                    details:
-                        updatedDetails
-                })
-                .eq(
-                    'id',
-                    id
-                );
-
-        if (!error) {
-
-            alert(
-                'تم تحديث الرف بنجاح إلى (' +
-                newShelf +
-                ')'
-            );
-
-            adminSearchByFractionNumber();
-
-        } else {
-
-            alert(
-                'حدث خطأ أثناء تحديث الرف!'
-            );
+        function filterOrders() {
+            // دالة البحث والفلترة
         }
-    }
-}
-
-/* =========================================================
-   تحديث حالة الأوردر + تسجيل وقت التسليم
-   ========================================================= */
-
-async function updateStatus(
-    id,
-    newStatus
-) {
-
-    const egyptNow =
-        await getAccurateEgyptNow();
-
-    const statusUpdatedAt =
-        egyptNow.toISOString();
-
-    let updateData = {
-
-        status:
-            newStatus,
-
-        updated_at:
-            statusUpdatedAt
-    };
-
-    /*
-     * لو الأوردر أصبح "تم التسليم"
-     * نسجل تاريخ ووقت التسليم الحقيقي في delivered_at.
-     *
-     * حتى لو الفاتورة قديمة، delivered_at
-     * سيأخذ تاريخ اليوم الذي تم فيه التسليم.
-     */
-
-    if (
-        newStatus === 'تم التسليم'
-    ) {
-
-        updateData.delivered_at =
-            statusUpdatedAt;
-    }
-
-    const {
-        error
-    } =
-        await supabaseClient
-            .from('invoices')
-            .update(
-                updateData
-            )
-            .eq(
-                'id',
-                id
-            );
-
-    if (!error) {
-
-        alert(
-            'تم تغيير الحالة بنجاح'
-        );
-
-        adminSearchByFractionNumber();
-
-    } else {
-
-        alert(
-            'حدث خطأ أثناء تحديث الحالة:\n' +
-            error.message
-        );
-    }
-}
-
-</script>
-
+    </script>
 </body>
 </html>
