@@ -13,12 +13,10 @@
                 border-color: #bf953f;
                 box-shadow: 0 0 15px rgba(191, 149, 63, 0.3);
             }
-
             50% {
                 border-color: #ffc107;
                 box-shadow: 0 0 25px rgba(255, 193, 7, 0.6);
             }
-
             100% {
                 border-color: #bf953f;
                 box-shadow: 0 0 15px rgba(191, 149, 63, 0.3);
@@ -26,17 +24,9 @@
         }
 
         @keyframes shimmerText {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         @keyframes fadeIn {
@@ -44,7 +34,6 @@
                 opacity: 0;
                 transform: scale(0.95);
             }
-
             to {
                 opacity: 1;
                 transform: scale(1);
@@ -1757,116 +1746,38 @@ function grantAccess(role) {
 
 function resetFormInputs() {
 
-    document.getElementById(
-        'name'
-    ).value = '';
-
-    document.getElementById(
-        'phone'
-    ).value = '';
-
-    document.getElementById(
-        'rDate'
-    ).value = '';
-
-    document.getElementById(
-        'dDate'
-    ).value = '';
-
-    document.getElementById(
-        'snk'
-    ).value = '';
-
-    document.getElementById(
-        'shs'
-    ).value = '';
-
-    document.getElementById(
-        'slp'
-    ).value = '';
-
-    document.getElementById(
-        'snd'
-    ).value = '';
-
-    document.getElementById(
-        'sng'
-    ).value = '';
-
-    document.getElementById(
-        'bags'
-    ).value = '';
-
-    document.getElementById(
-        'srv'
-    ).value = '';
-
-    document.getElementById(
-        'shelfLocation'
-    ).selectedIndex =
-        0;
-
-    document.getElementById(
-        'itemImages'
-    ).value = '';
-
-    document.getElementById(
-        'previewsContainer'
-    ).innerHTML =
-        '';
-
-    document.getElementById(
-        'tot'
-    ).value = '';
-
-    document.getElementById(
-        'paid'
-    ).value = '';
-
-    document.getElementById(
-        'rem'
-    ).value = '';
+    document.getElementById('name').value = '';
+    document.getElementById('phone').value = '';
+    document.getElementById('rDate').value = '';
+    document.getElementById('dDate').value = '';
+    document.getElementById('snk').value = '';
+    document.getElementById('shs').value = '';
+    document.getElementById('slp').value = '';
+    document.getElementById('snd').value = '';
+    document.getElementById('sng').value = '';
+    document.getElementById('bags').value = '';
+    document.getElementById('srv').value = '';
+    document.getElementById('shelfLocation').selectedIndex = 0;
+    document.getElementById('itemImages').value = '';
+    document.getElementById('previewsContainer').innerHTML = '';
+    document.getElementById('tot').value = '';
+    document.getElementById('paid').value = '';
+    document.getElementById('rem').value = '';
 
     uploadedImageUrls = [];
-
     selectedFilesList = [];
-
     isCurrentInvoiceSaved = false;
 }
 
-function openScreen(
-    screenId
-) {
+function openScreen(screenId) {
 
-    document.getElementById(
-        'mainDashboardScreen'
-    ).style.display =
-        'none';
+    document.getElementById('mainDashboardScreen').style.display = 'none';
+    document.getElementById('portalMenu').style.display = 'none';
+    document.getElementById('searchScreen').style.display = 'none';
+    document.getElementById('deliveryScreen').style.display = 'none';
+    document.getElementById('reportsScreen').style.display = 'none';
 
-    document.getElementById(
-        'portalMenu'
-    ).style.display =
-        'none';
-
-    document.getElementById(
-        'searchScreen'
-    ).style.display =
-        'none';
-
-    document.getElementById(
-        'deliveryScreen'
-    ).style.display =
-        'none';
-
-    document.getElementById(
-        'reportsScreen'
-    ).style.display =
-        'none';
-
-    document.getElementById(
-        screenId
-    ).style.display =
-        'block';
+    document.getElementById(screenId).style.display = 'block';
 
     window.scrollTo({
         top: 0,
@@ -1876,25 +1787,11 @@ function openScreen(
 
 function closeScreen() {
 
-    document.getElementById(
-        'searchScreen'
-    ).style.display =
-        'none';
+    document.getElementById('searchScreen').style.display = 'none';
+    document.getElementById('deliveryScreen').style.display = 'none';
+    document.getElementById('reportsScreen').style.display = 'none';
 
-    document.getElementById(
-        'deliveryScreen'
-    ).style.display =
-        'none';
-
-    document.getElementById(
-        'reportsScreen'
-    ).style.display =
-        'none';
-
-    document.getElementById(
-        'mainDashboardScreen'
-    ).style.display =
-        'block';
+    document.getElementById('mainDashboardScreen').style.display = 'block';
 
     const urlParams =
         new URLSearchParams(
@@ -1902,11 +1799,8 @@ function closeScreen() {
         );
 
     if (
-        urlParams.get('admin') ===
-            'masad2026' ||
-        sessionStorage.getItem(
-            'aleskafy_admin_logged'
-        ) === 'true'
+        urlParams.get('admin') === 'masad2026' ||
+        sessionStorage.getItem('aleskafy_admin_logged') === 'true'
     ) {
 
         document.getElementById(
@@ -1925,35 +1819,21 @@ function calc() {
 
     var t =
         parseFloat(
-            document.getElementById(
-                'tot'
-            ).value
+            document.getElementById('tot').value
         ) || 0;
 
     var p =
         parseFloat(
-            document.getElementById(
-                'paid'
-            ).value
+            document.getElementById('paid').value
         ) || 0;
 
-    document.getElementById(
-        'rem'
-    ).value =
+    document.getElementById('rem').value =
         (
-            document.getElementById(
-                'tot'
-            ).value === ''
-        ) &&
-        (
-            document.getElementById(
-                'paid'
-            ).value === ''
+            document.getElementById('tot').value === '' &&
+            document.getElementById('paid').value === ''
         )
             ? ''
-            : (
-                t - p
-            );
+            : t - p;
 }
 
 async function fetchNextInvoiceNum() {
@@ -1984,17 +1864,9 @@ async function fetchNextInvoiceNum() {
         } =
             await supabaseClient
                 .from('invoices')
-                .select(
-                    'daily_number'
-                )
-                .gte(
-                    'created_at',
-                    range.start
-                )
-                .lte(
-                    'created_at',
-                    range.end
-                );
+                .select('daily_number')
+                .gte('created_at', range.start)
+                .lte('created_at', range.end);
 
         if (
             !error &&
@@ -2038,32 +1910,28 @@ async function fetchNextInvoiceNum() {
         currentDayNum;
 
     const badgeEl =
-        document.getElementById(
-            'badge'
-        );
+        document.getElementById('badge');
 
     if (badgeEl) {
 
         badgeEl.innerHTML =
             '<span>رقم أوردر اليوم:</span>' +
-
             '<span class="fraction" style="font-size:16px;">' +
-
                 '<span class="numerator">' +
                     currentDailyNum +
                 '</span>' +
-
                 '<span class="denominator">' +
                     currentDayNum +
                 '</span>' +
-
             '</span>';
     }
 }
 
-function handleImagesSelection(
-    event
-) {
+/* =========================================================
+   اختيار الصور
+   ========================================================= */
+
+function handleImagesSelection(event) {
 
     const files =
         event.target.files;
@@ -2117,7 +1985,12 @@ function handleImagesSelection(
                 );
             }
         );
+    }
 }
+
+/* =========================================================
+   رفع الصور
+   ========================================================= */
 
 async function uploadAllImages() {
 
@@ -2172,10 +2045,8 @@ async function uploadAllImages() {
                         fileName,
                         file,
                         {
-                            cacheControl:
-                                '3600',
-                            upsert:
-                                true
+                            cacheControl: '3600',
+                            upsert: true
                         }
                     );
 
@@ -2226,94 +2097,35 @@ function getItemsSummary() {
 
     let items = [];
 
-    const sk =
-        document.getElementById(
-            'snk'
-        ).value;
+    const sk = document.getElementById('snk').value;
+    const ss = document.getElementById('shs').value;
+    const sl = document.getElementById('slp').value;
+    const sn = document.getElementById('snd').value;
+    const sg = document.getElementById('sng').value;
+    const bg = document.getElementById('bags').value;
 
-    const ss =
-        document.getElementById(
-            'shs'
-        ).value;
-
-    const sl =
-        document.getElementById(
-            'slp'
-        ).value;
-
-    const sn =
-        document.getElementById(
-            'snd'
-        ).value;
-
-    const sg =
-        document.getElementById(
-            'sng'
-        ).value;
-
-    const bg =
-        document.getElementById(
-            'bags'
-        ).value;
-
-    if (
-        parseInt(sk) > 0
-    ) {
-
-        items.push(
-            'كوتشيات: ' +
-            sk
-        );
+    if (parseInt(sk) > 0) {
+        items.push('كوتشيات: ' + sk);
     }
 
-    if (
-        parseInt(ss) > 0
-    ) {
-
-        items.push(
-            'جزم: ' +
-            ss
-        );
+    if (parseInt(ss) > 0) {
+        items.push('جزم: ' + ss);
     }
 
-    if (
-        parseInt(sl) > 0
-    ) {
-
-        items.push(
-            'شبشب: ' +
-            sl
-        );
+    if (parseInt(sl) > 0) {
+        items.push('شبشب: ' + sl);
     }
 
-    if (
-        parseInt(sn) > 0
-    ) {
-
-        items.push(
-            'صندل: ' +
-            sn
-        );
+    if (parseInt(sn) > 0) {
+        items.push('صندل: ' + sn);
     }
 
-    if (
-        parseInt(sg) > 0
-    ) {
-
-        items.push(
-            'فردة: ' +
-            sg
-        );
+    if (parseInt(sg) > 0) {
+        items.push('فردة: ' + sg);
     }
 
-    if (
-        parseInt(bg) > 0
-    ) {
-
-        items.push(
-            'شنط: ' +
-            bg
-        );
+    if (parseInt(bg) > 0) {
+        items.push('شنط: ' + bg);
     }
 
     return (
@@ -2325,24 +2137,16 @@ function getItemsSummary() {
 async function sendTo(m) {
 
     var n =
-        document.getElementById(
-            'name'
-        ).value.trim();
+        document.getElementById('name').value.trim();
 
     var t =
-        document.getElementById(
-            'tot'
-        ).value.trim();
+        document.getElementById('tot').value.trim();
 
     var ph =
-        document.getElementById(
-            'phone'
-        ).value.trim();
+        document.getElementById('phone').value.trim();
 
     var shelf =
-        document.getElementById(
-            'shelfLocation'
-        ).value;
+        document.getElementById('shelfLocation').value;
 
     if (
         !n ||
@@ -2361,70 +2165,22 @@ async function sendTo(m) {
     }
 
     var r =
-        document.getElementById(
-            'rDate'
-        ).value ||
+        document.getElementById('rDate').value ||
         'غير محدد';
 
     var d =
-        document.getElementById(
-            'dDate'
-        ).value ||
+        document.getElementById('dDate').value ||
         'غير محدد';
 
-    var sk =
-        document.getElementById(
-            'snk'
-        ).value ||
-        '0';
-
-    var ss =
-        document.getElementById(
-            'shs'
-        ).value ||
-        '0';
-
-    var sl =
-        document.getElementById(
-            'slp'
-        ).value ||
-        '0';
-
-    var sn =
-        document.getElementById(
-            'snd'
-        ).value ||
-        '0';
-
-    var sg =
-        document.getElementById(
-            'sng'
-        ).value ||
-        '0';
-
-    var bg =
-        document.getElementById(
-            'bags'
-        ).value ||
-        '0';
-
-    var sv =
-        document.getElementById(
-            'srv'
-        ).value ||
-        '';
-
-    var p =
-        document.getElementById(
-            'paid'
-        ).value ||
-        '0';
-
-    var rm =
-        document.getElementById(
-            'rem'
-        ).value ||
-        '0';
+    var sk = document.getElementById('snk').value || '0';
+    var ss = document.getElementById('shs').value || '0';
+    var sl = document.getElementById('slp').value || '0';
+    var sn = document.getElementById('snd').value || '0';
+    var sg = document.getElementById('sng').value || '0';
+    var bg = document.getElementById('bags').value || '0';
+    var sv = document.getElementById('srv').value || '';
+    var p = document.getElementById('paid').value || '0';
+    var rm = document.getElementById('rem').value || '0';
 
     if (!isCurrentInvoiceSaved) {
 
@@ -2441,36 +2197,15 @@ async function sendTo(m) {
                 .from('invoices')
                 .insert([
                     {
-                        customer_name:
-                            n,
-
-                        phone:
-                            ph,
-
-                        item_type:
-                            getItemsSummary(),
-
-                        details:
-                            sv +
-                            ' | ' +
-                            shelf,
-
-                        price:
-                            parseFloat(t) ||
-                            0,
-
-                        paid:
-                            parseFloat(p) ||
-                            0,
-
-                        image_url:
-                            imagesForDatabase,
-
-                        status:
-                            'تحت الصيانة',
-
-                        daily_number:
-                            currentDailyNum
+                        customer_name: n,
+                        phone: ph,
+                        item_type: getItemsSummary(),
+                        details: sv + ' | ' + shelf,
+                        price: parseFloat(t) || 0,
+                        paid: parseFloat(p) || 0,
+                        image_url: imagesForDatabase,
+                        status: 'تحت الصيانة',
+                        daily_number: currentDailyNum
                     }
                 ]);
 
@@ -2669,9 +2404,7 @@ async function rep(type) {
     }
 
     let totalVaultAll = 0;
-
     let totalRemainingAll = 0;
-
     let totalOverallAll = 0;
 
     let uniqueInvoicesMap =
@@ -2971,18 +2704,6 @@ async function loadDeliveredInvoices(
             getEgyptDateString(
                 nowEgypt
             );
-
-        /*
-         * التعديل الجديد:
-         *
-         * "مسلمات اليوم فقط" تعتمد على delivered_at
-         * وليس created_at أو updated_at.
-         *
-         * لذلك:
-         *
-         * أوردر قديم + تم الضغط على "تم التسليم" اليوم
-         * = يظهر في مسلمات اليوم.
-         */
 
         filteredData =
             data.filter(
@@ -3421,15 +3142,12 @@ function renderSearchResults(
 
                     let fractionHtml =
                         '<span class="fraction" style="font-size:14px;">' +
-
                             '<span class="numerator">' +
                                 numTop +
                             '</span>' +
-
                             '<span class="denominator">' +
                                 numBottom +
                             '</span>' +
-
                         '</span>';
 
                     let imageGalleryHtml =
@@ -3441,9 +3159,7 @@ function renderSearchResults(
                             String(
                                 inv.image_url
                             )
-                            .split(
-                                /\r?\n/
-                            )
+                            .split(/\r?\n/)
                             .map(
                                 u =>
                                     u.trim()
@@ -3737,10 +3453,8 @@ async function uploadExtraImagesForInvoice(
                         fileName,
                         file,
                         {
-                            cacheControl:
-                                '3600',
-                            upsert:
-                                true
+                            cacheControl: '3600',
+                            upsert: true
                         }
                     );
 
@@ -3772,9 +3486,7 @@ async function uploadExtraImagesForInvoice(
         } =
             await supabaseClient
                 .from('invoices')
-                .select(
-                    'image_url'
-                )
+                .select('image_url')
                 .eq(
                     'id',
                     invoiceId
@@ -3793,9 +3505,7 @@ async function uploadExtraImagesForInvoice(
                 ? String(
                     invData.image_url
                 )
-                    .split(
-                        /\r?\n/
-                    )
+                    .split(/\r?\n/)
                     .map(
                         u =>
                             u.trim()
@@ -3927,9 +3637,7 @@ async function updateShelfLocation(
     } =
         await supabaseClient
             .from('invoices')
-            .select(
-                'details'
-            )
+            .select('details')
             .eq(
                 'id',
                 id
@@ -3974,16 +3682,16 @@ async function updateShelfLocation(
         const {
             error
         } =
-        await supabaseClient
-            .from('invoices')
-            .update({
-                details:
-                    updatedDetails
-            })
-            .eq(
-                'id',
-                id
-            );
+            await supabaseClient
+                .from('invoices')
+                .update({
+                    details:
+                        updatedDetails
+                })
+                .eq(
+                    'id',
+                    id
+                );
 
         if (!error) {
 
@@ -4005,22 +3713,13 @@ async function updateShelfLocation(
 }
 
 /* =========================================================
-   تحديث حالة الأوردر
+   تحديث حالة الأوردر + تسجيل وقت التسليم
    ========================================================= */
 
 async function updateStatus(
     id,
     newStatus
 ) {
-
-    /*
-     * created_at لا يتغير.
-     *
-     * updated_at يتحدث عند أي تغيير للحالة.
-     *
-     * delivered_at يتسجل فقط عند اختيار
-     * "تم التسليم".
-     */
 
     const egyptNow =
         await getAccurateEgyptNow();
@@ -4038,8 +3737,11 @@ async function updateStatus(
     };
 
     /*
-     * لو الحالة أصبحت "تم التسليم"
-     * نسجل وقت التسليم الحقيقي.
+     * لو الأوردر أصبح "تم التسليم"
+     * نسجل تاريخ ووقت التسليم الحقيقي في delivered_at.
+     *
+     * حتى لو الفاتورة قديمة، delivered_at
+     * سيأخذ تاريخ اليوم الذي تم فيه التسليم.
      */
 
     if (
@@ -4082,4 +3784,5 @@ async function updateStatus(
 
 </script>
 
+</body>
 </html>
