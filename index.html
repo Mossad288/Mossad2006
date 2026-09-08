@@ -2457,9 +2457,24 @@ async function rep(type) {
                     updatedDateStr ===
                     todayStr;
 
+                /* 
+                 * التعديل الوحيد:
+                 * أوردر "تم الانتهاء من الصيانة"
+                 * لا يظهر في التقرير اليومي.
+                 *
+                 * "تم التسليم" يظل يظهر بشكل طبيعي.
+                 */
+
+                const isMaintenanceDone =
+                    x.status ===
+                    'تم الانتهاء من الصيانة';
+
                 if (
-                    isCreatedToday ||
-                    isUpdatedToday
+                    (
+                        isCreatedToday ||
+                        isUpdatedToday
+                    ) &&
+                    !isMaintenanceDone
                 ) {
 
                     include = true;
