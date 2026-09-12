@@ -2190,6 +2190,12 @@ async function sendTo(m) {
         var imagesForDatabase =
             imgUrls.join('\n');
 
+        const egyptNow =
+            await getAccurateEgyptNow();
+
+        const currentIsoTime =
+            egyptNow.toISOString();
+
         const {
             error
         } =
@@ -2205,7 +2211,9 @@ async function sendTo(m) {
                         paid: parseFloat(p) || 0,
                         image_url: imagesForDatabase,
                         status: 'تحت الصيانة',
-                        daily_number: currentDailyNum
+                        daily_number: currentDailyNum,
+                        created_at: currentIsoTime,
+                        updated_at: currentIsoTime
                     }
                 ]);
 
@@ -2353,7 +2361,7 @@ async function sendTo(m) {
 }
 
 /* =========================================================
-   التقرير (يجلب كل فواتير اليوم سواء مدفوعة بالكامل أو عليها باقي)
+   التقرير (المحدث ليشمل الفواتير الجديدة أو القديمة التي حدث عليها سداد أو تسليم اليوم)
    ========================================================= */
 
 async function rep(type) {
@@ -2413,25 +2421,47 @@ async function rep(type) {
     list.forEach(
         function(x) {
 
-            let invDate =
+            let createdDate =
                 new Date(
                     x.created_at ||
                     Date.now()
                 );
 
+            let updatedDate =
+                x.updated_at
+                    ? new Date(x.updated_at)
+                    : createdDate;
+
+            let deliveredDate =
+                x.delivered_at
+                    ? new Date(x.delivered_at)
+                    : null;
+
+            let createdDateStr =
+                getEgyptDateString(
+                    createdDate
+                );
+
+            let updatedDateStr =
+                getEgyptDateString(
+                    updatedDate
+                );
+
+            let deliveredDateStr =
+                deliveredDate
+                    ? getEgyptDateString(
+                        deliveredDate
+                    )
+                    : null;
+
             let invYear =
                 getEgyptYear(
-                    invDate
+                    createdDate
                 );
 
             let invMonth =
                 getEgyptMonth(
-                    invDate
-                );
-
-            let invDateStr =
-                getEgyptDateString(
-                    invDate
+                    createdDate
                 );
 
             let include = false;
@@ -2439,7 +2469,12 @@ async function rep(type) {
             if (
                 type === 'daily'
             ) {
-                if (invDateStr === todayStr) {
+                // تضمن الفاتورة إذا تم إنشاؤها اليوم، أو تم تحديثها (سداد/تعديل) اليوم، أو تم تسليمها اليوم
+                if (
+                    createdDateStr === todayStr ||
+                    updatedDateStr === todayStr ||
+                    deliveredDateStr === todayStr
+                ) {
                     include = true;
                 }
             }
@@ -2465,11 +2500,11 @@ async function rep(type) {
 
                 let dayNum =
                     getEgyptDay(
-                        invDate
+                        createdDate
                     );
 
                 let uniqueKey =
-                    x.id || (x.daily_number + '/' + dayNum + '/' + invDateStr);
+                    x.id || (x.daily_number + '/' + dayNum + '/' + createdDateStr);
 
                 uniqueInvoicesMap.set(
                     uniqueKey,
@@ -3499,6 +3534,9 @@ async function uploadExtraImagesForInvoice(
                 )
                 .join('\n');
 
+        const egyptNow =
+            await getAccurateEgyptNow();
+
         const {
             error: updateErr
         } =
@@ -3506,7 +3544,9 @@ async function uploadExtraImagesForInvoice(
                 .from('invoices')
                 .update({
                     image_url:
-                        combinedUrls
+                        combinedUrls,
+                    updated_at:
+                        egyptNow.toISOString()
                 })
                 .eq(
                     'id',
@@ -3655,6 +3695,9 @@ async function updateShelfLocation(
                 )
                 : newShelf;
 
+        const egyptNow =
+            await getAccurateEgyptNow();
+
         const {
             error
         } =
@@ -3662,7 +3705,9 @@ async function updateShelfLocation(
                 .from('invoices')
                 .update({
                     details:
-                        updatedDetails
+                        updatedDetails,
+                    updated_at:
+                        egyptNow.toISOString()
                 })
                 .eq(
                     'id',
