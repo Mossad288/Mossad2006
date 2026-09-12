@@ -2196,6 +2196,8 @@ async function sendTo(m) {
         const currentIsoTime =
             egyptNow.toISOString();
 
+        const initialPaid = parseFloat(p) || 0;
+
         const {
             error
         } =
@@ -2208,7 +2210,8 @@ async function sendTo(m) {
                         item_type: getItemsSummary(),
                         details: sv + ' | ' + shelf,
                         price: parseFloat(t) || 0,
-                        paid: parseFloat(p) || 0,
+                        paid: initialPaid,
+                        last_collected: initialPaid,
                         image_url: imagesForDatabase,
                         status: 'تحت الصيانة',
                         daily_number: currentDailyNum,
@@ -2361,7 +2364,7 @@ async function sendTo(m) {
 }
 
 /* =========================================================
-   التقرير (المحدث ليحسب فقط الفلوس الفعلية التي دخلت الدرج اليوم)
+   التقرير (المحدث لحساب الفلوس الفعلية التي دخلت الدرج بدقة)
    ========================================================= */
 
 async function rep(type) {
@@ -2457,7 +2460,7 @@ async function rep(type) {
             if (
                 type === 'daily'
             ) {
-                // للتقرير اليومي: نأخذ فقط الفواتير التي أُنشئت اليوم (ونحسب مدفوعها) أو الفواتير القديمة التي تم عمل تحديث سداد لها اليوم
+                // للتقرير اليومي: نشمل الفواتير التي أُنشئت اليوم أو تم تحديث سدادها اليوم
                 if (
                     createdDateStr === todayStr ||
                     updatedDateStr === todayStr
@@ -2561,12 +2564,11 @@ async function rep(type) {
 
             if (type === 'daily') {
                 if (createdDateStr === todayStr && updatedDateStr === todayStr) {
-                    // فاتورة جديدة أُنشئت اليوم ودفعت
-                    actualCollectedForReport = paid;
+                    // فاتورة جديدة أُنشئت اليوم (نأخذ ما دفع فيها)
+                    actualCollectedForReport = parseFloat(x.last_collected !== undefined && x.last_collected !== null ? x.last_collected : paid);
                 } else if (updatedDateStr === todayStr) {
-                    // فاتورة قديمة وتم تحديث سدادها اليوم (يعني تم دفع باقي حسابها أو سدادها اليوم)
-                    // نعتبر المبلغ المحصل اليوم هو كامل المدفوع أو المبلغ المسدد حديثاً، ولتجنب المبالغة نحسب المبلغ الذي دخل الصندوق اليوم بناءً على المدفوع الفعلي المسجل
-                    actualCollectedForReport = paid; 
+                    // فاتورة قديمة وتم تحديث سدادها اليوم (نأخذ فقط المبلغ الفعلي الذي سدده العميل في آخر حركة)
+                    actualCollectedForReport = parseFloat(x.last_collected || 0);
                 }
             } else {
                 actualCollectedForReport = paid;
@@ -3584,7 +3586,7 @@ async function uploadExtraImagesForInvoice(
 }
 
 /* =========================================================
-   تحديث السداد
+   تحديث السداد (يحسب المبلغ المتبقي المسدد حديثاً بدقة للدرج)
    ========================================================= */
 
 async function updatePaymentStatus(
@@ -3593,10 +3595,24 @@ async function updatePaymentStatus(
     targetRem
 ) {
 
-    let newPaid =
-        targetRem === 0
-            ? totalPrice
-            : totalPrice - targetRem;
+    // جلب البيانات الحالية لمعرفة كم كان مدفوعاً من قبل
+    const { data: currentInv, error: fetchErr } = await supabaseClient
+        .from('invoices')
+        .select('paid')
+        .eq('id', invoiceId)
+        .single();
+
+    if (fetchErr || !currentInv) {
+        alert("خطأ في جلب بيانات الفاتورة!");
+        return;
+    }
+
+    let oldPaid = parseFloat(currentInv.paid) || 0;
+    let newPaid = targetRem === 0 ? totalPrice : totalPrice - targetRem;
+    
+    // الفرق الذي دخل الدرج في هذه الحركة (مثل الـ 100 المتبقية)
+    let collectedNow = newPaid - oldPaid;
+    if (collectedNow < 0) collectedNow = 0;
 
     const egyptNow =
         await getAccurateEgyptNow();
@@ -3614,6 +3630,9 @@ async function updatePaymentStatus(
                 paid:
                     newPaid,
 
+                last_collected:
+                    collectedNow,
+
                 updated_at:
                     paymentUpdatedAt
 
@@ -3626,7 +3645,7 @@ async function updatePaymentStatus(
     if (!error) {
 
         alert(
-            "تم تحديث حالة السداد بنجاح"
+            "تم تحديث حالة السداد بنجاح (المبلغ المضاف للدرج اليوم: " + collectedNow + " ج)"
         );
 
         adminSearchByFractionNumber();
