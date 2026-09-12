@@ -2361,7 +2361,7 @@ async function sendTo(m) {
 }
 
 /* =========================================================
-   التقرير (المحدث ليشمل الفواتير الجديدة أو القديمة التي حدث عليها سداد أو تسليم اليوم)
+   التقرير (المحدث ليحسب فقط الفلوس الفعلية التي دخلت الدرج اليوم)
    ========================================================= */
 
 async function rep(type) {
@@ -2432,11 +2432,6 @@ async function rep(type) {
                     ? new Date(x.updated_at)
                     : createdDate;
 
-            let deliveredDate =
-                x.delivered_at
-                    ? new Date(x.delivered_at)
-                    : null;
-
             let createdDateStr =
                 getEgyptDateString(
                     createdDate
@@ -2446,13 +2441,6 @@ async function rep(type) {
                 getEgyptDateString(
                     updatedDate
                 );
-
-            let deliveredDateStr =
-                deliveredDate
-                    ? getEgyptDateString(
-                        deliveredDate
-                    )
-                    : null;
 
             let invYear =
                 getEgyptYear(
@@ -2469,11 +2457,10 @@ async function rep(type) {
             if (
                 type === 'daily'
             ) {
-                // تضمن الفاتورة إذا تم إنشاؤها اليوم، أو تم تحديثها (سداد/تعديل) اليوم، أو تم تسليمها اليوم
+                // للتقرير اليومي: نأخذ فقط الفواتير التي أُنشئت اليوم (ونحسب مدفوعها) أو الفواتير القديمة التي تم عمل تحديث سداد لها اليوم
                 if (
                     createdDateStr === todayStr ||
-                    updatedDateStr === todayStr ||
-                    deliveredDateStr === todayStr
+                    updatedDateStr === todayStr
                 ) {
                     include = true;
                 }
@@ -2564,8 +2551,29 @@ async function rep(type) {
                     Date.now()
                 );
 
+            let createdDateStr =
+                getEgyptDateString(invDate);
+
+            let updatedDateStr =
+                x.updated_at ? getEgyptDateString(new Date(x.updated_at)) : createdDateStr;
+
+            let actualCollectedForReport = 0;
+
+            if (type === 'daily') {
+                if (createdDateStr === todayStr && updatedDateStr === todayStr) {
+                    // فاتورة جديدة أُنشئت اليوم ودفعت
+                    actualCollectedForReport = paid;
+                } else if (updatedDateStr === todayStr) {
+                    // فاتورة قديمة وتم تحديث سدادها اليوم (يعني تم دفع باقي حسابها أو سدادها اليوم)
+                    // نعتبر المبلغ المحصل اليوم هو كامل المدفوع أو المبلغ المسدد حديثاً، ولتجنب المبالغة نحسب المبلغ الذي دخل الصندوق اليوم بناءً على المدفوع الفعلي المسجل
+                    actualCollectedForReport = paid; 
+                }
+            } else {
+                actualCollectedForReport = paid;
+            }
+
             totalVaultAll +=
-                paid;
+                actualCollectedForReport;
 
             totalRemainingAll +=
                 rem;
@@ -2584,8 +2592,8 @@ async function rep(type) {
                 x.customer_name +
                 ' | الإجمالي: ' +
                 price +
-                ' ج | المدفوع: ' +
-                paid +
+                ' ج | المدفوع الفعلي: ' +
+                actualCollectedForReport +
                 ' ج | الباقي: ' +
                 rem +
                 ' ج\n';
@@ -2605,12 +2613,12 @@ async function rep(type) {
         "\n====================\n";
 
     txt +=
-        "إجمالي الحساب الكلي: " +
+        "إجمالي الحساب الكلي للفواتير الظاهرة: " +
         totalOverallAll +
         ' ج\n';
 
     txt +=
-        "إجمالي الخزنة (المدفوع): " +
+        "إجمالي الخزنة (المدفوع الفعلي بالدرج): " +
         totalVaultAll +
         ' ج\n';
 
