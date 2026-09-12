@@ -2353,7 +2353,7 @@ async function sendTo(m) {
 }
 
 /* =========================================================
-   التقرير (تم التعديل لجلب فواتير اليوم كاملة)
+   التقرير (يجلب كل فواتير اليوم سواء مدفوعة بالكامل أو عليها باقي)
    ========================================================= */
 
 async function rep(type) {
@@ -2439,15 +2439,7 @@ async function rep(type) {
             if (
                 type === 'daily'
             ) {
-                const isMaintenanceDone =
-                    x.status ===
-                    'تم الانتهاء من الصيانة';
-
-                if (
-                    invDateStr === todayStr &&
-                    !isMaintenanceDone
-                ) {
-
+                if (invDateStr === todayStr) {
                     include = true;
                 }
             }
@@ -2477,9 +2469,7 @@ async function rep(type) {
                     );
 
                 let uniqueKey =
-                    x.daily_number +
-                    '/' +
-                    dayNum;
+                    x.id || (x.daily_number + '/' + dayNum + '/' + invDateStr);
 
                 uniqueInvoicesMap.set(
                     uniqueKey,
