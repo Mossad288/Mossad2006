@@ -2353,7 +2353,7 @@ async function sendTo(m) {
 }
 
 /* =========================================================
-   التقرير
+   التقرير (تم التعديل لجلب فواتير اليوم كاملة)
    ========================================================= */
 
 async function rep(type) {
@@ -2434,46 +2434,17 @@ async function rep(type) {
                     invDate
                 );
 
-            let updatedDateStr =
-                x.updated_at
-                    ? getEgyptDateString(
-                        new Date(
-                            x.updated_at
-                        )
-                    )
-                    : null;
-
             let include = false;
 
             if (
                 type === 'daily'
             ) {
-
-                const isCreatedToday =
-                    invDateStr ===
-                    todayStr;
-
-                const isUpdatedToday =
-                    updatedDateStr ===
-                    todayStr;
-
-                /* 
-                 * التعديل الوحيد:
-                 * أوردر "تم الانتهاء من الصيانة"
-                 * لا يظهر في التقرير اليومي.
-                 *
-                 * "تم التسليم" يظل يظهر بشكل طبيعي.
-                 */
-
                 const isMaintenanceDone =
                     x.status ===
                     'تم الانتهاء من الصيانة';
 
                 if (
-                    (
-                        isCreatedToday ||
-                        isUpdatedToday
-                    ) &&
+                    invDateStr === todayStr &&
                     !isMaintenanceDone
                 ) {
 
@@ -3750,14 +3721,6 @@ async function updateStatus(
         updated_at:
             statusUpdatedAt
     };
-
-    /*
-     * لو الأوردر أصبح "تم التسليم"
-     * نسجل تاريخ ووقت التسليم الحقيقي في delivered_at.
-     *
-     * حتى لو الفاتورة قديمة، delivered_at
-     * سيأخذ تاريخ اليوم الذي تم فيه التسليم.
-     */
 
     if (
         newStatus === 'تم التسليم'
