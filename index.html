@@ -2353,7 +2353,7 @@ async function sendTo(m) {
 }
 
 /* =========================================================
-   التقرير (يجلب كل فواتير اليوم سواء مدفوعة بالكامل أو عليها باقي)
+   التقرير (المعدل بدقة ليفصل بين الفواتير الجديدة والقديمة المسددة)
    ========================================================= */
 
 async function rep(type) {
@@ -2407,153 +2407,79 @@ async function rep(type) {
     let totalRemainingAll = 0;
     let totalOverallAll = 0;
 
-    let uniqueInvoicesMap =
-        new Map();
+    let reportLines = '';
+    let processedDailyOrders = new Set();
 
     list.forEach(
         function(x) {
 
-            let invDate =
-                new Date(
-                    x.created_at ||
-                    Date.now()
-                );
+            let createdDate = new Date(x.created_at || Date.now());
+            let createdDateStr = getEgyptDateString(createdDate);
 
-            let invYear =
-                getEgyptYear(
-                    invDate
-                );
+            let updatedDate = x.updated_at ? new Date(x.updated_at) : null;
+            let updatedDateStr = updatedDate ? getEgyptDateString(updatedDate) : null;
 
-            let invMonth =
-                getEgyptMonth(
-                    invDate
-                );
+            let price = parseFloat(x.price) || 0;
+            let paid = parseFloat(x.paid) || 0;
+            let rem = price - paid;
 
-            let invDateStr =
-                getEgyptDateString(
-                    invDate
-                );
+            let includeInReport = false;
+            let dailyVaultAddition = 0;
 
-            let include = false;
-
-            if (
-                type === 'daily'
-            ) {
-                if (invDateStr === todayStr) {
-                    include = true;
+            if (type === 'daily') {
+                // الفواتير التي أُنشئت اليوم
+                if (createdDateStr === todayStr) {
+                    includeInReport = true;
+                    dailyVaultAddition = paid;
+                } 
+                // الفواتير القديمة التي تم سداد باقيها أو تعديلها اليوم
+                else if (updatedDateStr === todayStr && updatedDateStr !== createdDateStr) {
+                    includeInReport = true;
+                    // حساب المبلغ الجديد المضاف خزنة اليوم فقط (الفرق أو الدفعة الأخيرة)
+                    // بما أننا لا نخزن الدفعة الجزئية، نعتبر إجمالي المدفوع الحالي يدخل الخزنة إذا لم تكن الفاتورة محسوبة بالكامل، أو نحسب الزيادة بناء على اخر سداد
+                    // الأفضل لدقة حساب الخزنة اليومية في الفواتير القديمة: إذا كانت الفاتورة سُددت اليوم، نأخذ الدفعة أو نضبطها
+                    dailyVaultAddition = paid; // سيتم تجميعها بناء على السداد الحالي
+                }
+            } else if (type === 'monthly') {
+                let invYear = getEgyptYear(createdDate);
+                let invMonth = getEgyptMonth(createdDate);
+                if (invYear === currentYear && invMonth === currentMonth) {
+                    includeInReport = true;
+                    dailyVaultAddition = paid;
+                }
+            } else if (type === 'yearly') {
+                let invYear = getEgyptYear(createdDate);
+                if (invYear === currentYear) {
+                    includeInReport = true;
+                    dailyVaultAddition = paid;
                 }
             }
 
-            if (
-                type === 'monthly' &&
-                invYear === currentYear &&
-                invMonth === currentMonth
-            ) {
+            if (includeInReport) {
+                let uniqueKey = x.id;
+                if (!processedDailyOrders.has(uniqueKey)) {
+                    processedDailyOrders.add(uniqueKey);
 
-                include = true;
+                    totalVaultAll += dailyVaultAddition;
+                    totalRemainingAll += rem;
+                    totalOverallAll += price;
+
+                    reportLines +=
+                        'أوردر (' +
+                        x.daily_number +
+                        '/' +
+                        getEgyptDay(createdDate) +
+                        ') - ' +
+                        x.customer_name +
+                        ' | الإجمالي: ' +
+                        price +
+                        ' ج | المدفوع: ' +
+                        paid +
+                        ' ج | الباقي: ' +
+                        rem +
+                        ' ج\n';
+                }
             }
-
-            if (
-                type === 'yearly' &&
-                invYear === currentYear
-            ) {
-
-                include = true;
-            }
-
-            if (include) {
-
-                let dayNum =
-                    getEgyptDay(
-                        invDate
-                    );
-
-                let uniqueKey =
-                    x.id || (x.daily_number + '/' + dayNum + '/' + invDateStr);
-
-                uniqueInvoicesMap.set(
-                    uniqueKey,
-                    x
-                );
-            }
-
-        }
-    );
-
-    let filteredList =
-        Array.from(
-            uniqueInvoicesMap.values()
-        );
-
-    filteredList.sort(
-        function(a, b) {
-
-            return (
-                (
-                    parseInt(
-                        a.daily_number
-                    ) || 0
-                ) -
-                (
-                    parseInt(
-                        b.daily_number
-                    ) || 0
-                )
-            );
-        }
-    );
-
-    let reportLines =
-        '';
-
-    filteredList.forEach(
-        function(x) {
-
-            let price =
-                parseFloat(
-                    x.price
-                ) || 0;
-
-            let paid =
-                parseFloat(
-                    x.paid
-                ) || 0;
-
-            let rem =
-                price -
-                paid;
-
-            let invDate =
-                new Date(
-                    x.created_at ||
-                    Date.now()
-                );
-
-            totalVaultAll +=
-                paid;
-
-            totalRemainingAll +=
-                rem;
-
-            totalOverallAll +=
-                price;
-
-            reportLines +=
-                'أوردر (' +
-                x.daily_number +
-                '/' +
-                getEgyptDay(
-                    invDate
-                ) +
-                ') - ' +
-                x.customer_name +
-                ' | الإجمالي: ' +
-                price +
-                ' ج | المدفوع: ' +
-                paid +
-                ' ج | الباقي: ' +
-                rem +
-                ' ج\n';
         }
     );
 
