@@ -2203,6 +2203,10 @@ async function sendTo(m) {
                         details: sv + ' | ' + shelf,
                         price: parseFloat(t) || 0,
                         paid: parseFloat(p) || 0,
+
+                        /* الدفعة التي دخلت وقت إنشاء الفاتورة */
+                        last_payment_amount: parseFloat(p) || 0,
+
                         image_url: imagesForDatabase,
                         status: 'تحت الصيانة',
                         daily_number: currentDailyNum
@@ -2353,7 +2357,7 @@ async function sendTo(m) {
 }
 
 /* =========================================================
-   التقرير (المعدل بدقة ليفصل بين الفواتير الجديدة والقديمة المسددة)
+   التقرير
    ========================================================= */
 
 async function rep(type) {
@@ -2413,62 +2417,174 @@ async function rep(type) {
     list.forEach(
         function(x) {
 
-            let createdDate = new Date(x.created_at || Date.now());
-            let createdDateStr = getEgyptDateString(createdDate);
+            let createdDate =
+                new Date(
+                    x.created_at ||
+                    Date.now()
+                );
 
-            let updatedDate = x.updated_at ? new Date(x.updated_at) : null;
-            let updatedDateStr = updatedDate ? getEgyptDateString(updatedDate) : null;
+            let createdDateStr =
+                getEgyptDateString(
+                    createdDate
+                );
 
-            let price = parseFloat(x.price) || 0;
-            let paid = parseFloat(x.paid) || 0;
-            let rem = price - paid;
+            let updatedDate =
+                x.updated_at
+                    ? new Date(
+                        x.updated_at
+                    )
+                    : null;
 
-            let includeInReport = false;
-            let dailyVaultAddition = 0;
+            let updatedDateStr =
+                updatedDate
+                    ? getEgyptDateString(
+                        updatedDate
+                    )
+                    : null;
+
+            let price =
+                parseFloat(
+                    x.price
+                ) || 0;
+
+            let paid =
+                parseFloat(
+                    x.paid
+                ) || 0;
+
+            let rem =
+                price -
+                paid;
+
+            let includeInReport =
+                false;
+
+            let dailyVaultAddition =
+                0;
 
             if (type === 'daily') {
-                // الفواتير التي أُنشئت اليوم
-                if (createdDateStr === todayStr) {
-                    includeInReport = true;
-                    dailyVaultAddition = paid;
-                } 
-                // الفواتير القديمة التي تم سداد باقيها أو تعديلها اليوم
-                else if (updatedDateStr === todayStr && updatedDateStr !== createdDateStr) {
-                    includeInReport = true;
-                    // حساب المبلغ الجديد المضاف خزنة اليوم فقط (الفرق أو الدفعة الأخيرة)
-                    // بما أننا لا نخزن الدفعة الجزئية، نعتبر إجمالي المدفوع الحالي يدخل الخزنة إذا لم تكن الفاتورة محسوبة بالكامل، أو نحسب الزيادة بناء على اخر سداد
-                    // الأفضل لدقة حساب الخزنة اليومية في الفواتير القديمة: إذا كانت الفاتورة سُددت اليوم، نأخذ الدفعة أو نضبطها
-                    dailyVaultAddition = paid; // سيتم تجميعها بناء على السداد الحالي
+
+                if (
+                    createdDateStr ===
+                    todayStr
+                ) {
+
+                    includeInReport =
+                        true;
+
+                    const savedLastPayment =
+                        parseFloat(
+                            x.last_payment_amount
+                        );
+
+                    dailyVaultAddition =
+                        !isNaN(
+                            savedLastPayment
+                        )
+                            ? savedLastPayment
+                            : paid;
                 }
+
+                else if (
+                    updatedDateStr ===
+                    todayStr &&
+                    updatedDateStr !==
+                    createdDateStr
+                ) {
+
+                    includeInReport =
+                        true;
+
+                    const savedLastPayment =
+                        parseFloat(
+                            x.last_payment_amount
+                        );
+
+                    dailyVaultAddition =
+                        !isNaN(
+                            savedLastPayment
+                        )
+                            ? savedLastPayment
+                            : 0;
+                }
+
             } else if (type === 'monthly') {
-                let invYear = getEgyptYear(createdDate);
-                let invMonth = getEgyptMonth(createdDate);
-                if (invYear === currentYear && invMonth === currentMonth) {
-                    includeInReport = true;
-                    dailyVaultAddition = paid;
+
+                let invYear =
+                    getEgyptYear(
+                        createdDate
+                    );
+
+                let invMonth =
+                    getEgyptMonth(
+                        createdDate
+                    );
+
+                if (
+                    invYear ===
+                    currentYear &&
+                    invMonth ===
+                    currentMonth
+                ) {
+
+                    includeInReport =
+                        true;
+
+                    dailyVaultAddition =
+                        paid;
                 }
+
             } else if (type === 'yearly') {
-                let invYear = getEgyptYear(createdDate);
-                if (invYear === currentYear) {
-                    includeInReport = true;
-                    dailyVaultAddition = paid;
+
+                let invYear =
+                    getEgyptYear(
+                        createdDate
+                    );
+
+                if (
+                    invYear ===
+                    currentYear
+                ) {
+
+                    includeInReport =
+                        true;
+
+                    dailyVaultAddition =
+                        paid;
                 }
             }
 
             if (includeInReport) {
-                let uniqueKey = x.id;
-                if (!processedDailyOrders.has(uniqueKey)) {
-                    processedDailyOrders.add(uniqueKey);
 
-                    totalVaultAll += dailyVaultAddition;
-                    totalRemainingAll += rem;
-                    totalOverallAll += price;
+                let uniqueKey =
+                    x.id;
+
+                if (
+                    !processedDailyOrders.has(
+                        uniqueKey
+                    )
+                ) {
+
+                    processedDailyOrders.add(
+                        uniqueKey
+                    );
+
+                    totalVaultAll +=
+                        dailyVaultAddition;
+
+                    totalRemainingAll +=
+                        rem;
+
+                    totalOverallAll +=
+                        price;
 
                     reportLines +=
                         'أوردر (' +
                         x.daily_number +
                         '/' +
-                        getEgyptDay(createdDate) +
+                        getEgyptDay(
+                            createdDate
+                        ) +
                         ') - ' +
                         x.customer_name +
                         ' | الإجمالي: ' +
@@ -3471,31 +3587,125 @@ async function updatePaymentStatus(
     targetRem
 ) {
 
+    const {
+        data: currentInvoice,
+        error: fetchError
+    } =
+        await supabaseClient
+            .from('invoices')
+            .select(
+                'price, paid, last_payment_amount'
+            )
+            .eq(
+                'id',
+                invoiceId
+            )
+            .single();
+
+    if (fetchError) {
+
+        alert(
+            "حدث خطأ أثناء قراءة الفاتورة:\n" +
+            fetchError.message
+        );
+
+        return;
+    }
+
+    const currentTotal =
+        parseFloat(
+            currentInvoice.price
+        ) || parseFloat(
+            totalPrice
+        ) || 0;
+
+    const currentPaid =
+        parseFloat(
+            currentInvoice.paid
+        ) || 0;
+
     let newPaid =
+        currentPaid;
+
+    let newPaymentAmount =
+        0;
+
+    if (
         targetRem === 0
-            ? totalPrice
-            : totalPrice - targetRem;
+    ) {
 
-    const egyptNow =
-        await getAccurateEgyptNow();
+        const currentRemaining =
+            Math.max(
+                currentTotal -
+                currentPaid,
+                0
+            );
 
-    const paymentUpdatedAt =
-        egyptNow.toISOString();
+        newPaymentAmount =
+            currentRemaining;
+
+        newPaid =
+            Math.min(
+                currentPaid +
+                newPaymentAmount,
+                currentTotal
+            );
+
+    } else {
+
+        newPaid =
+            Math.max(
+                currentTotal -
+                parseFloat(
+                    targetRem
+                ),
+                0
+            );
+
+        newPaymentAmount =
+            0;
+    }
+
+    /*
+       لو مفيش مبلغ جديد دخل فعليًا،
+       لا نغيّر last_payment_amount
+       ولا updated_at.
+
+       يعني لو الفاتورة 220 والمدفوع بالفعل 220،
+       الضغط على "تم سداد المبلغ"
+       لن يسجل دفعة جديدة ولن يغيّر وقت السداد.
+    */
+
+    let updateData = {
+        paid:
+            newPaid
+    };
+
+    if (
+        newPaymentAmount > 0
+    ) {
+
+        const egyptNow =
+            await getAccurateEgyptNow();
+
+        const paymentUpdatedAt =
+            egyptNow.toISOString();
+
+        updateData.last_payment_amount =
+            newPaymentAmount;
+
+        updateData.updated_at =
+            paymentUpdatedAt;
+    }
 
     const {
         error
     } =
         await supabaseClient
             .from('invoices')
-            .update({
-
-                paid:
-                    newPaid,
-
-                updated_at:
-                    paymentUpdatedAt
-
-            })
+            .update(
+                updateData
+            )
             .eq(
                 'id',
                 invoiceId
@@ -3629,13 +3839,18 @@ async function updateStatus(
     const statusUpdatedAt =
         egyptNow.toISOString();
 
+    /*
+       تغيير الحالة ليس عملية سداد.
+       لذلك لا نلمس updated_at هنا.
+
+       updated_at يتغير فقط عند وجود دفعة جديدة
+       داخل updatePaymentStatus().
+    */
+
     let updateData = {
 
         status:
-            newStatus,
-
-        updated_at:
-            statusUpdatedAt
+            newStatus
     };
 
     if (
