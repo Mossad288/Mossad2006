@@ -2203,10 +2203,7 @@ async function sendTo(m) {
                         details: sv + ' | ' + shelf,
                         price: parseFloat(t) || 0,
                         paid: parseFloat(p) || 0,
-
-                        /* الدفعة التي دخلت وقت إنشاء الفاتورة */
                         last_payment_amount: parseFloat(p) || 0,
-
                         image_url: imagesForDatabase,
                         status: 'تحت الصيانة',
                         daily_number: currentDailyNum
@@ -2357,7 +2354,7 @@ async function sendTo(m) {
 }
 
 /* =========================================================
-   التقرير
+   التقرير (المعدل بالكامل حسب الطلب)
    ========================================================= */
 
 async function rep(type) {
@@ -2468,30 +2465,17 @@ async function rep(type) {
                     createdDateStr ===
                     todayStr
                 ) {
-
                     includeInReport =
                         true;
-
-                    const savedLastPayment =
-                        parseFloat(
-                            x.last_payment_amount
-                        );
-
                     dailyVaultAddition =
-                        !isNaN(
-                            savedLastPayment
-                        )
-                            ? savedLastPayment
-                            : paid;
+                        paid;
                 }
-
                 else if (
                     updatedDateStr ===
                     todayStr &&
                     updatedDateStr !==
                     createdDateStr
                 ) {
-
                     includeInReport =
                         true;
 
@@ -2529,7 +2513,6 @@ async function rep(type) {
 
                     includeInReport =
                         true;
-
                     dailyVaultAddition =
                         paid;
                 }
@@ -2548,7 +2531,6 @@ async function rep(type) {
 
                     includeInReport =
                         true;
-
                     dailyVaultAddition =
                         paid;
                 }
@@ -2569,15 +2551,24 @@ async function rep(type) {
                         uniqueKey
                     );
 
-                    totalVaultAll +=
-                        dailyVaultAddition;
+                    if (type === 'daily') {
+                        if (createdDateStr === todayStr) {
+                            // فاتورة جديدة اليوم: تضاف لإجمالي الفواتير والخزنة
+                            totalOverallAll += price;
+                            totalVaultAll += dailyVaultAddition;
+                        } else {
+                            // فاتورة قديمة وجه سدد الباقي اليوم: 
+                            // لا تضاف لإجمالي الفواتير الجديدة، ولكن يظهر إجماليها القديم في التفاصيل ويضاف ما سدده للخزنة
+                            totalVaultAll += dailyVaultAddition;
+                        }
+                        totalRemainingAll += rem;
+                    } else {
+                        totalVaultAll += dailyVaultAddition;
+                        totalRemainingAll += rem;
+                        totalOverallAll += price;
+                    }
 
-                    totalRemainingAll +=
-                        rem;
-
-                    totalOverallAll +=
-                        price;
-
+                    // تصميم سطر التقرير ليوضح الإجمالي، المدفوع، والباقي لكل أوردر (سواء جديد أو قديم تم سداده اليوم)
                     reportLines +=
                         'أوردر (' +
                         x.daily_number +
@@ -3666,16 +3657,6 @@ async function updatePaymentStatus(
             0;
     }
 
-    /*
-       لو مفيش مبلغ جديد دخل فعليًا،
-       لا نغيّر last_payment_amount
-       ولا updated_at.
-
-       يعني لو الفاتورة 220 والمدفوع بالفعل 220،
-       الضغط على "تم سداد المبلغ"
-       لن يسجل دفعة جديدة ولن يغيّر وقت السداد.
-    */
-
     let updateData = {
         paid:
             newPaid
@@ -3838,14 +3819,6 @@ async function updateStatus(
 
     const statusUpdatedAt =
         egyptNow.toISOString();
-
-    /*
-       تغيير الحالة ليس عملية سداد.
-       لذلك لا نلمس updated_at هنا.
-
-       updated_at يتغير فقط عند وجود دفعة جديدة
-       داخل updatePaymentStatus().
-    */
 
     let updateData = {
 
