@@ -2354,7 +2354,7 @@ async function sendTo(m) {
 }
 
 /* =========================================================
-   التقرير (المعدل بالكامل حسب الطلب)
+   التقرير (المعدل حسب طلبك الجديد لتنسيق المدفوعات والفرق)
    ========================================================= */
 
 async function rep(type) {
@@ -2444,20 +2444,38 @@ async function rep(type) {
                     x.price
                 ) || 0;
 
-            let paid =
+            let totalPaid =
                 parseFloat(
                     x.paid
                 ) || 0;
 
             let rem =
                 price -
-                paid;
+                totalPaid;
 
             let includeInReport =
                 false;
 
             let dailyVaultAddition =
                 0;
+
+            // تحديد المدفوع السابق والمدفوع عند الاستلام بناءً على التسجيلات
+            let previousPaid = parseFloat(x.last_payment_amount) || 0;
+            let paidOnDelivery = 0;
+
+            if (createdDateStr === todayStr && updatedDateStr === todayStr && updatedDateStr !== createdDateStr) {
+                // تم سداد المتبقي اليوم لنفس أوردر اليوم
+                previousPaid = totalPaid - parseFloat(x.last_payment_amount || 0);
+                paidOnDelivery = parseFloat(x.last_payment_amount || 0);
+            } else if (updatedDateStr === todayStr && updatedDateStr !== createdDateStr) {
+                // أوردر قديم وسدد اليوم
+                previousPaid = totalPaid - parseFloat(x.last_payment_amount || 0);
+                paidOnDelivery = parseFloat(x.last_payment_amount || 0);
+            } else if (createdDateStr === todayStr) {
+                // أوردر جديد اليوم
+                previousPaid = 0;
+                paidOnDelivery = totalPaid;
+            }
 
             if (type === 'daily') {
 
@@ -2468,7 +2486,7 @@ async function rep(type) {
                     includeInReport =
                         true;
                     dailyVaultAddition =
-                        paid;
+                        totalPaid;
                 }
                 else if (
                     updatedDateStr ===
@@ -2514,7 +2532,7 @@ async function rep(type) {
                     includeInReport =
                         true;
                     dailyVaultAddition =
-                        paid;
+                        totalPaid;
                 }
 
             } else if (type === 'yearly') {
@@ -2532,7 +2550,7 @@ async function rep(type) {
                     includeInReport =
                         true;
                     dailyVaultAddition =
-                        paid;
+                        totalPaid;
                 }
             }
 
@@ -2553,12 +2571,9 @@ async function rep(type) {
 
                     if (type === 'daily') {
                         if (createdDateStr === todayStr) {
-                            // فاتورة جديدة اليوم: تضاف لإجمالي الفواتير والخزنة
                             totalOverallAll += price;
                             totalVaultAll += dailyVaultAddition;
                         } else {
-                            // فاتورة قديمة وجه سدد الباقي اليوم: 
-                            // لا تضاف لإجمالي الفواتير الجديدة، ولكن يظهر إجماليها القديم في التفاصيل ويضاف ما سدده للخزنة
                             totalVaultAll += dailyVaultAddition;
                         }
                         totalRemainingAll += rem;
@@ -2568,23 +2583,44 @@ async function rep(type) {
                         totalOverallAll += price;
                     }
 
-                    // تصميم سطر التقرير ليوضح الإجمالي، المدفوع، والباقي لكل أوردر (سواء جديد أو قديم تم سداده اليوم)
-                    reportLines +=
-                        'أوردر (' +
-                        x.daily_number +
-                        '/' +
-                        getEgyptDay(
-                            createdDate
-                        ) +
-                        ') - ' +
-                        x.customer_name +
-                        ' | الإجمالي: ' +
-                        price +
-                        ' ج | المدفوع: ' +
-                        paid +
-                        ' ج | الباقي: ' +
-                        rem +
-                        ' ج\n';
+                    // تصميم التقرير ليعرض بالشكل المطلوب بالظبط: المدفوع سابقاً ومدفوع الاستلام لو فيه فلوس باقية ومسددة
+                    if (previousPaid > 0 && paidOnDelivery > 0) {
+                        reportLines +=
+                            'أوردر (' +
+                            x.daily_number +
+                            '/' +
+                            getEgyptDay(
+                                createdDate
+                            ) +
+                            ') - ' +
+                            x.customer_name +
+                            ' | الإجمالي: ' +
+                            price +
+                            ' ج | المدفوع سابقاً: ' +
+                            previousPaid +
+                            ' ج | المدفوع عند الاستلام: ' +
+                            paidOnDelivery +
+                            ' ج | الباقي: ' +
+                            rem +
+                            ' ج\n';
+                    } else {
+                        reportLines +=
+                            'أوردر (' +
+                            x.daily_number +
+                            '/' +
+                            getEgyptDay(
+                                createdDate
+                            ) +
+                            ') - ' +
+                            x.customer_name +
+                            ' | الإجمالي: ' +
+                            price +
+                            ' ج | المدفوع: ' +
+                            totalPaid +
+                            ' ج | الباقي: ' +
+                            rem +
+                            ' ج\n';
+                    }
                 }
             }
         }
