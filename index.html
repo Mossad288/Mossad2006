@@ -523,6 +523,7 @@
                 placeholder="اسم العميل"
                 autocomplete="off"
                 value=""
+                onblur="fetchLastCustomerData('name')"
             >
 
             <label>واتساب العميل:</label>
@@ -533,6 +534,7 @@
                 placeholder="01012345678"
                 autocomplete="off"
                 value=""
+                onblur="fetchLastCustomerData('phone')"
             >
 
             <div class="row">
@@ -1777,6 +1779,91 @@ function resetFormInputs() {
     isCurrentInvoiceSaved = false;
 }
 
+/* =========================================================
+   ميزة جلب آخر فاتورة للعميل عند كتابة الاسم أو رقم الموبايل
+   ========================================================= */
+async function fetchLastCustomerData(inputType) {
+    let searchValue = "";
+    if (inputType === 'name') {
+        searchValue = document.getElementById('name').value.trim();
+    } else if (inputType === 'phone') {
+        searchValue = document.getElementById('phone').value.trim();
+    }
+
+    if (!searchValue) return;
+
+    try {
+        let query = supabaseClient.from('invoices').select('*');
+        
+        if (inputType === 'name') {
+            query = query.ilike('customer_name', '%' + searchValue + '%');
+        } else {
+            query = query.ilike('phone', '%' + searchValue + '%');
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false }).limit(1);
+
+        if (!error && data && data.length > 0) {
+            const lastInv = data[0];
+
+            // ملء اسم العميل ورقم الواتساب
+            if (lastInv.customer_name) document.getElementById('name').value = lastInv.customer_name;
+            if (lastInv.phone) document.getElementById('phone').value = lastInv.phone;
+
+            // استخراج تفاصيل الأصناف وتعبئتها في الخانات المناسبة لو وجدت
+            const itemTypeStr = lastInv.item_type || '';
+            
+            // إعادة تعيين الخانات الخاصة بالأصناف أولاً
+            document.getElementById('snk').value = '';
+            document.getElementById('shs').value = '';
+            document.getElementById('slp').value = '';
+            document.getElementById('snd').value = '';
+            document.getElementById('sng').value = '';
+            document.getElementById('bags').value = '';
+
+            // محاولة تحليل الأصناف المخزنة لعرضها
+            if (itemTypeStr.includes('كوتشيات:')) {
+                let val = itemTypeStr.split('كوتشيات:')[1].split('|')[0].trim();
+                document.getElementById('snk').value = val;
+            }
+            if (itemTypeStr.includes('جزم:')) {
+                let val = itemTypeStr.split('جزم:')[1].split('|')[0].trim();
+                document.getElementById('shs').value = val;
+            }
+            if (itemTypeStr.includes('شبشب:')) {
+                let val = itemTypeStr.split('شبشب:')[1].split('|')[0].trim();
+                document.getElementById('slp').value = val;
+            }
+            if (itemTypeStr.includes('صندل:')) {
+                let val = itemTypeStr.split('صندل:')[1].split('|')[0].trim();
+                document.getElementById('snd').value = val;
+            }
+            if (itemTypeStr.includes('فردة:')) {
+                let val = itemTypeStr.split('فردة:')[1].split('|')[0].trim();
+                document.getElementById('sng').value = val;
+            }
+            if (itemTypeStr.includes('شنط:')) {
+                let val = itemTypeStr.split('شنط:')[1].split('|')[0].trim();
+                document.getElementById('bags').value = val;
+            }
+
+            // تعبئة الخدمة إن وجدت
+            if (lastInv.details) {
+                let detailsClean = lastInv.details.split('|')[0].trim();
+                document.getElementById('srv').value = detailsClean;
+            }
+
+            // تعبئة الحسابات
+            if (lastInv.price !== undefined) document.getElementById('tot').value = lastInv.price;
+            if (lastInv.paid !== undefined) document.getElementById('paid').value = lastInv.paid;
+            
+            calc();
+        }
+    } catch (e) {
+        console.error("خطأ في جلب بيانات العميل السابق:", e);
+    }
+}
+
 function openScreen(screenId) {
 
     document.getElementById('mainDashboardScreen').style.display = 'none';
@@ -2362,7 +2449,7 @@ async function sendTo(m) {
 }
 
 /* =========================================================
-   التقرير (المعدل حسب طلبك الجديد لتنسيق المدفوعات والفرق)
+   التقرير 
    ========================================================= */
 
 async function rep(type) {
@@ -2467,20 +2554,16 @@ async function rep(type) {
             let dailyVaultAddition =
                 0;
 
-            // تحديد المدفوع السابق والمدفوع عند الاستلام بناءً على التسجيلات
             let previousPaid = parseFloat(x.last_payment_amount) || 0;
             let paidOnDelivery = 0;
 
             if (createdDateStr === todayStr && updatedDateStr === todayStr && updatedDateStr !== createdDateStr) {
-                // تم سداد المتبقي اليوم لنفس أوردر اليوم
                 previousPaid = totalPaid - parseFloat(x.last_payment_amount || 0);
                 paidOnDelivery = parseFloat(x.last_payment_amount || 0);
             } else if (updatedDateStr === todayStr && updatedDateStr !== createdDateStr) {
-                // أوردر قديم وسدد اليوم
                 previousPaid = totalPaid - parseFloat(x.last_payment_amount || 0);
                 paidOnDelivery = parseFloat(x.last_payment_amount || 0);
             } else if (createdDateStr === todayStr) {
-                // أوردر جديد اليوم
                 previousPaid = 0;
                 paidOnDelivery = totalPaid;
             }
@@ -2591,7 +2674,6 @@ async function rep(type) {
                         totalOverallAll += price;
                     }
 
-                    // تصميم التقرير ليعرض بالشكل المطلوب بالظبط: المدفوع سابقاً ومدفوع الاستلام لو فيه فلوس باقية ومسددة
                     if (previousPaid > 0 && paidOnDelivery > 0) {
                         reportLines +=
                             'أوردر (' +
