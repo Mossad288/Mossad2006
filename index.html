@@ -527,7 +527,7 @@
                 placeholder="اسم العميل"
                 autocomplete="off"
                 value=""
-                onblur="fetchLastCustomerData('name')"
+                oninput="handleCustomerInput('name')"
             >
 
             <label>واتساب العميل:</label>
@@ -538,8 +538,11 @@
                 placeholder="01012345678"
                 autocomplete="off"
                 value=""
-                onblur="fetchLastCustomerData('phone')"
+                oninput="handleCustomerInput('phone')"
             >
+
+            <!-- قائمة نتائج اقتراحات العملاء المنسدلة -->
+            <div id="customerSuggestionsBox" style="display:none; background:#141414; border:1px solid #bf953f; border-radius:8px; max-height:180px; overflow-y:auto; margin-bottom:12px;"></div>
 
             <div class="row">
 
@@ -1137,6 +1140,7 @@ var currentDayNum = 1;
 
 var formattedOrderCode = "";
 var isCurrentInvoiceSaved = false;
+var isCustomerSelected = false; // متغير حماية تثبيت بيانات العميل
 
 var trustedEgyptTimeMs = null;
 var trustedPerformanceMs = null;
@@ -1763,7 +1767,9 @@ function grantAccess(role) {
 function resetFormInputs() {
 
     document.getElementById('name').value = '';
+    document.getElementById('name').readOnly = false;
     document.getElementById('phone').value = '';
+    document.getElementById('phone').readOnly = false;
     document.getElementById('rDate').value = '';
     document.getElementById('dDate').value = '';
     document.getElementById('snk').value = '';
@@ -1786,19 +1792,28 @@ function resetFormInputs() {
         historyNotice.innerHTML = '';
     }
 
+    const suggestionsBox = document.getElementById('customerSuggestionsBox');
+    if(suggestionsBox) {
+        suggestionsBox.style.display = 'none';
+        suggestionsBox.innerHTML = '';
+    }
+
     uploadedImageUrls = [];
     selectedFilesList = [];
     isCurrentInvoiceSaved = false;
+    isCustomerSelected = false; // إعادة تعيين حالة التثبيت
     
-    // إعادة تفعيل أزرار الإرسال
     document.getElementById('clientSendBtn').disabled = false;
     document.getElementById('ownerSendBtn').disabled = false;
 }
 
 /* =========================================================
-   ميزة جلب آخر فاتورة وتاريخها للعميل عند كتابة الاسم أو رقم الموبايل
+   البحث والاقتراحات الذكية أثناء الكتابة وتثبيت الحقول
    ========================================================= */
-async function fetchLastCustomerData(inputType) {
+async function handleCustomerInput(inputType) {
+    // إذا تم اختيار عميل من القائمة وتم قفل الحقول، امنع أي بحث أو تغيير تلقائي
+    if (isCustomerSelected) return;
+
     let searchValue = "";
     if (inputType === 'name') {
         searchValue = document.getElementById('name').value.trim();
@@ -1806,88 +1821,132 @@ async function fetchLastCustomerData(inputType) {
         searchValue = document.getElementById('phone').value.trim();
     }
 
-    if (!searchValue) return;
+    const suggestionsBox = document.getElementById('customerSuggestionsBox');
+
+    if (!searchValue || searchValue.length < 2) {
+        if (suggestionsBox) {
+            suggestionsBox.style.display = 'none';
+            suggestionsBox.innerHTML = '';
+        }
+        return;
+    }
 
     try {
         let query = supabaseClient.from('invoices').select('*');
-        
         if (inputType === 'name') {
             query = query.ilike('customer_name', '%' + searchValue + '%');
         } else {
             query = query.ilike('phone', '%' + searchValue + '%');
         }
 
-        const { data, error } = await query.order('created_at', { ascending: false }).limit(1);
+        const { data, error } = await query.order('created_at', { ascending: false }).limit(5);
 
         if (!error && data && data.length > 0) {
-            const lastInv = data[0];
+            let html = '';
+            // تصفية النتائج لتجنب التكرار بناءً على اسم أو رقم العميل
+            let uniqueMap = new Map();
+            data.forEach(inv => {
+                let key = inv.customer_name + "_" + inv.phone;
+                if (!uniqueMap.has(key)) {
+                    uniqueMap.set(key, inv);
+                }
+            });
 
-            // ملء اسم العميل ورقم الواتساب
-            if (lastInv.customer_name) document.getElementById('name').value = lastInv.customer_name;
-            if (lastInv.phone) document.getElementById('phone').value = lastInv.phone;
+            uniqueMap.forEach((inv) => {
+                let safeName = inv.customer_name || 'بدون اسم';
+                let safePhone = inv.phone || 'بدون رقم';
+                html += `<div style="padding:10px; border-bottom:1px solid #33270a; cursor:pointer; color:#f3e5ab; font-size:13px;" onclick='selectCustomerFromList(${JSON.stringify(inv)})'>
+                    <b>${safeName}</b> - <span>${safePhone}</span>
+                </div>`;
+            });
 
-            // استخراج تاريخ آخر فاتورة ورقمها وعرضها في صندوق التنبيه
-            const lastInvDate = lastInv.created_at ? getEgyptDateString(new Date(lastInv.created_at)) : 'غير محدد';
-            const lastInvNum = lastInv.daily_number || '#';
-            
-            const historyNotice = document.getElementById('customerHistoryNotice');
-            if (historyNotice) {
-                historyNotice.innerHTML = `آخر شغل للعميل - رقم الأوردر: <b>${lastInvNum}</b> | بتاريخ: <b>${lastInvDate}</b>`;
-                historyNotice.style.display = 'block';
+            if (html) {
+                suggestionsBox.innerHTML = html;
+                suggestionsBox.style.display = 'block';
+            } else {
+                suggestionsBox.style.display = 'none';
             }
-
-            // استخراج تفاصيل الأصناف وتعبئتها في الخانات المناسبة لو وجدت
-            const itemTypeStr = lastInv.item_type || '';
-            
-            // إعادة تعيين الخانات الخاصة بالأصناف أولاً
-            document.getElementById('snk').value = '';
-            document.getElementById('shs').value = '';
-            document.getElementById('slp').value = '';
-            document.getElementById('snd').value = '';
-            document.getElementById('sng').value = '';
-            document.getElementById('bags').value = '';
-
-            // محاولة تحليل الأصناف المخزنة لعرضها
-            if (itemTypeStr.includes('كوتشيات:')) {
-                let val = itemTypeStr.split('كوتشيات:')[1].split('|')[0].trim();
-                document.getElementById('snk').value = val;
-            }
-            if (itemTypeStr.includes('جزم:')) {
-                let val = itemTypeStr.split('جزم:')[1].split('|')[0].trim();
-                document.getElementById('shs').value = val;
-            }
-            if (itemTypeStr.includes('شبشب:')) {
-                let val = itemTypeStr.split('شبشب:')[1].split('|')[0].trim();
-                document.getElementById('slp').value = val;
-            }
-            if (itemTypeStr.includes('صندل:')) {
-                let val = itemTypeStr.split('صندل:')[1].split('|')[0].trim();
-                document.getElementById('snd').value = val;
-            }
-            if (itemTypeStr.includes('فردة:')) {
-                let val = itemTypeStr.split('فردة:')[1].split('|')[0].trim();
-                document.getElementById('sng').value = val;
-            }
-            if (itemTypeStr.includes('شنط:')) {
-                let val = itemTypeStr.split('شنط:')[1].split('|')[0].trim();
-                document.getElementById('bags').value = val;
-            }
-
-            // تعبئة الخدمة إن وجدت
-            if (lastInv.details) {
-                let detailsClean = lastInv.details.split('|')[0].trim();
-                document.getElementById('srv').value = detailsClean;
-            }
-
-            // تعبئة الحسابات
-            if (lastInv.price !== undefined) document.getElementById('tot').value = lastInv.price;
-            if (lastInv.paid !== undefined) document.getElementById('paid').value = lastInv.paid;
-            
-            calc();
+        } else {
+            suggestionsBox.style.display = 'none';
         }
     } catch (e) {
-        console.error("خطأ في جلب بيانات العميل السابق:", e);
+        console.error("خطأ في جلب اقتراحات العميل:", e);
     }
+}
+
+// دالة الاختيار المقصود بالضغط وتثبيت الحقول منعاً لأي تغيير تلقائي
+function selectCustomerFromList(inv) {
+    // 1. تفعيل حماية التثبيت
+    isCustomerSelected = true;
+
+    // 2. تعبئة البيانات
+    if (inv.customer_name) document.getElementById('name').value = inv.customer_name;
+    if (inv.phone) document.getElementById('phone').value = inv.phone;
+
+    // 3. قفل حقول الاسم ورقم الموبايل نهائياً (readOnly) لمنع أي تعديل أو لخبطة
+    document.getElementById('name').readOnly = true;
+    document.getElementById('phone').readOnly = true;
+
+    // 4. إخفاء صندوق الاقتراحات فوراً
+    const suggestionsBox = document.getElementById('customerSuggestionsBox');
+    if (suggestionsBox) {
+        suggestionsBox.style.display = 'none';
+        suggestionsBox.innerHTML = '';
+    }
+
+    // 5. عرض تاريخ آخر أوردر وتفاصيله
+    const lastInvDate = inv.created_at ? getEgyptDateString(new Date(inv.created_at)) : 'غير محدد';
+    const lastInvNum = inv.daily_number || '#';
+    
+    const historyNotice = document.getElementById('customerHistoryNotice');
+    if (historyNotice) {
+        historyNotice.innerHTML = `تم اختيار العميل بنجاح - آخر أوردر برقم: <b>${lastInvNum}</b> | بتاريخ: <b>${lastInvDate}</b>`;
+        historyNotice.style.display = 'block';
+    }
+
+    // 6. تعبئة الأصناف والخدمة والحسابات لو متوفرة من آخر فاتورة
+    const itemTypeStr = inv.item_type || '';
+    document.getElementById('snk').value = '';
+    document.getElementById('shs').value = '';
+    document.getElementById('slp').value = '';
+    document.getElementById('snd').value = '';
+    document.getElementById('sng').value = '';
+    document.getElementById('bags').value = '';
+
+    if (itemTypeStr.includes('كوتشيات:')) {
+        let val = itemTypeStr.split('كوتشيات:')[1].split('|')[0].trim();
+        document.getElementById('snk').value = val;
+    }
+    if (itemTypeStr.includes('جزم:')) {
+        let val = itemTypeStr.split('جزم:')[1].split('|')[0].trim();
+        document.getElementById('shs').value = val;
+    }
+    if (itemTypeStr.includes('شبشب:')) {
+        let val = itemTypeStr.split('شبشب:')[1].split('|')[0].trim();
+        document.getElementById('slp').value = val;
+    }
+    if (itemTypeStr.includes('صندل:')) {
+        let val = itemTypeStr.split('صندل:')[1].split('|')[0].trim();
+        document.getElementById('snd').value = val;
+    }
+    if (itemTypeStr.includes('فردة:')) {
+        let val = itemTypeStr.split('فردة:')[1].split('|')[0].trim();
+        document.getElementById('sng').value = val;
+    }
+    if (itemTypeStr.includes('شنط:')) {
+        let val = itemTypeStr.split('شنط:')[1].split('|')[0].trim();
+        document.getElementById('bags').value = val;
+    }
+
+    if (inv.details) {
+        let detailsClean = inv.details.split('|')[0].trim();
+        document.getElementById('srv').value = detailsClean;
+    }
+
+    if (inv.price !== undefined) document.getElementById('tot').value = inv.price;
+    if (inv.paid !== undefined) document.getElementById('paid').value = inv.paid;
+    
+    calc();
 }
 
 function openScreen(screenId) {
@@ -2257,7 +2316,6 @@ function getItemsSummary() {
 
 async function sendTo(m) {
 
-    // حماية منع تكرار الحفظ تماماً
     if (isCurrentInvoiceSaved) {
         alert("تم حفظ هذه الفاتورة بالفعل ولا يمكن تكرارها!");
         return;
@@ -2291,7 +2349,6 @@ async function sendTo(m) {
         return;
     }
 
-    // تعطيل أزرار الإرسال فوراً لمنع الضغط المزدوج
     document.getElementById('clientSendBtn').disabled = true;
     document.getElementById('ownerSendBtn').disabled = true;
 
@@ -2348,7 +2405,6 @@ async function sendTo(m) {
                 error.message
             );
             
-            // إعادة تفعيل الأزرار في حال حدوث خطأ
             document.getElementById('clientSendBtn').disabled = false;
             document.getElementById('ownerSendBtn').disabled = false;
 
