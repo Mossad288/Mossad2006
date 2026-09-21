@@ -515,6 +515,10 @@
 
         <form id="invoiceForm" style="display:none;" autocomplete="off">
 
+            <!-- صندوق عرض آخر تفاصيل وتاريخ العميل -->
+            <div id="customerHistoryNotice" style="display:none; background:#141414; border:1px solid #bf953f; padding:10px; border-radius:8px; margin-bottom:12px; font-size:13px; color:#f3e5ab; text-align:center;">
+            </div>
+
             <label>اسم العميل:</label>
 
             <input
@@ -764,6 +768,7 @@
 
             <button
                 type="button"
+                id="clientSendBtn"
                 class="btn"
                 style="background:linear-gradient(135deg,#16a34a,#15803d);margin-top:15px;"
                 onclick="sendTo('client')"
@@ -773,6 +778,7 @@
 
             <button
                 type="button"
+                id="ownerSendBtn"
                 class="btn"
                 style="background:linear-gradient(135deg,#2563eb,#1d4ed8);"
                 onclick="sendTo('owner')"
@@ -1773,14 +1779,24 @@ function resetFormInputs() {
     document.getElementById('tot').value = '';
     document.getElementById('paid').value = '';
     document.getElementById('rem').value = '';
+    
+    const historyNotice = document.getElementById('customerHistoryNotice');
+    if(historyNotice) {
+        historyNotice.style.display = 'none';
+        historyNotice.innerHTML = '';
+    }
 
     uploadedImageUrls = [];
     selectedFilesList = [];
     isCurrentInvoiceSaved = false;
+    
+    // إعادة تفعيل أزرار الإرسال
+    document.getElementById('clientSendBtn').disabled = false;
+    document.getElementById('ownerSendBtn').disabled = false;
 }
 
 /* =========================================================
-   ميزة جلب آخر فاتورة للعميل عند كتابة الاسم أو رقم الموبايل
+   ميزة جلب آخر فاتورة وتاريخها للعميل عند كتابة الاسم أو رقم الموبايل
    ========================================================= */
 async function fetchLastCustomerData(inputType) {
     let searchValue = "";
@@ -1809,6 +1825,16 @@ async function fetchLastCustomerData(inputType) {
             // ملء اسم العميل ورقم الواتساب
             if (lastInv.customer_name) document.getElementById('name').value = lastInv.customer_name;
             if (lastInv.phone) document.getElementById('phone').value = lastInv.phone;
+
+            // استخراج تاريخ آخر فاتورة ورقمها وعرضها في صندوق التنبيه
+            const lastInvDate = lastInv.created_at ? getEgyptDateString(new Date(lastInv.created_at)) : 'غير محدد';
+            const lastInvNum = lastInv.daily_number || '#';
+            
+            const historyNotice = document.getElementById('customerHistoryNotice');
+            if (historyNotice) {
+                historyNotice.innerHTML = `آخر شغل للعميل - رقم الأوردر: <b>${lastInvNum}</b> | بتاريخ: <b>${lastInvDate}</b>`;
+                historyNotice.style.display = 'block';
+            }
 
             // استخراج تفاصيل الأصناف وتعبئتها في الخانات المناسبة لو وجدت
             const itemTypeStr = lastInv.item_type || '';
@@ -2231,6 +2257,12 @@ function getItemsSummary() {
 
 async function sendTo(m) {
 
+    // حماية منع تكرار الحفظ تماماً
+    if (isCurrentInvoiceSaved) {
+        alert("تم حفظ هذه الفاتورة بالفعل ولا يمكن تكرارها!");
+        return;
+    }
+
     var n =
         document.getElementById('name').value.trim();
 
@@ -2258,6 +2290,10 @@ async function sendTo(m) {
 
         return;
     }
+
+    // تعطيل أزرار الإرسال فوراً لمنع الضغط المزدوج
+    document.getElementById('clientSendBtn').disabled = true;
+    document.getElementById('ownerSendBtn').disabled = true;
 
     var r =
         document.getElementById('rDate').value ||
@@ -2311,6 +2347,10 @@ async function sendTo(m) {
                 "خطأ في حفظ الفاتورة: " +
                 error.message
             );
+            
+            // إعادة تفعيل الأزرار في حال حدوث خطأ
+            document.getElementById('clientSendBtn').disabled = false;
+            document.getElementById('ownerSendBtn').disabled = false;
 
             return;
         }
