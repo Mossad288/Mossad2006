@@ -3426,9 +3426,10 @@ function renderSearchResults(
                             '</span>' +
                         '</span>';
 
-                    // استخراج الخدمة والرف بشكل منظم ونظيف
+                    // استخراج الخدمة والرف بشكل منظم ونظيف بدون تكرار
                     let serviceText = '-';
-                    let shelfText = 'غير محدد';
+                    let shelfDisplay = '';
+                    let shelfRawText = 'غير محدد';
 
                     if (inv.details) {
                         let parts = inv.details.split('|').map(p => p.trim());
@@ -3437,7 +3438,9 @@ function renderSearchResults(
 
                         if (srvPart) serviceText = srvPart;
                         if (shelfPart) {
-                            shelfText = shelfPart.startsWith('رف ') ? shelfPart : 'رف ' + shelfPart;
+                            shelfRawText = shelfPart.startsWith('رف ') ? shelfPart : 'رف ' + shelfPart;
+                            let cleanLetter = shelfPart.replace('رف', '').trim();
+                            shelfDisplay = '<div style="font-size:13px;color:#f3e5ab;margin-bottom:3px;"><b>الرف:</b> ' + cleanLetter + '</div>';
                         }
                     }
 
@@ -3495,8 +3498,8 @@ function renderSearchResults(
                     ) {
 
                         let currentShelfVal = "اختر الرف";
-                        if (shelfText !== 'غير محدد') {
-                            currentShelfVal = shelfText;
+                        if (shelfRawText !== 'غير محدد') {
+                            currentShelfVal = shelfRawText;
                         }
 
                         adminControlsHtml =
@@ -3660,9 +3663,7 @@ function renderSearchResults(
                             serviceText +
                             '</div>' +
 
-                            '<div style="font-size:13px;color:#f3e5ab;margin-bottom:3px;"><b>الرف:</b> ' +
-                            shelfText +
-                            '</div>' +
+                            shelfDisplay +
 
                             '<div style="font-size:13px;margin-bottom:4px;">الحساب: ' +
 
