@@ -658,34 +658,36 @@
                 value=""
             >
 
-            <label>
-..
-            </label>
+            <label>خدمات أخرى:</label>
 
             <select id="shelfLocation">
 
-                <option value=". : .">
-                    . : .
+                <option value="اختر الصنف">
+                    -- اختر صنف آخر --
                 </option>
 
-                <option value="الرف : ب">
-                    الرف : ب
+                <option value="بوت">
+                    بوت
                 </option>
 
-                <option value="الرف : ج">
-                    الرف : ج
+                <option value="حزام">
+                    حزام
                 </option>
 
-                <option value="الرف : د">
-                    الرف : د
+                <option value="جاكت">
+                    جاكت
                 </option>
 
-                <option value="الرف : هـ">
-                    الرف : هـ
+                <option value="هيلز">
+                    هيلز
                 </option>
 
-                <option value="الرف : و">
-                    الرف : و
+                <option value="صابوه">
+                    صابوه
+                </option>
+
+                <option value="عجل أطفال">
+                    عجل أطفال
                 </option>
 
             </select>
@@ -2388,7 +2390,7 @@ async function sendTo(m) {
                         customer_name: n,
                         phone: ph,
                         item_type: getItemsSummary(),
-                        details: sv + ' | ' + shelf,
+                        details: sv + (shelf !== 'اختر الصنف' ? ' | ' + shelf : ''),
                         price: parseFloat(t) || 0,
                         paid: parseFloat(p) || 0,
                         last_payment_amount: parseFloat(p) || 0,
@@ -2428,9 +2430,7 @@ async function sendTo(m) {
         d +
         '\n' +
 
-        'مكان التخزين: ' +
-        shelf +
-        '\n\n' +
+        (shelf !== 'اختر الصنف' ? 'خدمات أخرى: ' + shelf + '\n\n' : '\n') +
 
         'كوتشيات: ' +
         sk +
@@ -2523,8 +2523,6 @@ async function sendTo(m) {
 
             'أرشيف أوردر رقم (' +
             formattedOrderCode +
-            ') على (' +
-            shelf +
             ')\n\n' +
 
             baseTxt;
@@ -3300,8 +3298,25 @@ async function searchInvoices() {
 }
 
 /* =========================================================
-   عرض نتائج البحث
+   عرض نتائج البحث وتحويل "تم الانتهاء" للواتساب مباشرة
    ========================================================= */
+
+async function notifyCustomerFinished(customerPhone, customerName, orderCode) {
+    if (!customerPhone) {
+        alert("رقم واتساب العميل غير متوفر لهذا الأوردر!");
+        return;
+    }
+
+    let cleanPh = customerPhone.replace(/\D/g, '');
+    if (cleanPh.startsWith("0")) {
+        cleanPh = "2" + cleanPh;
+    }
+
+    let msg = 'عزيزي العميل ' + (customerName || '') + '، تم الانتهاء من صيانة طلبك برقم (' + orderCode + ') وهو جاهز الآن للاستلام من محل الاسكافي شوز. نتشرف بزيارتك!';
+
+    let whatsappAppUrl = "whatsapp://send?phone=" + cleanPh + "&text=" + encodeURIComponent(msg);
+    location.href = whatsappAppUrl;
+}
 
 function renderSearchResults(
     data,
@@ -3370,6 +3385,8 @@ function renderSearchResults(
                         getEgyptDay(
                             invDate
                         );
+
+                    let orderCodeStr = numTop + '/' + numBottom;
 
                     let fractionHtml =
                         '<span class="fraction" style="font-size:14px;">' +
@@ -3492,7 +3509,7 @@ function renderSearchResults(
 
                                 '<div style="margin-top:10px;">' +
 
-                                    '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">تعديل مكان التخزين (الرف):</label>' +
+                                    '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">تعديل خدمات أخرى:</label>' +
 
                                     '<div style="display:flex;gap:5px;">' +
 
@@ -3500,18 +3517,19 @@ function renderSearchResults(
                                         inv.id +
                                         '" style="padding:6px;font-size:12px;margin-top:0;">' +
 
-                                            '<option value="الرف : أ">الرف : أ</option>' +
-                                            '<option value="الرف : ب">الرف : ب</option>' +
-                                            '<option value="الرف : ج">الرف : ج</option>' +
-                                            '<option value="الرف : د">الرف : د</option>' +
-                                            '<option value="الرف : هـ">الرف : هـ</option>' +
-                                            '<option value="الرف : و">الرف : و</option>' +
+                                            '<option value="اختر الصنف">-- اختر صنف آخر --</option>' +
+                                            '<option value="بوت">بوت</option>' +
+                                            '<option value="حزام">حزام</option>' +
+                                            '<option value="جاكت">جاكت</option>' +
+                                            '<option value="هيلز">هيلز</option>' +
+                                            '<option value="صابوه">صابوه</option>' +
+                                            '<option value="عجل أطفال">عجل أطفال</option>' +
 
                                         '</select>' +
 
                                         '<button type="button" class="btn-sm" style="background:#bf953f;color:#000;padding:6px 12px;margin-top:0;" onclick="updateShelfLocation(' +
                                         inv.id +
-                                        ')">تحديث الرف</button>' +
+                                        ')">تحديث الصنف</button>' +
 
                                     '</div>' +
 
@@ -3525,9 +3543,7 @@ function renderSearchResults(
                                 inv.id +
                                 ', \'تم التسليم\')">تم التسليم</button>' +
 
-                                '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updateStatus(' +
-                                inv.id +
-                                ', \'تم الانتهاء من الصيانة\')">تم الانتهاء</button>' +
+                                '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updateStatusAndNotify(\'' + inv.id + '\', \'تم الانتهاء من الصيانة\', \'' + (inv.phone || '') + '\', \'' + (inv.customer_name || '') + '\', \'' + orderCodeStr + '\')">تم الانتهاء</button>' +
 
                                 '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updateStatus(' +
                                 inv.id +
@@ -3624,6 +3640,14 @@ function renderSearchResults(
                 }
             )
             .join('');
+}
+
+// دالة تحديث الحالة للانتهاء وفتح الواتساب برسالة العميل فوراً
+async function updateStatusAndNotify(id, newStatus, phone, customerName, orderCode) {
+    await updateStatus(id, newStatus);
+    if (phone) {
+        notifyCustomerFinished(phone, customerName, orderCode);
+    }
 }
 
 /* =========================================================
@@ -3932,7 +3956,7 @@ async function updatePaymentStatus(
 }
 
 /* =========================================================
-   تحديث الرف
+   تحديث الخدمات الأخرى
    ========================================================= */
 
 async function updateShelfLocation(
@@ -3977,22 +4001,26 @@ async function updateShelfLocation(
             parts
                 .filter(
                     p =>
-                        !p.startsWith(
-                            'الرف'
-                        )
+                        p !== 'بوت' &&
+                        p !== 'حزام' &&
+                        p !== 'جاكت' &&
+                        p !== 'هيلز' &&
+                        p !== 'صابوه' &&
+                        p !== 'عجل أطفال' &&
+                        p !== 'اختر الصنف'
                 )
                 .join(
                     ' | '
                 );
 
         let updatedDetails =
-            cleanDetails
+            cleanDetails && newShelf !== 'اختر الصنف'
                 ? (
                     cleanDetails +
                     ' | ' +
                     newShelf
                 )
-                : newShelf;
+                : (newShelf !== 'اختر الصنف' ? newShelf : cleanDetails);
 
         const {
             error
@@ -4011,7 +4039,7 @@ async function updateShelfLocation(
         if (!error) {
 
             alert(
-                'تم تحديث الرف بنجاح إلى (' +
+                'تم تحديث الصنف بنجاح إلى (' +
                 newShelf +
                 ')'
             );
@@ -4021,7 +4049,7 @@ async function updateShelfLocation(
         } else {
 
             alert(
-                'حدث خطأ أثناء تحديث الرف!'
+                'حدث خطأ أثناء تحديث الصنف!'
             );
         }
     }
@@ -4070,15 +4098,8 @@ async function updateStatus(
             );
 
     if (!error) {
-
-        alert(
-            'تم تغيير الحالة بنجاح'
-        );
-
-        adminSearchByFractionNumber();
-
+        // تم التحديث بنجاح
     } else {
-
         alert(
             'حدث خطأ أثناء تحديث الحالة:\n' +
             error.message
