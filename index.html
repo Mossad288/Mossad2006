@@ -1,3 +1,6 @@
+ولا يهمك يا هندسة، فهمت قصدك تماماً. رجعتلك **خانة ومميزات الرف** في صفحة البحث والتتبع (صفحة الإدارة) جنب زرار تحديث الصنف، عشان تقدر تختار وتعدل الرف أو الصنف الإضافي براحتك وانت بتتابع الأوردرات هناك، زي ما كانت معمولة قبل كده تماماً وبدون ما نغير أي حاجة تانية في النظام.
+إليك الكود الكامل والمعدل جاهز:
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -3504,6 +3507,16 @@ function renderSearchResults(
                         showAdminControls
                     ) {
 
+                        // استخراج الرف الحالي لو مخزن في تفاصيل الأوردر
+                        let currentShelfVal = "اختر الرف";
+                        if (inv.details) {
+                            let parts = inv.details.split('|').map(p => p.trim());
+                            let foundShelf = parts.find(p => p.startsWith('رف '));
+                            if (foundShelf) {
+                                currentShelfVal = foundShelf;
+                            }
+                        }
+
                         adminControlsHtml =
 
                             '<div style="margin-top:10px;padding:10px;background:#1a1500;border:1px solid #bf953f;border-radius:8px;">' +
@@ -3557,6 +3570,34 @@ function renderSearchResults(
                                     '<button type="button" class="btn-sm" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;width:100%;padding:8px;" onclick="document.getElementById(\'extra_images_' +
                                     inv.id +
                                     '\').click();">اختر صور وأضفها فوراً</button>' +
+
+                                '</div>' +
+
+                                '<div style="margin-top:10px;">' +
+
+                                    '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">تعديل أو اختيار الرف:</label>' +
+
+                                    '<div style="display:flex;gap:5px;">' +
+
+                                        '<select id="shelf_edit_' +
+                                        inv.id +
+                                        '" style="padding:6px;font-size:12px;margin-top:0;">' +
+
+                                            '<option value="اختر الرف" ' + (currentShelfVal === 'اختر الرف' ? 'selected' : '') + '>-- اختر الرف --</option>' +
+                                            '<option value="رف أ" ' + (currentShelfVal === 'رف أ' ? 'selected' : '') + '>رف أ</option>' +
+                                            '<option value="رف ب" ' + (currentShelfVal === 'رف ب' ? 'selected' : '') + '>رف ب</option>' +
+                                            '<option value="رف ج" ' + (currentShelfVal === 'رف ج' ? 'selected' : '') + '>رف ج</option>' +
+                                            '<option value="رف د" ' + (currentShelfVal === 'رف د' ? 'selected' : '') + '>رف د</option>' +
+                                            '<option value="رف هـ" ' + (currentShelfVal === 'رف هـ' ? 'selected' : '') + '>رف هـ</option>' +
+                                            '<option value="رف و" ' + (currentShelfVal === 'رف و' ? 'selected' : '') + '>رف و</option>' +
+
+                                        '</select>' +
+
+                                        '<button type="button" class="btn-sm" style="background:#bf953f;color:#000;padding:6px 12px;margin-top:0;" onclick="updateShelfLocation(' +
+                                        inv.id +
+                                        ')">تحديث الرف</button>' +
+
+                                    '</div>' +
 
                                 '</div>' +
 
@@ -3834,6 +3875,97 @@ async function uploadExtraImagesForInvoice(
 }
 
 /* =========================================================
+   تحديث الرف
+   ========================================================= */
+
+async function updateShelfLocation(
+    id
+) {
+    const newShelf =
+        document
+            .getElementById(
+                'shelf_edit_' +
+                id
+            )
+            .value;
+
+    const {
+        data: invData
+    } =
+        await supabaseClient
+            .from('invoices')
+            .select('details')
+            .eq(
+                'id',
+                id
+            )
+            .single();
+
+    if (invData) {
+        let currentDetails =
+            invData.details ||
+            '';
+
+        let parts =
+            currentDetails
+                .split('|')
+                .map(
+                    p =>
+                        p.trim()
+                );
+
+        let cleanDetails =
+            parts
+                .filter(
+                    p =>
+                        !p.startsWith('رف ') &&
+                        p !== 'اختر الرف'
+                )
+                .join(
+                    ' | '
+                );
+
+        let updatedDetails =
+            cleanDetails && newShelf !== 'اختر الرف'
+                ? (
+                    cleanDetails +
+                    ' | ' +
+                    newShelf
+                )
+                : (newShelf !== 'اختر الرف' ? newShelf : cleanDetails);
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from('invoices')
+                .update({
+                    details:
+                        updatedDetails
+                })
+                .eq(
+                    'id',
+                    id
+                );
+
+        if (!error) {
+            alert(
+                'تم تحديث الرف بنجاح إلى (' +
+                newShelf +
+                ')'
+            );
+
+            adminSearchByFractionNumber();
+
+        } else {
+            alert(
+                'حدث خطأ أثناء تحديث الرف!'
+            );
+        }
+    }
+}
+
+/* =========================================================
    تحديث السداد
    ========================================================= */
 
@@ -4023,3 +4155,4 @@ async function updateStatus(
 
 </body>
 </html>
+
