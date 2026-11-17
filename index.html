@@ -3426,6 +3426,21 @@ function renderSearchResults(
                             '</span>' +
                         '</span>';
 
+                    // استخراج الخدمة والرف بشكل منظم ونظيف
+                    let serviceText = '-';
+                    let shelfText = 'غير محدد';
+
+                    if (inv.details) {
+                        let parts = inv.details.split('|').map(p => p.trim());
+                        let srvPart = parts.find(p => !p.startsWith('رف ') && p !== 'اختر الرف');
+                        let shelfPart = parts.find(p => p.startsWith('رف ') || (p.length === 1 && ['أ','ب','ج','د','هـ','و'].includes(p)));
+
+                        if (srvPart) serviceText = srvPart;
+                        if (shelfPart) {
+                            shelfText = shelfPart.startsWith('رف ') ? shelfPart : 'رف ' + shelfPart;
+                        }
+                    }
+
                     let imageGalleryHtml =
                         '';
 
@@ -3479,14 +3494,9 @@ function renderSearchResults(
                         showAdminControls
                     ) {
 
-                        // استخراج الرف الحالي لو مخزن في تفاصيل الأوردر
                         let currentShelfVal = "اختر الرف";
-                        if (inv.details) {
-                            let parts = inv.details.split('|').map(p => p.trim());
-                            let foundShelf = parts.find(p => p.startsWith('رف '));
-                            if (foundShelf) {
-                                currentShelfVal = foundShelf;
-                            }
+                        if (shelfText !== 'غير محدد') {
+                            currentShelfVal = shelfText;
                         }
 
                         adminControlsHtml =
@@ -3556,12 +3566,12 @@ function renderSearchResults(
                                         '" style="padding:6px;font-size:12px;margin-top:0;">' +
 
                                             '<option value="اختر الرف" ' + (currentShelfVal === 'اختر الرف' ? 'selected' : '') + '>-- اختر الرف --</option>' +
-                                            '<option value=" أ" ' + (currentShelfVal === ' أ' ? 'selected' : '') + '> أ</option>' +
-                                            '<option value=" ب" ' + (currentShelfVal === ' ب' ? 'selected' : '') + '> ب</option>' +
-                                            '<option value=" ج" ' + (currentShelfVal === ' ج' ? 'selected' : '') + '> ج</option>' +
-                                            '<option value=" د" ' + (currentShelfVal === ' د' ? 'selected' : '') + '> د</option>' +
-                                            '<option value="هـ" ' + (currentShelfVal === ' هـ' ? 'selected' : '') + '> هـ</option>' +
-                                            '<option value=" و" ' + (currentShelfVal === ' و' ? 'selected' : '') + '> و</option>' +
+                                            '<option value="رف أ" ' + (currentShelfVal === 'رف أ' ? 'selected' : '') + '>رف أ</option>' +
+                                            '<option value="رف ب" ' + (currentShelfVal === 'رف ب' ? 'selected' : '') + '>رف ب</option>' +
+                                            '<option value="رف ج" ' + (currentShelfVal === 'رف ج' ? 'selected' : '') + '>رف ج</option>' +
+                                            '<option value="رف د" ' + (currentShelfVal === 'رف د' ? 'selected' : '') + '>رف د</option>' +
+                                            '<option value="رف هـ" ' + (currentShelfVal === 'رف هـ' ? 'selected' : '') + '>رف هـ</option>' +
+                                            '<option value="رف و" ' + (currentShelfVal === 'رف و' ? 'selected' : '') + '>رف و</option>' +
 
                                         '</select>' +
 
@@ -3647,12 +3657,11 @@ function renderSearchResults(
                             '</div>' +
 
                             '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الخدمة:</b> ' +
+                            serviceText +
+                            '</div>' +
 
-                            (
-                                inv.details ||
-                                '-'
-                            ) +
-
+                            '<div style="font-size:13px;color:#f3e5ab;margin-bottom:3px;"><b>الرف:</b> ' +
+                            shelfText +
                             '</div>' +
 
                             '<div style="font-size:13px;margin-bottom:4px;">الحساب: ' +
@@ -3891,7 +3900,8 @@ async function updateShelfLocation(
                 .filter(
                     p =>
                         !p.startsWith('رف ') &&
-                        p !== 'اختر الرف'
+                        p !== 'اختر الرف' &&
+                        !['أ','ب','ج','د','هـ','و'].includes(p)
                 )
                 .join(
                     ' | '
@@ -4114,7 +4124,8 @@ async function updateStatus(
             );
 
     if (!error) {
-        // تم التحديث بنجاح
+        alert("تم تحديث الحالة بنجاح إلى: " + newStatus);
+        adminSearchByFractionNumber();
     } else {
         alert(
             'حدث خطأ أثناء تحديث الحالة:\n' +
