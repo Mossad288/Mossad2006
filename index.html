@@ -3566,12 +3566,12 @@ function renderSearchResults(
                                         '" style="padding:6px;font-size:12px;margin-top:0;">' +
 
                                             '<option value="اختر الرف" ' + (currentShelfVal === 'اختر الرف' ? 'selected' : '') + '>-- اختر الرف --</option>' +
-                                            '<option value=" أ" ' + (currentShelfVal === ' أ' ? 'selected' : '') + '> أ</option>' +
+                                            '<option value="أ" ' + (currentShelfVal === ' أ' ? 'selected' : '') + '>أ</option>' +
                                             '<option value=" ب" ' + (currentShelfVal === ' ب' ? 'selected' : '') + '> ب</option>' +
                                             '<option value=" ج" ' + (currentShelfVal === ' ج' ? 'selected' : '') + '> ج</option>' +
-                                            '<option value=" د" ' + (currentShelfVal === 'د' ? 'selected' : '') + '> د</option>' +
+                                            '<option value=" د" ' + (currentShelfVal === ' د' ? 'selected' : '') + '> د</option>' +
                                             '<option value=" هـ" ' + (currentShelfVal === ' هـ' ? 'selected' : '') + '> هـ</option>' +
-                                            '<option value=" و" ' + (currentShelfVal === ' و' ? 'selected' : '') + '> و</option>' +
+                                            '<option value="و" ' + (currentShelfVal === 'و' ? 'selected' : '') + '> و</option>' +
 
                                         '</select>' +
 
@@ -3655,11 +3655,17 @@ function renderSearchResults(
                             ) +
 
                             '</div>' +
-                
-'<div style="font-size:13px;color:#f3e5ab;margin-bottom:3px;"><b>الرف:</b> ' + shelfPart.replace('رف', '').trim() + '</div>' +
 
+                            '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الخدمة:</b> ' +
+                            serviceText +
+                            '</div>' +
 
-                            
+                            '<div style="font-size:13px;color:#f3e5ab;margin-bottom:3px;"><b>الرف:</b> ' +
+                            shelfText +
+                            '</div>' +
+
+                            '<div style="font-size:13px;margin-bottom:4px;">الحساب: ' +
+
                             price +
 
                             ' ج | المدفوع: ' +
