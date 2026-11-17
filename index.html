@@ -634,7 +634,19 @@
                         value=""
                     >
                 </div>
-            
+
+                <div>
+                    <label>شنط:</label>
+
+                    <input
+                        type="number"
+                        id="bags"
+                        autocomplete="off"
+                        value=""
+                    >
+                </div>
+
+            </div>
 
             <!-- الأصناف الإضافية بنظام الصفوف والأعداد -->
             <div class="row">
@@ -710,7 +722,6 @@
                 </div>
 
             </div>
-
 
             <label>الخدمة المطلوبة:</label>
 
@@ -1816,7 +1827,6 @@ function resetFormInputs() {
     document.getElementById('heels').value = '';
     document.getElementById('sabouh').value = '';
     document.getElementById('kidsBike').value = '';
-    document.getElementById('crocs').value = '';
     document.getElementById('srv').value = '';
     document.getElementById('itemImages').value = '';
     document.getElementById('previewsContainer').innerHTML = '';
@@ -1947,7 +1957,6 @@ function selectCustomerFromList(inv) {
     document.getElementById('heels').value = '';
     document.getElementById('sabouh').value = '';
     document.getElementById('kidsBike').value = '';
-    document.getElementById('crocs').value = '';
 
     if (itemTypeStr.includes('كوتشيات:')) {
         let val = itemTypeStr.split('كوتشيات:')[1].split('|')[0].trim();
@@ -1996,10 +2005,6 @@ function selectCustomerFromList(inv) {
     if (itemTypeStr.includes('عجل أطفال:')) {
         let val = itemTypeStr.split('عجل أطفال:')[1].split('|')[0].trim();
         document.getElementById('kidsBike').value = val;
-    }
-    if (itemTypeStr.includes('كروكس:')) {
-        let val = itemTypeStr.split('كروكس:')[1].split('|')[0].trim();
-        document.getElementById('crocs').value = val;
     }
 
     if (inv.details) {
@@ -2341,7 +2346,6 @@ function getItemsSummary() {
     const heels = document.getElementById('heels').value;
     const sabouh = document.getElementById('sabouh').value;
     const kidsBike = document.getElementById('kidsBike').value;
-    const crocs = document.getElementById('crocs').value;
 
     if (parseInt(sk) > 0) items.push('كوتشيات: ' + sk);
     if (parseInt(ss) > 0) items.push('جزم: ' + ss);
@@ -2355,7 +2359,6 @@ function getItemsSummary() {
     if (parseInt(heels) > 0) items.push('هيلز: ' + heels);
     if (parseInt(sabouh) > 0) items.push('صابوه: ' + sabouh);
     if (parseInt(kidsBike) > 0) items.push('عجل أطفال: ' + kidsBike);
-    if (parseInt(crocs) > 0) items.push('كروكس: ' + crocs);
 
     return (
         items.join(' | ') ||
@@ -2417,7 +2420,6 @@ async function sendTo(m) {
     var heels = document.getElementById('heels').value || '0';
     var sabouh = document.getElementById('sabouh').value || '0';
     var kidsBike = document.getElementById('kidsBike').value || '0';
-    var crocs = document.getElementById('crocs').value || '0';
 
     var sv = document.getElementById('srv').value || '';
     var p = document.getElementById('paid').value || '0';
@@ -2483,8 +2485,7 @@ async function sendTo(m) {
         'كوتشيات: ' + sk + ' | جزم: ' + ss + ' | شبشب: ' + sl + '\n' +
         'صندل: ' + sn + ' | فردة: ' + sg + ' | شنط: ' + bg + '\n' +
         'بوت: ' + boot + ' | حزام: ' + belt + ' | جاكت: ' + jacket + '\n' +
-        'هيلز: ' + heels + ' | صابوه: ' + sabouh + ' | عجل أطفال: ' + kidsBike + '\n' +
-        'كروكس: ' + crocs + '\n\n' +
+        'هيلز: ' + heels + ' | صابوه: ' + sabouh + ' | عجل أطفال: ' + kidsBike + '\n\n' +
 
         'الخدمة: ' +
         sv +
@@ -3555,12 +3556,12 @@ function renderSearchResults(
                                         '" style="padding:6px;font-size:12px;margin-top:0;">' +
 
                                             '<option value="اختر الرف" ' + (currentShelfVal === 'اختر الرف' ? 'selected' : '') + '>-- اختر الرف --</option>' +
-                                            '<option value="رف أ" ' + (currentShelfVal === ' أ' ? 'selected' : '') + '> أ</option>' +
-                                            '<option value="رف ب" ' + (currentShelfVal === ' ب' ? 'selected' : '') + '> ب</option>' +
-                                            '<option value="رف ج" ' + (currentShelfVal === 'ج' ? 'selected' : '') + '>ج</option>' +
-                                            '<option value="رف د" ' + (currentShelfVal === 'د' ? 'selected' : '') + '> د</option>' +
-                                            '<option value="رف هـ" ' + (currentShelfVal ===' هـ'? 'selected' : '') + '> هـ</option>' +
-                                            '<option value="رف و" ' + (currentShelfVal === ' و' ? 'selected' : '') + '>و</option>' +
+                                            '<option value="رف أ" ' + (currentShelfVal === 'رف أ' ? 'selected' : '') + '>رف أ</option>' +
+                                            '<option value="رف ب" ' + (currentShelfVal === 'رف ب' ? 'selected' : '') + '>رف ب</option>' +
+                                            '<option value="رف ج" ' + (currentShelfVal === 'رف ج' ? 'selected' : '') + '>رف ج</option>' +
+                                            '<option value="رف د" ' + (currentShelfVal === 'رف د' ? 'selected' : '') + '>رف د</option>' +
+                                            '<option value="رف هـ" ' + (currentShelfVal === 'رف هـ' ? 'selected' : '') + '>رف هـ</option>' +
+                                            '<option value="رف و" ' + (currentShelfVal === 'رف و' ? 'selected' : '') + '>رف و</option>' +
 
                                         '</select>' +
 
@@ -4126,4 +4127,3 @@ async function updateStatus(
 
 </body>
 </html>
-
