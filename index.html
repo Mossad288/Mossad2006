@@ -648,6 +648,81 @@
 
             </div>
 
+            <!-- الأصناف الإضافية الجديدة بنظام الصفوف والأعداد -->
+            <div class="row">
+
+                <div>
+                    <label>بوت:</label>
+
+                    <input
+                        type="number"
+                        id="boot"
+                        autocomplete="off"
+                        value=""
+                    >
+                </div>
+
+                <div>
+                    <label>حزام:</label>
+
+                    <input
+                        type="number"
+                        id="belt"
+                        autocomplete="off"
+                        value=""
+                    >
+                </div>
+
+                <div>
+                    <label>جاكت:</label>
+
+                    <input
+                        type="number"
+                        id="jacket"
+                        autocomplete="off"
+                        value=""
+                    >
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div>
+                    <label>هيلز:</label>
+
+                    <input
+                        type="number"
+                        id="heels"
+                        autocomplete="off"
+                        value=""
+                    >
+                </div>
+
+                <div>
+                    <label>صابوه:</label>
+
+                    <input
+                        type="number"
+                        id="sabouh"
+                        autocomplete="off"
+                        value=""
+                    >
+                </div>
+
+                <div>
+                    <label>عجل أطفال:</label>
+
+                    <input
+                        type="number"
+                        id="kidsBike"
+                        autocomplete="off"
+                        value=""
+                    >
+                </div>
+
+            </div>
+
             <label>الخدمة المطلوبة:</label>
 
             <input
@@ -657,40 +732,6 @@
                 autocomplete="off"
                 value=""
             >
-
-            <label>خدمات أخرى:</label>
-
-            <select id="shelfLocation">
-
-                <option value="اختر الصنف">
-                    -- اختر صنف آخر --
-                </option>
-
-                <option value="بوت">
-                    بوت
-                </option>
-
-                <option value="حزام">
-                    حزام
-                </option>
-
-                <option value="جاكت">
-                    جاكت
-                </option>
-
-                <option value="هيلز">
-                    هيلز
-                </option>
-
-                <option value="صابوه">
-                    صابوه
-                </option>
-
-                <option value="عجل أطفال">
-                    عجل أطفال
-                </option>
-
-            </select>
 
             <label>
                 تصوير القطع قبل الصيانة:
@@ -1780,8 +1821,13 @@ function resetFormInputs() {
     document.getElementById('snd').value = '';
     document.getElementById('sng').value = '';
     document.getElementById('bags').value = '';
+    document.getElementById('boot').value = '';
+    document.getElementById('belt').value = '';
+    document.getElementById('jacket').value = '';
+    document.getElementById('heels').value = '';
+    document.getElementById('sabouh').value = '';
+    document.getElementById('kidsBike').value = '';
     document.getElementById('srv').value = '';
-    document.getElementById('shelfLocation').selectedIndex = 0;
     document.getElementById('itemImages').value = '';
     document.getElementById('previewsContainer').innerHTML = '';
     document.getElementById('tot').value = '';
@@ -1813,7 +1859,6 @@ function resetFormInputs() {
    البحث والاقتراحات الذكية أثناء الكتابة وتثبيت الحقول
    ========================================================= */
 async function handleCustomerInput(inputType) {
-    // إذا تم اختيار عميل من القائمة وتم قفل الحقول، امنع أي بحث أو تغيير تلقائي
     if (isCustomerSelected) return;
 
     let searchValue = "";
@@ -1845,7 +1890,6 @@ async function handleCustomerInput(inputType) {
 
         if (!error && data && data.length > 0) {
             let html = '';
-            // تصفية النتائج لتجنب التكرار بناءً على اسم أو رقم العميل
             let uniqueMap = new Map();
             data.forEach(inv => {
                 let key = inv.customer_name + "_" + inv.phone;
@@ -1876,27 +1920,21 @@ async function handleCustomerInput(inputType) {
     }
 }
 
-// دالة الاختيار المقصود بالضغط وتثبيت الحقول منعاً لأي تغيير تلقائي
 function selectCustomerFromList(inv) {
-    // 1. تفعيل حماية التثبيت
     isCustomerSelected = true;
 
-    // 2. تعبئة البيانات
     if (inv.customer_name) document.getElementById('name').value = inv.customer_name;
     if (inv.phone) document.getElementById('phone').value = inv.phone;
 
-    // 3. قفل حقول الاسم ورقم الموبايل نهائياً (readOnly) لمنع أي تعديل أو لخبطة
     document.getElementById('name').readOnly = true;
     document.getElementById('phone').readOnly = true;
 
-    // 4. إخفاء صندوق الاقتراحات فوراً
     const suggestionsBox = document.getElementById('customerSuggestionsBox');
     if (suggestionsBox) {
         suggestionsBox.style.display = 'none';
         suggestionsBox.innerHTML = '';
     }
 
-    // 5. عرض تاريخ آخر أوردر وتفاصيله
     const lastInvDate = inv.created_at ? getEgyptDateString(new Date(inv.created_at)) : 'غير محدد';
     const lastInvNum = inv.daily_number || '#';
     
@@ -1906,7 +1944,6 @@ function selectCustomerFromList(inv) {
         historyNotice.style.display = 'block';
     }
 
-    // 6. تعبئة الأصناف والخدمة والحسابات لو متوفرة من آخر فاتورة
     const itemTypeStr = inv.item_type || '';
     document.getElementById('snk').value = '';
     document.getElementById('shs').value = '';
@@ -1914,6 +1951,12 @@ function selectCustomerFromList(inv) {
     document.getElementById('snd').value = '';
     document.getElementById('sng').value = '';
     document.getElementById('bags').value = '';
+    document.getElementById('boot').value = '';
+    document.getElementById('belt').value = '';
+    document.getElementById('jacket').value = '';
+    document.getElementById('heels').value = '';
+    document.getElementById('sabouh').value = '';
+    document.getElementById('kidsBike').value = '';
 
     if (itemTypeStr.includes('كوتشيات:')) {
         let val = itemTypeStr.split('كوتشيات:')[1].split('|')[0].trim();
@@ -1939,6 +1982,30 @@ function selectCustomerFromList(inv) {
         let val = itemTypeStr.split('شنط:')[1].split('|')[0].trim();
         document.getElementById('bags').value = val;
     }
+    if (itemTypeStr.includes('بوت:')) {
+        let val = itemTypeStr.split('بوت:')[1].split('|')[0].trim();
+        document.getElementById('boot').value = val;
+    }
+    if (itemTypeStr.includes('حزام:')) {
+        let val = itemTypeStr.split('حزام:')[1].split('|')[0].trim();
+        document.getElementById('belt').value = val;
+    }
+    if (itemTypeStr.includes('جاكت:')) {
+        let val = itemTypeStr.split('جاكت:')[1].split('|')[0].trim();
+        document.getElementById('jacket').value = val;
+    }
+    if (itemTypeStr.includes('هيلز:')) {
+        let val = itemTypeStr.split('هيلز:')[1].split('|')[0].trim();
+        document.getElementById('heels').value = val;
+    }
+    if (itemTypeStr.includes('صابوه:')) {
+        let val = itemTypeStr.split('صابوه:')[1].split('|')[0].trim();
+        document.getElementById('sabouh').value = val;
+    }
+    if (itemTypeStr.includes('عجل أطفال:')) {
+        let val = itemTypeStr.split('عجل أطفال:')[1].split('|')[0].trim();
+        document.getElementById('kidsBike').value = val;
+    }
 
     if (inv.details) {
         let detailsClean = inv.details.split('|')[0].trim();
@@ -1952,7 +2019,6 @@ function selectCustomerFromList(inv) {
 }
 
 function openScreen(screenId) {
-
     document.getElementById('mainDashboardScreen').style.display = 'none';
     document.getElementById('portalMenu').style.display = 'none';
     document.getElementById('searchScreen').style.display = 'none';
@@ -1968,7 +2034,6 @@ function openScreen(screenId) {
 }
 
 function closeScreen() {
-
     document.getElementById('searchScreen').style.display = 'none';
     document.getElementById('deliveryScreen').style.display = 'none';
     document.getElementById('reportsScreen').style.display = 'none';
@@ -1998,7 +2063,6 @@ function closeScreen() {
 }
 
 function calc() {
-
     var t =
         parseFloat(
             document.getElementById('tot').value
@@ -2019,9 +2083,7 @@ function calc() {
 }
 
 async function fetchNextInvoiceNum() {
-
     try {
-
         const nowEgypt =
             await getAccurateEgyptNow();
 
@@ -2081,7 +2143,6 @@ async function fetchNextInvoiceNum() {
         }
 
     } catch (e) {
-
         currentDailyNum =
             1;
     }
@@ -2095,7 +2156,6 @@ async function fetchNextInvoiceNum() {
         document.getElementById('badge');
 
     if (badgeEl) {
-
         badgeEl.innerHTML =
             '<span>رقم أوردر اليوم:</span>' +
             '<span class="fraction" style="font-size:16px;">' +
@@ -2114,7 +2174,6 @@ async function fetchNextInvoiceNum() {
    ========================================================= */
 
 function handleImagesSelection(event) {
-
     const files =
         event.target.files;
 
@@ -2175,7 +2234,6 @@ function handleImagesSelection(event) {
    ========================================================= */
 
 async function uploadAllImages() {
-
     if (
         selectedFilesList.length === 0
     ) {
@@ -2233,7 +2291,6 @@ async function uploadAllImages() {
                     );
 
             if (uploadError) {
-
                 throw new Error(
                     uploadError.message
                 );
@@ -2262,7 +2319,6 @@ async function uploadAllImages() {
         return uploadedImageUrls;
 
     } catch (err) {
-
         statusEl.style.display =
             'none';
 
@@ -2276,7 +2332,6 @@ async function uploadAllImages() {
 }
 
 function getItemsSummary() {
-
     let items = [];
 
     const sk = document.getElementById('snk').value;
@@ -2285,30 +2340,25 @@ function getItemsSummary() {
     const sn = document.getElementById('snd').value;
     const sg = document.getElementById('sng').value;
     const bg = document.getElementById('bags').value;
+    const boot = document.getElementById('boot').value;
+    const belt = document.getElementById('belt').value;
+    const jacket = document.getElementById('jacket').value;
+    const heels = document.getElementById('heels').value;
+    const sabouh = document.getElementById('sabouh').value;
+    const kidsBike = document.getElementById('kidsBike').value;
 
-    if (parseInt(sk) > 0) {
-        items.push('كوتشيات: ' + sk);
-    }
-
-    if (parseInt(ss) > 0) {
-        items.push('جزم: ' + ss);
-    }
-
-    if (parseInt(sl) > 0) {
-        items.push('شبشب: ' + sl);
-    }
-
-    if (parseInt(sn) > 0) {
-        items.push('صندل: ' + sn);
-    }
-
-    if (parseInt(sg) > 0) {
-        items.push('فردة: ' + sg);
-    }
-
-    if (parseInt(bg) > 0) {
-        items.push('شنط: ' + bg);
-    }
+    if (parseInt(sk) > 0) items.push('كوتشيات: ' + sk);
+    if (parseInt(ss) > 0) items.push('جزم: ' + ss);
+    if (parseInt(sl) > 0) items.push('شبشب: ' + sl);
+    if (parseInt(sn) > 0) items.push('صندل: ' + sn);
+    if (parseInt(sg) > 0) items.push('فردة: ' + sg);
+    if (parseInt(bg) > 0) items.push('شنط: ' + bg);
+    if (parseInt(boot) > 0) items.push('بوت: ' + boot);
+    if (parseInt(belt) > 0) items.push('حزام: ' + belt);
+    if (parseInt(jacket) > 0) items.push('جاكت: ' + jacket);
+    if (parseInt(heels) > 0) items.push('هيلز: ' + heels);
+    if (parseInt(sabouh) > 0) items.push('صابوه: ' + sabouh);
+    if (parseInt(kidsBike) > 0) items.push('عجل أطفال: ' + kidsBike);
 
     return (
         items.join(' | ') ||
@@ -2317,7 +2367,6 @@ function getItemsSummary() {
 }
 
 async function sendTo(m) {
-
     if (isCurrentInvoiceSaved) {
         alert("تم حفظ هذه الفاتورة بالفعل ولا يمكن تكرارها!");
         return;
@@ -2331,9 +2380,6 @@ async function sendTo(m) {
 
     var ph =
         document.getElementById('phone').value.trim();
-
-    var shelf =
-        document.getElementById('shelfLocation').value;
 
     if (
         !n ||
@@ -2368,6 +2414,13 @@ async function sendTo(m) {
     var sn = document.getElementById('snd').value || '0';
     var sg = document.getElementById('sng').value || '0';
     var bg = document.getElementById('bags').value || '0';
+    var boot = document.getElementById('boot').value || '0';
+    var belt = document.getElementById('belt').value || '0';
+    var jacket = document.getElementById('jacket').value || '0';
+    var heels = document.getElementById('heels').value || '0';
+    var sabouh = document.getElementById('sabouh').value || '0';
+    var kidsBike = document.getElementById('kidsBike').value || '0';
+
     var sv = document.getElementById('srv').value || '';
     var p = document.getElementById('paid').value || '0';
     var rm = document.getElementById('rem').value || '0';
@@ -2390,7 +2443,7 @@ async function sendTo(m) {
                         customer_name: n,
                         phone: ph,
                         item_type: getItemsSummary(),
-                        details: sv + (shelf !== 'اختر الصنف' ? ' | ' + shelf : ''),
+                        details: sv,
                         price: parseFloat(t) || 0,
                         paid: parseFloat(p) || 0,
                         last_payment_amount: parseFloat(p) || 0,
@@ -2401,7 +2454,6 @@ async function sendTo(m) {
                 ]);
 
         if (error) {
-
             alert(
                 "خطأ في حفظ الفاتورة: " +
                 error.message
@@ -2428,25 +2480,12 @@ async function sendTo(m) {
 
         'تاريخ التسليم: ' +
         d +
-        '\n' +
+        '\n\n' +
 
-        (shelf !== 'اختر الصنف' ? 'خدمات أخرى: ' + shelf + '\n\n' : '\n') +
-
-        'كوتشيات: ' +
-        sk +
-        ' | جزم: ' +
-        ss +
-        ' | شبشب: ' +
-        sl +
-        '\n' +
-
-        'صندل: ' +
-        sn +
-        ' | فردة: ' +
-        sg +
-        ' | شنط: ' +
-        bg +
-        '\n' +
+        'كوتشيات: ' + sk + ' | جزم: ' + ss + ' | شبشب: ' + sl + '\n' +
+        'صندل: ' + sn + ' | فردة: ' + sg + ' | شنط: ' + bg + '\n' +
+        'بوت: ' + boot + ' | حزام: ' + belt + ' | جاكت: ' + jacket + '\n' +
+        'هيلز: ' + heels + ' | صابوه: ' + sabouh + ' | عجل أطفال: ' + kidsBike + '\n\n' +
 
         'الخدمة: ' +
         sv +
@@ -2547,7 +2586,6 @@ async function sendTo(m) {
    ========================================================= */
 
 async function rep(type) {
-
     const egyptNow =
         await getAccurateEgyptNow();
 
@@ -2874,7 +2912,6 @@ async function rep(type) {
 async function loadDeliveredInvoices(
     filterType
 ) {
-
     const resBox =
         document.getElementById(
             'deliveryResults'
@@ -2974,7 +3011,6 @@ async function loadDeliveredInvoices(
    ========================================================= */
 
 async function searchByFractionNumber() {
-
     const numVal =
         document
             .getElementById(
@@ -3035,7 +3071,6 @@ async function searchByFractionNumber() {
             );
 
     if (numVal) {
-
         query =
             query.eq(
                 'daily_number',
@@ -3046,7 +3081,6 @@ async function searchByFractionNumber() {
     }
 
     if (dateInput) {
-
         const range =
             getDateRangeISO(
                 dateInput
@@ -3106,7 +3140,6 @@ async function searchByFractionNumber() {
    ========================================================= */
 
 async function adminSearchByFractionNumber() {
-
     const numVal =
         document
             .getElementById(
@@ -3167,7 +3200,6 @@ async function adminSearchByFractionNumber() {
             );
 
     if (numVal) {
-
         query =
             query.eq(
                 'daily_number',
@@ -3178,7 +3210,6 @@ async function adminSearchByFractionNumber() {
     }
 
     if (dateInput) {
-
         const range =
             getDateRangeISO(
                 dateInput
@@ -3238,7 +3269,6 @@ async function adminSearchByFractionNumber() {
    ========================================================= */
 
 async function searchInvoices() {
-
     const query =
         document
             .getElementById(
@@ -3254,7 +3284,6 @@ async function searchInvoices() {
             );
 
     if (!query) {
-
         alert(
             'أدخل اسم العميل أو رقم الموبايل'
         );
@@ -3324,7 +3353,6 @@ function renderSearchResults(
     resBox,
     showAdminControls
 ) {
-
     if (
         error ||
         !data ||
@@ -3507,34 +3535,6 @@ function renderSearchResults(
 
                                 '</div>' +
 
-                                '<div style="margin-top:10px;">' +
-
-                                    '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">تعديل خدمات أخرى:</label>' +
-
-                                    '<div style="display:flex;gap:5px;">' +
-
-                                        '<select id="shelf_edit_' +
-                                        inv.id +
-                                        '" style="padding:6px;font-size:12px;margin-top:0;">' +
-
-                                            '<option value="اختر الصنف">-- اختر صنف آخر --</option>' +
-                                            '<option value="بوت">بوت</option>' +
-                                            '<option value="حزام">حزام</option>' +
-                                            '<option value="جاكت">جاكت</option>' +
-                                            '<option value="هيلز">هيلز</option>' +
-                                            '<option value="صابوه">صابوه</option>' +
-                                            '<option value="عجل أطفال">عجل أطفال</option>' +
-
-                                        '</select>' +
-
-                                        '<button type="button" class="btn-sm" style="background:#bf953f;color:#000;padding:6px 12px;margin-top:0;" onclick="updateShelfLocation(' +
-                                        inv.id +
-                                        ')">تحديث الصنف</button>' +
-
-                                    '</div>' +
-
-                                '</div>' +
-
                             '</div>' +
 
                             '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
@@ -3642,7 +3642,6 @@ function renderSearchResults(
             .join('');
 }
 
-// دالة تحديث الحالة للانتهاء وفتح الواتساب برسالة العميل فوراً
 async function updateStatusAndNotify(id, newStatus, phone, customerName, orderCode) {
     await updateStatus(id, newStatus);
     if (phone) {
@@ -3657,7 +3656,6 @@ async function updateStatusAndNotify(id, newStatus, phone, customerName, orderCo
 async function uploadExtraImagesForInvoice(
     invoiceId
 ) {
-
     const fileInput =
         document.getElementById(
             'extra_images_' +
@@ -3714,7 +3712,6 @@ async function uploadExtraImagesForInvoice(
                     );
 
             if (uploadError) {
-
                 throw new Error(
                     uploadError.message
                 );
@@ -3749,7 +3746,6 @@ async function uploadExtraImagesForInvoice(
                 .single();
 
         if (fetchErr) {
-
             throw new Error(
                 fetchErr.message
             );
@@ -3793,7 +3789,6 @@ async function uploadExtraImagesForInvoice(
                 );
 
         if (updateErr) {
-
             throw new Error(
                 updateErr.message
             );
@@ -3806,7 +3801,6 @@ async function uploadExtraImagesForInvoice(
         adminSearchByFractionNumber();
 
     } catch (err) {
-
         alert(
             "خطأ أثناء رفع الصور الإضافية:\n" +
             err.message
@@ -3823,7 +3817,6 @@ async function updatePaymentStatus(
     totalPrice,
     targetRem
 ) {
-
     const {
         data: currentInvoice,
         error: fetchError
@@ -3840,7 +3833,6 @@ async function updatePaymentStatus(
             .single();
 
     if (fetchError) {
-
         alert(
             "حدث خطأ أثناء قراءة الفاتورة:\n" +
             fetchError.message
@@ -3939,7 +3931,6 @@ async function updatePaymentStatus(
             );
 
     if (!error) {
-
         alert(
             "تم تحديث حالة السداد بنجاح"
         );
@@ -3947,111 +3938,10 @@ async function updatePaymentStatus(
         adminSearchByFractionNumber();
 
     } else {
-
         alert(
             "حدث خطأ أثناء تحديث حالة السداد:\n" +
             error.message
         );
-    }
-}
-
-/* =========================================================
-   تحديث الخدمات الأخرى
-   ========================================================= */
-
-async function updateShelfLocation(
-    id
-) {
-
-    const newShelf =
-        document
-            .getElementById(
-                'shelf_edit_' +
-                id
-            )
-            .value;
-
-    const {
-        data: invData
-    } =
-        await supabaseClient
-            .from('invoices')
-            .select('details')
-            .eq(
-                'id',
-                id
-            )
-            .single();
-
-    if (invData) {
-
-        let currentDetails =
-            invData.details ||
-            '';
-
-        let parts =
-            currentDetails
-                .split('|')
-                .map(
-                    p =>
-                        p.trim()
-                );
-
-        let cleanDetails =
-            parts
-                .filter(
-                    p =>
-                        p !== 'بوت' &&
-                        p !== 'حزام' &&
-                        p !== 'جاكت' &&
-                        p !== 'هيلز' &&
-                        p !== 'صابوه' &&
-                        p !== 'عجل أطفال' &&
-                        p !== 'اختر الصنف'
-                )
-                .join(
-                    ' | '
-                );
-
-        let updatedDetails =
-            cleanDetails && newShelf !== 'اختر الصنف'
-                ? (
-                    cleanDetails +
-                    ' | ' +
-                    newShelf
-                )
-                : (newShelf !== 'اختر الصنف' ? newShelf : cleanDetails);
-
-        const {
-            error
-        } =
-            await supabaseClient
-                .from('invoices')
-                .update({
-                    details:
-                        updatedDetails
-                })
-                .eq(
-                    'id',
-                    id
-                );
-
-        if (!error) {
-
-            alert(
-                'تم تحديث الصنف بنجاح إلى (' +
-                newShelf +
-                ')'
-            );
-
-            adminSearchByFractionNumber();
-
-        } else {
-
-            alert(
-                'حدث خطأ أثناء تحديث الصنف!'
-            );
-        }
     }
 }
 
@@ -4063,7 +3953,6 @@ async function updateStatus(
     id,
     newStatus
 ) {
-
     const egyptNow =
         await getAccurateEgyptNow();
 
@@ -4071,7 +3960,6 @@ async function updateStatus(
         egyptNow.toISOString();
 
     let updateData = {
-
         status:
             newStatus
     };
@@ -4079,7 +3967,6 @@ async function updateStatus(
     if (
         newStatus === 'تم التسليم'
     ) {
-
         updateData.delivered_at =
             statusUpdatedAt;
     }
