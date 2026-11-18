@@ -2582,10 +2582,11 @@ async function sendTo(m) {
 }
 
 /* =========================================================
-   التقرير (معدل بالتنسيق المطلوب)
+   التقرير (بنفس الطريقة والشكل الأصلي المظبوط تماماً)
    ========================================================= */
 
 async function rep(type) {
+
     const egyptNow =
         await getAccurateEgyptNow();
 
@@ -2652,6 +2653,20 @@ async function rep(type) {
                     createdDate
                 );
 
+            let updatedDate =
+                x.updated_at
+                    ? new Date(
+                        x.updated_at
+                    )
+                    : null;
+
+            let updatedDateStr =
+                updatedDate
+                    ? getEgyptDateString(
+                        updatedDate
+                    )
+                    : null;
+
             let price =
                 parseFloat(
                     x.price
@@ -2669,21 +2684,97 @@ async function rep(type) {
             let includeInReport =
                 false;
 
-            if (type === 'daily') {
-                if (createdDateStr === todayStr) {
-                    includeInReport = true;
-                }
-            } else if (type === 'monthly') {
-                let invYear = getEgyptYear(createdDate);
-                let invMonth = getEgyptMonth(createdDate);
+            let dailyVaultAddition =
+                0;
 
-                if (invYear === currentYear && invMonth === currentMonth) {
-                    includeInReport = true;
+            let previousPaid = parseFloat(x.last_payment_amount) || 0;
+            let paidOnDelivery = 0;
+
+            if (createdDateStr === todayStr && updatedDateStr === todayStr && updatedDateStr !== createdDateStr) {
+                previousPaid = totalPaid - parseFloat(x.last_payment_amount || 0);
+                paidOnDelivery = parseFloat(x.last_payment_amount || 0);
+            } else if (updatedDateStr === todayStr && updatedDateStr !== createdDateStr) {
+                previousPaid = totalPaid - parseFloat(x.last_payment_amount || 0);
+                paidOnDelivery = parseFloat(x.last_payment_amount || 0);
+            } else if (createdDateStr === todayStr) {
+                previousPaid = 0;
+                paidOnDelivery = totalPaid;
+            }
+
+            if (type === 'daily') {
+
+                if (
+                    createdDateStr ===
+                    todayStr
+                ) {
+                    includeInReport =
+                        true;
+                    dailyVaultAddition =
+                        totalPaid;
                 }
+                else if (
+                    updatedDateStr ===
+                    todayStr &&
+                    updatedDateStr !==
+                    createdDateStr
+                ) {
+                    includeInReport =
+                        true;
+
+                    const savedLastPayment =
+                        parseFloat(
+                            x.last_payment_amount
+                        );
+
+                    dailyVaultAddition =
+                        !isNaN(
+                            savedLastPayment
+                        )
+                            ? savedLastPayment
+                            : 0;
+                }
+
+            } else if (type === 'monthly') {
+
+                let invYear =
+                    getEgyptYear(
+                        createdDate
+                    );
+
+                let invMonth =
+                    getEgyptMonth(
+                        createdDate
+                    );
+
+                if (
+                    invYear ===
+                    currentYear &&
+                    invMonth ===
+                    currentMonth
+                ) {
+
+                    includeInReport =
+                        true;
+                    dailyVaultAddition =
+                        totalPaid;
+                }
+
             } else if (type === 'yearly') {
-                let invYear = getEgyptYear(createdDate);
-                if (invYear === currentYear) {
-                    includeInReport = true;
+
+                let invYear =
+                    getEgyptYear(
+                        createdDate
+                    );
+
+                if (
+                    invYear ===
+                    currentYear
+                ) {
+
+                    includeInReport =
+                        true;
+                    dailyVaultAddition =
+                        totalPaid;
                 }
             }
 
@@ -2705,34 +2796,54 @@ async function rep(type) {
                     if (type === 'daily') {
                         if (createdDateStr === todayStr) {
                             totalOverallAll += price;
+                            totalVaultAll += dailyVaultAddition;
                         } else {
-                            totalOverallAll += price;
+                            totalVaultAll += dailyVaultAddition;
                         }
-
-                        totalVaultAll += totalPaid;
                         totalRemainingAll += rem;
                     } else {
-                        totalVaultAll += totalPaid;
+                        totalVaultAll += dailyVaultAddition;
                         totalRemainingAll += rem;
                         totalOverallAll += price;
                     }
 
-                    reportLines +=
-                        'أوردر (' +
-                        x.daily_number +
-                        '/' +
-                        getEgyptDay(
-                            createdDate
-                        ) +
-                        ') - ' +
-                        x.customer_name +
-                        ' | الإجمالي: ' +
-                        price +
-                        ' ج | المدفوع: ' +
-                        totalPaid +
-                        ' ج | الباقي: ' +
-                        rem +
-                        ' ج\n';
+                    if (previousPaid > 0 && paidOnDelivery > 0) {
+                        reportLines +=
+                            'أوردر (' +
+                            x.daily_number +
+                            '/' +
+                            getEgyptDay(
+                                createdDate
+                            ) +
+                            ') - ' +
+                            x.customer_name +
+                            ' | الإجمالي: ' +
+                            price +
+                            ' ج | المدفوع سابقاً: ' +
+                            previousPaid +
+                            ' ج | المدفوع عند الاستلام: ' +
+                            paidOnDelivery +
+                            ' ج | الباقي: ' +
+                            rem +
+                            ' ج\n';
+                    } else {
+                        reportLines +=
+                            'أوردر (' +
+                            x.daily_number +
+                            '/' +
+                            getEgyptDay(
+                                createdDate
+                            ) +
+                            ') - ' +
+                            x.customer_name +
+                            ' | الإجمالي: ' +
+                            price +
+                            ' ج | المدفوع: ' +
+                            totalPaid +
+                            ' ج | الباقي: ' +
+                            rem +
+                            ' ج\n';
+                    }
                 }
             }
         }
@@ -3316,7 +3427,6 @@ function renderSearchResults(
                             '</span>' +
                         '</span>';
 
-                    // استخراج الخدمة والرف بشكل منظم ونظيف بدون تكرار
                     let serviceText = '-';
                     let shelfDisplay = '';
                     let shelfRawText = 'غير محدد';
