@@ -1147,7 +1147,7 @@ var currentDayNum = 1;
 
 var formattedOrderCode = "";
 var isCurrentInvoiceSaved = false;
-var isCustomerSelected = false; // متغير حماية تثبيت بيانات العميل
+var isCustomerSelected = false;
 
 var trustedEgyptTimeMs = null;
 var trustedPerformanceMs = null;
@@ -1786,7 +1786,6 @@ function resetFormInputs() {
     document.getElementById('sng').value = '';
     document.getElementById('bags').value = '';
     
-    // تفريغ الحقول الجديدة
     if(document.getElementById('boot')) document.getElementById('boot').value = '';
     if(document.getElementById('belt')) document.getElementById('belt').value = '';
     if(document.getElementById('jacket')) document.getElementById('jacket').value = '';
@@ -2525,6 +2524,26 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
 
         let fractionHtml = '<span class="fraction" style="font-size:14px;"><span class="numerator">' + numTop + '</span><span class="denominator">' + numBottom + '</span></span>';
 
+        // استخراج تفاصيل الخدمة والرف بشكل نظيف بدون نقط أو رموز عشوائية
+        let rawDetails = inv.details || '-';
+        let serviceText = rawDetails;
+        let shelfText = '';
+
+        if (rawDetails.includes('|')) {
+            let parts = rawDetails.split('|').map(p => p.trim());
+            let shelfPart = parts.find(p => p.startsWith('الرف'));
+            let cleanParts = parts.filter(p => !p.startsWith('الرف') && p !== '. : .');
+            serviceText = cleanParts.join(' - ') || 'بدون خدمة';
+            if (shelfPart) {
+                shelfText = shelfPart;
+            }
+        } else if (rawDetails.startsWith('الرف')) {
+            shelfText = rawDetails;
+            serviceText = 'بدون خدمة';
+        } else if (rawDetails === '. : .') {
+            serviceText = 'بدون خدمة';
+        }
+
         let imageGalleryHtml = '';
         if (inv.image_url) {
             const imageUrls = String(inv.image_url).split(/\r?\n/).map(u => u.trim()).filter(u => u.length > 1);
@@ -2536,6 +2555,8 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
         }
 
         let adminControlsHtml = '';
+        let currentShelfValue = shelfText || 'الرف : أ';
+
         if (showAdminControls) {
             adminControlsHtml =
                 '<div style="margin-top:10px;padding:10px;background:#1a1500;border:1px solid #bf953f;border-radius:8px;">' +
@@ -2555,12 +2576,12 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
                         '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">تعديل مكان التخزين (الرف):</label>' +
                         '<div style="display:flex;gap:5px;">' +
                             '<select id="shelf_edit_' + inv.id + '" style="padding:6px;font-size:12px;margin-top:0;">' +
-                                '<option value="الرف : أ">الرف : أ</option>' +
-                                '<option value="الرف : ب">الرف : ب</option>' +
-                                '<option value="الرف : ج">الرف : ج</option>' +
-                                '<option value="الرف : د">الرف : د</option>' +
-                                '<option value="الرف : هـ">الرف : هـ</option>' +
-                                '<option value="الرف : و">الرف : و</option>' +
+                                '<option value="الرف : أ" ' + (currentShelfValue === 'الرف : أ' ? 'selected' : '') + '>الرف : أ</option>' +
+                                '<option value="الرف : ب" ' + (currentShelfValue === 'الرف : ب' ? 'selected' : '') + '>الرف : ب</option>' +
+                                '<option value="الرف : ج" ' + (currentShelfValue === 'الرف : ج' ? 'selected' : '') + '>الرف : ج</option>' +
+                                '<option value="الرف : د" ' + (currentShelfValue === 'الرف : د' ? 'selected' : '') + '>الرف : د</option>' +
+                                '<option value="الرف : هـ" ' + (currentShelfValue === 'الرف : هـ' ? 'selected' : '') + '>الرف : هـ</option>' +
+                                '<option value="الرف : و" ' + (currentShelfValue === 'الرف : و' ? 'selected' : '') + '>الرف : و</option>' +
                             '</select>' +
                             '<button type="button" class="btn-sm" style="background:#bf953f;color:#000;padding:6px 12px;margin-top:0;" onclick="updateShelfLocation(' + inv.id + ')">تحديث الرف</button>' +
                         '</div>' +
@@ -2583,7 +2604,8 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
                 '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;"><b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
                 '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">الموبايل: ' + (inv.phone || '-') + '</div>' +
                 '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
-                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الخدمة:</b> ' + (inv.details || '-') + '</div>' +
+                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الخدمة:</b> ' + serviceText + '</div>' +
+                (shelfText ? '<div style="font-size:13px;color:#f3e5ab;margin-bottom:3px;"><b>مكان التخزين:</b> ' + shelfText + '</div>' : '') +
                 '<div style="font-size:13px;margin-bottom:4px;">الحساب: ' + price + ' ج | المدفوع: ' + paid + ' ج | المتبقي: <span style="color:#ef4444;font-weight:bold;">' + rem + ' ج</span></div>' +
                 imageGalleryHtml +
                 adminControlsHtml +
@@ -2592,7 +2614,6 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
     }).join('');
 }
 
-// دالة جديدة لتحديث حالة "تم الانتهاء" وفتح رسالة الواتساب للعميل مباشرة
 async function completeOrderAndNotify(id, customerName, phoneNum, numTop, numBottom) {
     const egyptNow = await getAccurateEgyptNow();
     const statusUpdatedAt = egyptNow.toISOString();
@@ -2735,7 +2756,7 @@ async function updateShelfLocation(id) {
     if (invData) {
         let currentDetails = invData.details || '';
         let parts = currentDetails.split('|').map(p => p.trim());
-        let cleanDetails = parts.filter(p => !p.startsWith('الرف')).join(' | ');
+        let cleanDetails = parts.filter(p => !p.startsWith('الرف') && p !== '. : .').join(' | ');
         let updatedDetails = cleanDetails ? (cleanDetails + ' | ' + newShelf) : newShelf;
 
         const { error } = await supabaseClient
