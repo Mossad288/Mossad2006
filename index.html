@@ -2264,6 +2264,7 @@ async function sendTo(m) {
     }
 }
 
+// دالة التقرير المُعدّلة لضمان ظهور فواتير اليوم بدقة فوراً
 async function rep(type) {
     const egyptNow = await getAccurateEgyptNow();
     const currentYear = getEgyptYear(egyptNow);
@@ -2298,28 +2299,27 @@ async function rep(type) {
 
         let includeInReport = false;
         let dailyVaultAddition = 0;
-        let previousPaid = parseFloat(x.last_payment_amount) || 0;
+        let previousPaid = 0;
         let paidOnDelivery = 0;
 
-        if (createdDateStr === todayStr && updatedDateStr === todayStr && updatedDateStr !== createdDateStr) {
-            previousPaid = totalPaid - parseFloat(x.last_payment_amount || 0);
-            paidOnDelivery = parseFloat(x.last_payment_amount || 0);
-        } else if (updatedDateStr === todayStr && updatedDateStr !== createdDateStr) {
-            previousPaid = totalPaid - parseFloat(x.last_payment_amount || 0);
-            paidOnDelivery = parseFloat(x.last_payment_amount || 0);
-        } else if (createdDateStr === todayStr) {
-            previousPaid = 0;
-            paidOnDelivery = totalPaid;
-        }
-
         if (type === 'daily') {
-            if (createdDateStr === todayStr) {
+            // لو الفاتورة اتعملت النهارده، أو تم التعديل/السداد عليها النهارده
+            if (createdDateStr === todayStr || updatedDateStr === todayStr) {
                 includeInReport = true;
-                dailyVaultAddition = totalPaid;
-            } else if (updatedDateStr === todayStr && updatedDateStr !== createdDateStr) {
-                includeInReport = true;
-                const savedLastPayment = parseFloat(x.last_payment_amount);
-                dailyVaultAddition = !isNaN(savedLastPayment) ? savedLastPayment : 0;
+                if (createdDateStr === todayStr && updatedDateStr !== todayStr && updatedDateStr !== null) {
+                    // فاتورة قديمة واتدفع فيها النهارده
+                    previousPaid = totalPaid - parseFloat(x.last_payment_amount || 0);
+                    dailyVaultAddition = parseFloat(x.last_payment_amount || totalPaid);
+                    paidOnDelivery = parseFloat(x.last_payment_amount || 0);
+                } else if (createdDateStr === todayStr) {
+                    // فاتورة اتعملت النهارده بالكامل
+                    dailyVaultAddition = totalPaid;
+                    paidOnDelivery = totalPaid;
+                } else {
+                    // تحديث سداد أوردر قديم
+                    dailyVaultAddition = parseFloat(x.last_payment_amount || totalPaid);
+                    paidOnDelivery = parseFloat(x.last_payment_amount || 0);
+                }
             }
         } else if (type === 'monthly') {
             let invYear = getEgyptYear(createdDate);
@@ -2524,7 +2524,6 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
 
         let fractionHtml = '<span class="fraction" style="font-size:14px;"><span class="numerator">' + numTop + '</span><span class="denominator">' + numBottom + '</span></span>';
 
-        // استخراج تفاصيل الخدمة والرف بشكل نظيف بدون نقط أو رموز عشوائية
         let rawDetails = inv.details || '-';
         let serviceText = rawDetails;
         let shelfText = '';
@@ -2639,6 +2638,10 @@ async function completeOrderAndNotify(id, customerName, phoneNum, numTop, numBot
 
         var whatsappAppUrl = "whatsapp://send?phone=" + cleanPh + "&text=" + encodeURIComponent(msg);
         location.href = whatsappAppUrl;
+        
+        setTimeout(() => {
+            adminSearchByFractionNumber();
+        }, 1000);
     } else {
         alert('تم تغيير الحالة بنجاح (رقم هاتف العميل غير متوفر لإرسال رسالة واتساب)');
         adminSearchByFractionNumber();
