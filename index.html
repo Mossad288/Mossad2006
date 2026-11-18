@@ -648,22 +648,40 @@
 
             </div>
 
-            <!-- الحقول الجديدة المضافة -->
+            <!-- الأصناف الإضافية بنظام الصفوف والأعداد -->
             <div class="row">
 
                 <div>
                     <label>بوت:</label>
-                    <input type="number" id="boot" autocomplete="off" value="">
+
+                    <input
+                        type="number"
+                        id="boot"
+                        autocomplete="off"
+                        value=""
+                    >
                 </div>
 
                 <div>
                     <label>حزام:</label>
-                    <input type="number" id="belt" autocomplete="off" value="">
+
+                    <input
+                        type="number"
+                        id="belt"
+                        autocomplete="off"
+                        value=""
+                    >
                 </div>
 
                 <div>
                     <label>جاكت:</label>
-                    <input type="number" id="jacket" autocomplete="off" value="">
+
+                    <input
+                        type="number"
+                        id="jacket"
+                        autocomplete="off"
+                        value=""
+                    >
                 </div>
 
             </div>
@@ -672,17 +690,35 @@
 
                 <div>
                     <label>هيلز:</label>
-                    <input type="number" id="heels" autocomplete="off" value="">
+
+                    <input
+                        type="number"
+                        id="heels"
+                        autocomplete="off"
+                        value=""
+                    >
                 </div>
 
                 <div>
                     <label>صابوه:</label>
-                    <input type="number" id="sabo" autocomplete="off" value="">
+
+                    <input
+                        type="number"
+                        id="sabouh"
+                        autocomplete="off"
+                        value=""
+                    >
                 </div>
 
                 <div>
                     <label>عجل أطفال:</label>
-                    <input type="number" id="kids_wheels" autocomplete="off" value="">
+
+                    <input
+                        type="number"
+                        id="kidsBike"
+                        autocomplete="off"
+                        value=""
+                    >
                 </div>
 
             </div>
@@ -1785,14 +1821,12 @@ function resetFormInputs() {
     document.getElementById('snd').value = '';
     document.getElementById('sng').value = '';
     document.getElementById('bags').value = '';
-    
-    if(document.getElementById('boot')) document.getElementById('boot').value = '';
-    if(document.getElementById('belt')) document.getElementById('belt').value = '';
-    if(document.getElementById('jacket')) document.getElementById('jacket').value = '';
-    if(document.getElementById('heels')) document.getElementById('heels').value = '';
-    if(document.getElementById('sabo')) document.getElementById('sabo').value = '';
-    if(document.getElementById('kids_wheels')) document.getElementById('kids_wheels').value = '';
-
+    document.getElementById('boot').value = '';
+    document.getElementById('belt').value = '';
+    document.getElementById('jacket').value = '';
+    document.getElementById('heels').value = '';
+    document.getElementById('sabouh').value = '';
+    document.getElementById('kidsBike').value = '';
     document.getElementById('srv').value = '';
     document.getElementById('itemImages').value = '';
     document.getElementById('previewsContainer').innerHTML = '';
@@ -1815,7 +1849,7 @@ function resetFormInputs() {
     uploadedImageUrls = [];
     selectedFilesList = [];
     isCurrentInvoiceSaved = false;
-    isCustomerSelected = false; 
+    isCustomerSelected = false;
     
     document.getElementById('clientSendBtn').disabled = false;
     document.getElementById('ownerSendBtn').disabled = false;
@@ -1908,54 +1942,66 @@ function selectCustomerFromList(inv) {
     }
 
     const itemTypeStr = inv.item_type || '';
-    if(document.getElementById('snk')) document.getElementById('snk').value = '';
-    if(document.getElementById('shs')) document.getElementById('shs').value = '';
-    if(document.getElementById('slp')) document.getElementById('slp').value = '';
-    if(document.getElementById('snd')) document.getElementById('snd').value = '';
-    if(document.getElementById('sng')) document.getElementById('sng').value = '';
-    if(document.getElementById('bags')) document.getElementById('bags').value = '';
-    if(document.getElementById('boot')) document.getElementById('boot').value = '';
-    if(document.getElementById('belt')) document.getElementById('belt').value = '';
-    if(document.getElementById('jacket')) document.getElementById('jacket').value = '';
-    if(document.getElementById('heels')) document.getElementById('heels').value = '';
-    if(document.getElementById('sabo')) document.getElementById('sabo').value = '';
-    if(document.getElementById('kids_wheels')) document.getElementById('kids_wheels').value = '';
+    document.getElementById('snk').value = '';
+    document.getElementById('shs').value = '';
+    document.getElementById('slp').value = '';
+    document.getElementById('snd').value = '';
+    document.getElementById('sng').value = '';
+    document.getElementById('bags').value = '';
+    document.getElementById('boot').value = '';
+    document.getElementById('belt').value = '';
+    document.getElementById('jacket').value = '';
+    document.getElementById('heels').value = '';
+    document.getElementById('sabouh').value = '';
+    document.getElementById('kidsBike').value = '';
 
     if (itemTypeStr.includes('كوتشيات:')) {
-        document.getElementById('snk').value = itemTypeStr.split('كوتشيات:')[1].split('|')[0].trim();
+        let val = itemTypeStr.split('كوتشيات:')[1].split('|')[0].trim();
+        document.getElementById('snk').value = val;
     }
     if (itemTypeStr.includes('جزم:')) {
-        document.getElementById('shs').value = itemTypeStr.split('جزم:')[1].split('|')[0].trim();
+        let val = itemTypeStr.split('جزم:')[1].split('|')[0].trim();
+        document.getElementById('shs').value = val;
     }
     if (itemTypeStr.includes('شبشب:')) {
-        document.getElementById('slp').value = itemTypeStr.split('شبشب:')[1].split('|')[0].trim();
+        let val = itemTypeStr.split('شبشب:')[1].split('|')[0].trim();
+        document.getElementById('slp').value = val;
     }
     if (itemTypeStr.includes('صندل:')) {
-        document.getElementById('snd').value = itemTypeStr.split('صندل:')[1].split('|')[0].trim();
+        let val = itemTypeStr.split('صندل:')[1].split('|')[0].trim();
+        document.getElementById('snd').value = val;
     }
     if (itemTypeStr.includes('فردة:')) {
-        document.getElementById('sng').value = itemTypeStr.split('فردة:')[1].split('|')[0].trim();
+        let val = itemTypeStr.split('فردة:')[1].split('|')[0].trim();
+        document.getElementById('sng').value = val;
     }
     if (itemTypeStr.includes('شنط:')) {
-        document.getElementById('bags').value = itemTypeStr.split('شنط:')[1].split('|')[0].trim();
+        let val = itemTypeStr.split('شنط:')[1].split('|')[0].trim();
+        document.getElementById('bags').value = val;
     }
     if (itemTypeStr.includes('بوت:')) {
-        document.getElementById('boot').value = itemTypeStr.split('بوت:')[1].split('|')[0].trim();
+        let val = itemTypeStr.split('بوت:')[1].split('|')[0].trim();
+        document.getElementById('boot').value = val;
     }
     if (itemTypeStr.includes('حزام:')) {
-        document.getElementById('belt').value = itemTypeStr.split('حزام:')[1].split('|')[0].trim();
+        let val = itemTypeStr.split('حزام:')[1].split('|')[0].trim();
+        document.getElementById('belt').value = val;
     }
     if (itemTypeStr.includes('جاكت:')) {
-        document.getElementById('jacket').value = itemTypeStr.split('جاكت:')[1].split('|')[0].trim();
+        let val = itemTypeStr.split('جاكت:')[1].split('|')[0].trim();
+        document.getElementById('jacket').value = val;
     }
     if (itemTypeStr.includes('هيلز:')) {
-        document.getElementById('heels').value = itemTypeStr.split('هيلز:')[1].split('|')[0].trim();
+        let val = itemTypeStr.split('هيلز:')[1].split('|')[0].trim();
+        document.getElementById('heels').value = val;
     }
     if (itemTypeStr.includes('صابوه:')) {
-        document.getElementById('sabo').value = itemTypeStr.split('صابوه:')[1].split('|')[0].trim();
+        let val = itemTypeStr.split('صابوه:')[1].split('|')[0].trim();
+        document.getElementById('sabouh').value = val;
     }
     if (itemTypeStr.includes('عجل أطفال:')) {
-        document.getElementById('kids_wheels').value = itemTypeStr.split('عجل أطفال:')[1].split('|')[0].trim();
+        let val = itemTypeStr.split('عجل أطفال:')[1].split('|')[0].trim();
+        document.getElementById('kidsBike').value = val;
     }
 
     if (inv.details) {
@@ -1991,12 +2037,20 @@ function closeScreen() {
 
     document.getElementById('mainDashboardScreen').style.display = 'block';
 
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams =
+        new URLSearchParams(
+            window.location.search
+        );
+
     if (
         urlParams.get('admin') === 'masad2026' ||
         sessionStorage.getItem('aleskafy_admin_logged') === 'true'
     ) {
-        document.getElementById('portalMenu').style.display = 'grid';
+
+        document.getElementById(
+            'portalMenu'
+        ).style.display =
+            'grid';
     }
 
     window.scrollTo({
@@ -2006,8 +2060,15 @@ function closeScreen() {
 }
 
 function calc() {
-    var t = parseFloat(document.getElementById('tot').value) || 0;
-    var p = parseFloat(document.getElementById('paid').value) || 0;
+    var t =
+        parseFloat(
+            document.getElementById('tot').value
+        ) || 0;
+
+    var p =
+        parseFloat(
+            document.getElementById('paid').value
+        ) || 0;
 
     document.getElementById('rem').value =
         (
@@ -2020,100 +2081,241 @@ function calc() {
 
 async function fetchNextInvoiceNum() {
     try {
-        const nowEgypt = await getAccurateEgyptNow();
-        const todayStr = getEgyptDateString(nowEgypt);
-        currentDayNum = getEgyptDay(nowEgypt);
-        const range = getDateRangeISO(todayStr);
+        const nowEgypt =
+            await getAccurateEgyptNow();
 
-        const { data, error } = await supabaseClient
-            .from('invoices')
-            .select('daily_number')
-            .gte('created_at', range.start)
-            .lte('created_at', range.end);
+        const todayStr =
+            getEgyptDateString(
+                nowEgypt
+            );
 
-        if (!error && data && data.length > 0) {
-            const numbers = data
-                .map(inv => parseInt(inv.daily_number))
-                .filter(n => !isNaN(n));
+        currentDayNum =
+            getEgyptDay(
+                nowEgypt
+            );
 
-            currentDailyNum = numbers.length > 0 ? Math.max(...numbers) + 1 : 1;
+        const range =
+            getDateRangeISO(
+                todayStr
+            );
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from('invoices')
+                .select('daily_number')
+                .gte('created_at', range.start)
+                .lte('created_at', range.end);
+
+        if (
+            !error &&
+            data &&
+            data.length > 0
+        ) {
+
+            const numbers =
+                data
+                    .map(
+                        inv =>
+                            parseInt(
+                                inv.daily_number
+                            )
+                    )
+                    .filter(
+                        n =>
+                            !isNaN(n)
+                    );
+
+            currentDailyNum =
+                numbers.length > 0
+                    ? Math.max(...numbers) + 1
+                    : 1;
+
         } else {
-            currentDailyNum = 1;
+
+            currentDailyNum =
+                1;
         }
+
     } catch (e) {
-        currentDailyNum = 1;
+        currentDailyNum =
+            1;
     }
 
-    formattedOrderCode = currentDailyNum + '/' + currentDayNum;
+    formattedOrderCode =
+        currentDailyNum +
+        '/' +
+        currentDayNum;
 
-    const badgeEl = document.getElementById('badge');
+    const badgeEl =
+        document.getElementById('badge');
+
     if (badgeEl) {
         badgeEl.innerHTML =
             '<span>رقم أوردر اليوم:</span>' +
             '<span class="fraction" style="font-size:16px;">' +
-                '<span class="numerator">' + currentDailyNum + '</span>' +
-                '<span class="denominator">' + currentDayNum + '</span>' +
+                '<span class="numerator">' +
+                    currentDailyNum +
+                '</span>' +
+                '<span class="denominator">' +
+                    currentDayNum +
+                '</span>' +
             '</span>';
     }
 }
 
 function handleImagesSelection(event) {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-        const previewContainer = document.getElementById('previewsContainer');
-        previewContainer.innerHTML = '';
+    const files =
+        event.target.files;
+
+    if (
+        files &&
+        files.length > 0
+    ) {
+
+        const previewContainer =
+            document.getElementById(
+                'previewsContainer'
+            );
+
+        previewContainer.innerHTML =
+            '';
+
         selectedFilesList = [];
 
-        for (let i = 0; i < files.length; i++) {
-            selectedFilesList.push(files[i]);
+        for (
+            let i = 0;
+            i < files.length;
+            i++
+        ) {
+
+            selectedFilesList.push(
+                files[i]
+            );
         }
 
         uploadedImageUrls = [];
-        selectedFilesList.forEach(function(file) {
-            const img = document.createElement('img');
-            img.className = 'preview-thumb';
-            img.src = URL.createObjectURL(file);
-            previewContainer.appendChild(img);
-        });
+
+        selectedFilesList.forEach(
+            function(file) {
+
+                const img =
+                    document.createElement(
+                        'img'
+                    );
+
+                img.className =
+                    'preview-thumb';
+
+                img.src =
+                    URL.createObjectURL(
+                        file
+                    );
+
+                previewContainer.appendChild(
+                    img
+                );
+            }
+        );
     }
 }
 
 async function uploadAllImages() {
-    if (selectedFilesList.length === 0) {
+    if (
+        selectedFilesList.length === 0
+    ) {
         return [];
     }
 
-    const statusEl = document.getElementById('uploadStatus');
-    statusEl.innerText = 'جاري رفع الصور، انتظر لحظة...';
-    statusEl.style.display = 'block';
+    const statusEl =
+        document.getElementById(
+            'uploadStatus'
+        );
+
+    statusEl.innerText =
+        'جاري رفع الصور، انتظر لحظة...';
+
+    statusEl.style.display =
+        'block';
 
     let urls = [];
-    try {
-        for (let i = 0; i < selectedFilesList.length; i++) {
-            const file = selectedFilesList[i];
-            const fileName = 'inv_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2,7) + '.jpg';
 
-            const { data, error: uploadError } = await supabaseClient.storage
-                .from('images')
-                .upload(fileName, file, { cacheControl: '3600', upsert: true });
+    try {
+
+        for (
+            let i = 0;
+            i < selectedFilesList.length;
+            i++
+        ) {
+
+            const file =
+                selectedFilesList[i];
+
+            const fileName =
+                'inv_' +
+                Date.now() +
+                '_' +
+                i +
+                '_' +
+                Math.random()
+                    .toString(36)
+                    .substring(2,7) +
+                '.jpg';
+
+            const {
+                data,
+                error: uploadError
+            } =
+                await supabaseClient.storage
+                    .from('images')
+                    .upload(
+                        fileName,
+                        file,
+                        {
+                            cacheControl: '3600',
+                            upsert: true
+                        }
+                    );
 
             if (uploadError) {
-                throw new Error(uploadError.message);
+                throw new Error(
+                    uploadError.message
+                );
             }
 
-            const { data: publicUrlData } = supabaseClient.storage
-                .from('images')
-                .getPublicUrl(fileName);
+            const {
+                data: publicUrlData
+            } =
+                supabaseClient.storage
+                    .from('images')
+                    .getPublicUrl(
+                        fileName
+                    );
 
-            urls.push(publicUrlData.publicUrl);
+            urls.push(
+                publicUrlData.publicUrl
+            );
         }
 
-        uploadedImageUrls = urls;
-        statusEl.style.display = 'none';
+        uploadedImageUrls =
+            urls;
+
+        statusEl.style.display =
+            'none';
+
         return uploadedImageUrls;
+
     } catch (err) {
-        statusEl.style.display = 'none';
-        alert("خطأ أثناء رفع الصور:\n" + err.message);
+        statusEl.style.display =
+            'none';
+
+        alert(
+            "خطأ أثناء رفع الصور:\n" +
+            err.message
+        );
+
         return [];
     }
 }
@@ -2127,12 +2329,12 @@ function getItemsSummary() {
     const sn = document.getElementById('snd').value;
     const sg = document.getElementById('sng').value;
     const bg = document.getElementById('bags').value;
-    const boot = document.getElementById('boot') ? document.getElementById('boot').value : '0';
-    const belt = document.getElementById('belt') ? document.getElementById('belt').value : '0';
-    const jacket = document.getElementById('jacket') ? document.getElementById('jacket').value : '0';
-    const heels = document.getElementById('heels') ? document.getElementById('heels').value : '0';
-    const sabo = document.getElementById('sabo') ? document.getElementById('sabo').value : '0';
-    const kids_wheels = document.getElementById('kids_wheels') ? document.getElementById('kids_wheels').value : '0';
+    const boot = document.getElementById('boot').value;
+    const belt = document.getElementById('belt').value;
+    const jacket = document.getElementById('jacket').value;
+    const heels = document.getElementById('heels').value;
+    const sabouh = document.getElementById('sabouh').value;
+    const kidsBike = document.getElementById('kidsBike').value;
 
     if (parseInt(sk) > 0) items.push('كوتشيات: ' + sk);
     if (parseInt(ss) > 0) items.push('جزم: ' + ss);
@@ -2144,10 +2346,13 @@ function getItemsSummary() {
     if (parseInt(belt) > 0) items.push('حزام: ' + belt);
     if (parseInt(jacket) > 0) items.push('جاكت: ' + jacket);
     if (parseInt(heels) > 0) items.push('هيلز: ' + heels);
-    if (parseInt(sabo) > 0) items.push('صابوه: ' + sabo);
-    if (parseInt(kids_wheels) > 0) items.push('عجل أطفال: ' + kids_wheels);
+    if (parseInt(sabouh) > 0) items.push('صابوه: ' + sabouh);
+    if (parseInt(kidsBike) > 0) items.push('عجل أطفال: ' + kidsBike);
 
-    return items.join(' | ') || 'بدون أصناف';
+    return (
+        items.join(' | ') ||
+        'بدون أصناف'
+    );
 }
 
 async function sendTo(m) {
@@ -2156,20 +2361,41 @@ async function sendTo(m) {
         return;
     }
 
-    var n = document.getElementById('name').value.trim();
-    var t = document.getElementById('tot').value.trim();
-    var ph = document.getElementById('phone').value.trim();
+    var n =
+        document.getElementById('name').value.trim();
 
-    if (!n || !t || (m === 'client' && !ph)) {
-        alert("يرجى ملء كافة البيانات المطلوبة!");
+    var t =
+        document.getElementById('tot').value.trim();
+
+    var ph =
+        document.getElementById('phone').value.trim();
+
+    if (
+        !n ||
+        !t ||
+        (
+            m === 'client' &&
+            !ph
+        )
+    ) {
+
+        alert(
+            "يرجى ملء كافة البيانات المطلوبة!"
+        );
+
         return;
     }
 
     document.getElementById('clientSendBtn').disabled = true;
     document.getElementById('ownerSendBtn').disabled = true;
 
-    var r = document.getElementById('rDate').value || 'غير محدد';
-    var d = document.getElementById('dDate').value || 'غير محدد';
+    var r =
+        document.getElementById('rDate').value ||
+        'غير محدد';
+
+    var d =
+        document.getElementById('dDate').value ||
+        'غير محدد';
 
     var sk = document.getElementById('snk').value || '0';
     var ss = document.getElementById('shs').value || '0';
@@ -2177,624 +2403,1608 @@ async function sendTo(m) {
     var sn = document.getElementById('snd').value || '0';
     var sg = document.getElementById('sng').value || '0';
     var bg = document.getElementById('bags').value || '0';
-    var boot = document.getElementById('boot') ? (document.getElementById('boot').value || '0') : '0';
-    var belt = document.getElementById('belt') ? (document.getElementById('belt').value || '0') : '0';
-    var jacket = document.getElementById('jacket') ? (document.getElementById('jacket').value || '0') : '0';
-    var heels = document.getElementById('heels') ? (document.getElementById('heels').value || '0') : '0';
-    var sabo = document.getElementById('sabo') ? (document.getElementById('sabo').value || '0') : '0';
-    var kids_wheels = document.getElementById('kids_wheels') ? (document.getElementById('kids_wheels').value || '0') : '0';
+    var boot = document.getElementById('boot').value || '0';
+    var belt = document.getElementById('belt').value || '0';
+    var jacket = document.getElementById('jacket').value || '0';
+    var heels = document.getElementById('heels').value || '0';
+    var sabouh = document.getElementById('sabouh').value || '0';
+    var kidsBike = document.getElementById('kidsBike').value || '0';
 
     var sv = document.getElementById('srv').value || '';
     var p = document.getElementById('paid').value || '0';
     var rm = document.getElementById('rem').value || '0';
 
     if (!isCurrentInvoiceSaved) {
-        var imgUrls = await uploadAllImages();
-        var imagesForDatabase = imgUrls.join('\n');
 
-        const { error } = await supabaseClient
-            .from('invoices')
-            .insert([
-                {
-                    customer_name: n,
-                    phone: ph,
-                    item_type: getItemsSummary(),
-                    details: sv,
-                    price: parseFloat(t) || 0,
-                    paid: parseFloat(p) || 0,
-                    last_payment_amount: parseFloat(p) || 0,
-                    image_url: imagesForDatabase,
-                    status: 'تحت الصيانة',
-                    daily_number: currentDailyNum
-                }
-            ]);
+        var imgUrls =
+            await uploadAllImages();
+
+        var imagesForDatabase =
+            imgUrls.join('\n');
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from('invoices')
+                .insert([
+                    {
+                        customer_name: n,
+                        phone: ph,
+                        item_type: getItemsSummary(),
+                        details: sv,
+                        price: parseFloat(t) || 0,
+                        paid: parseFloat(p) || 0,
+                        last_payment_amount: parseFloat(p) || 0,
+                        image_url: imagesForDatabase,
+                        status: 'تحت الصيانة',
+                        daily_number: currentDailyNum
+                    }
+                ]);
 
         if (error) {
-            alert("خطأ في حفظ الفاتورة: " + error.message);
+            alert(
+                "خطأ في حفظ الفاتورة: " +
+                error.message
+            );
+            
             document.getElementById('clientSendBtn').disabled = false;
             document.getElementById('ownerSendBtn').disabled = false;
+
             return;
         }
 
-        isCurrentInvoiceSaved = true;
+        isCurrentInvoiceSaved =
+            true;
     }
 
     var baseTxt =
-        'اسم العميل: ' + n + '\n' +
-        'تاريخ الاستلام: ' + r + '\n' +
-        'تاريخ التسليم: ' + d + '\n\n' +
+        'اسم العميل: ' +
+        n +
+        '\n' +
+
+        'تاريخ الاستلام: ' +
+        r +
+        '\n' +
+
+        'تاريخ التسليم: ' +
+        d +
+        '\n\n' +
+
         'كوتشيات: ' + sk + ' | جزم: ' + ss + ' | شبشب: ' + sl + '\n' +
         'صندل: ' + sn + ' | فردة: ' + sg + ' | شنط: ' + bg + '\n' +
         'بوت: ' + boot + ' | حزام: ' + belt + ' | جاكت: ' + jacket + '\n' +
-        'هيلز: ' + heels + ' | صابوه: ' + sabo + ' | عجل أطفال: ' + kids_wheels + '\n' +
-        'الخدمة: ' + sv + '\n\n' +
-        'الحساب الكلي: ' + t + ' جنيه\n' +
-        'المدفوع مقدمًا: ' + p + ' جنيه\n' +
-        'المبلغ المتبقي: ' + rm + ' جنيه';
+        'هيلز: ' + heels + ' | صابوه: ' + sabouh + ' | عجل أطفال: ' + kidsBike + '\n\n' +
+
+        'الخدمة: ' +
+        sv +
+        '\n\n' +
+
+        'الحساب الكلي: ' +
+        t +
+        ' جنيه\n' +
+
+        'المدفوع مقدمًا: ' +
+        p +
+        ' جنيه\n' +
+
+        'المبلغ المتبقي: ' +
+        rm +
+        ' جنيه';
 
     if (m === 'client') {
-        var cleanPh = ph.replace(/\D/g, '');
-        if (cleanPh.startsWith("0")) {
-            cleanPh = "2" + cleanPh;
+
+        var cleanPh =
+            ph.replace(
+                /\D/g,
+                ''
+            );
+
+        if (
+            cleanPh.startsWith("0")
+        ) {
+
+            cleanPh =
+                "2" +
+                cleanPh;
         }
 
         var msg =
             'ALESKAFY SHOES\n' +
-            'إيصال استلام صيانة - رقم (' + formattedOrderCode + ')\n\n' +
-            baseTxt + '\n\n' +
+
+            'إيصال استلام صيانة - رقم (' +
+            formattedOrderCode +
+            ')\n\n' +
+
+            baseTxt +
+
+            '\n\n' +
+
             'لمتابعة أخبار وعروض المحل:\n' +
-            FACEBOOK_PAGE + '\n\n' +
+
+            FACEBOOK_PAGE +
+
+            '\n\n' +
+
             'تنبيه: المحل غير مسؤول عن أي شيء بعد 15 يوم من ميعاد التسليم.\n\n' +
+
             'نرحب بكم دائمًا في الاسكافي شوز';
 
-        var whatsappAppUrl = "whatsapp://send?phone=" + cleanPh + "&text=" + encodeURIComponent(msg);
-        location.href = whatsappAppUrl;
+        var whatsappAppUrl =
+            "whatsapp://send?phone=" +
+            cleanPh +
+            "&text=" +
+            encodeURIComponent(
+                msg
+            );
+
+        location.href =
+            whatsappAppUrl;
+
         return;
     }
 
     if (m === 'owner') {
+
         var oMsg =
             '[ALESKAFY SHOES - نسخة المحل]\n' +
-            'أرشيف أوردر رقم (' + formattedOrderCode + ')\n\n' +
+
+            'أرشيف أوردر رقم (' +
+            formattedOrderCode +
+            ')\n\n' +
+
             baseTxt;
 
-        var ownerWhatsappAppUrl = "whatsapp://send?phone=" + OWNER_PHONE + "&text=" + encodeURIComponent(oMsg);
-        location.href = ownerWhatsappAppUrl;
+        var ownerWhatsappAppUrl =
+            "whatsapp://send?phone=" +
+            OWNER_PHONE +
+            "&text=" +
+            encodeURIComponent(
+                oMsg
+            );
+
+        location.href =
+            ownerWhatsappAppUrl;
+
         return;
     }
 }
 
-// دالة التقرير المُعدّلة لضمان ظهور فواتير اليوم بدقة فوراً
+/* =========================================================
+   التقرير (النسخة النهائية الصحيحة)
+   ========================================================= */
+
 async function rep(type) {
-    const egyptNow = await getAccurateEgyptNow();
-    const currentYear = getEgyptYear(egyptNow);
-    const currentMonth = getEgyptMonth(egyptNow);
-    const todayStr = getEgyptDateString(egyptNow);
+    const egyptNow =
+        await getAccurateEgyptNow();
 
-    const { data: list, error } = await supabaseClient
-        .from('invoices')
-        .select('*')
-        .order('created_at', { ascending: true });
+    const currentYear =
+        getEgyptYear(
+            egyptNow
+        );
 
-    if (error || !list || list.length === 0) {
-        alert("لا توجد فواتير مسجلة!");
+    const currentMonth =
+        getEgyptMonth(
+            egyptNow
+        );
+
+    const todayStr =
+        getEgyptDateString(
+            egyptNow
+        );
+
+    const {
+        data: list,
+        error
+    } =
+        await supabaseClient
+            .from('invoices')
+            .select('*')
+            .order(
+                'created_at',
+                {
+                    ascending: true
+                }
+            );
+
+    if (
+        error ||
+        !list ||
+        list.length === 0
+    ) {
+
+        alert(
+            "لا توجد فواتير مسجلة!"
+        );
+
         return;
     }
 
     let totalVaultAll = 0;
     let totalRemainingAll = 0;
     let totalOverallAll = 0;
+
     let reportLines = '';
-    let processedDailyOrders = new Set();
+    let processedOrders = new Set();
 
-    list.forEach(function(x) {
-        let createdDate = new Date(x.created_at || Date.now());
-        let createdDateStr = getEgyptDateString(createdDate);
-        let updatedDate = x.updated_at ? new Date(x.updated_at) : null;
-        let updatedDateStr = updatedDate ? getEgyptDateString(updatedDate) : null;
+    list.forEach(
+        function(x) {
 
-        let price = parseFloat(x.price) || 0;
-        let totalPaid = parseFloat(x.paid) || 0;
-        let rem = price - totalPaid;
+            let createdDate =
+                new Date(
+                    x.created_at ||
+                    Date.now()
+                );
 
-        let includeInReport = false;
-        let dailyVaultAddition = 0;
-        let previousPaid = 0;
-        let paidOnDelivery = 0;
+            let createdDateStr =
+                getEgyptDateString(
+                    createdDate
+                );
 
-        if (type === 'daily') {
-            // لو الفاتورة اتعملت النهارده، أو تم التعديل/السداد عليها النهارده
-            if (createdDateStr === todayStr || updatedDateStr === todayStr) {
-                includeInReport = true;
-                if (createdDateStr === todayStr && updatedDateStr !== todayStr && updatedDateStr !== null) {
-                    // فاتورة قديمة واتدفع فيها النهارده
-                    previousPaid = totalPaid - parseFloat(x.last_payment_amount || 0);
-                    dailyVaultAddition = parseFloat(x.last_payment_amount || totalPaid);
-                    paidOnDelivery = parseFloat(x.last_payment_amount || 0);
-                } else if (createdDateStr === todayStr) {
-                    // فاتورة اتعملت النهارده بالكامل
-                    dailyVaultAddition = totalPaid;
-                    paidOnDelivery = totalPaid;
-                } else {
-                    // تحديث سداد أوردر قديم
-                    dailyVaultAddition = parseFloat(x.last_payment_amount || totalPaid);
-                    paidOnDelivery = parseFloat(x.last_payment_amount || 0);
+            let updatedDate =
+                x.updated_at
+                    ? new Date(
+                        x.updated_at
+                    )
+                    : null;
+
+            let updatedDateStr =
+                updatedDate
+                    ? getEgyptDateString(
+                        updatedDate
+                    )
+                    : null;
+
+            let deliveredDate =
+                x.delivered_at
+                    ? new Date(
+                        x.delivered_at
+                    )
+                    : null;
+
+            let deliveredDateStr =
+                deliveredDate
+                    ? getEgyptDateString(
+                        deliveredDate
+                    )
+                    : null;
+
+            let price =
+                parseFloat(
+                    x.price
+                ) || 0;
+
+            let totalPaid =
+                parseFloat(
+                    x.paid
+                ) || 0;
+
+            let rem =
+                price -
+                totalPaid;
+
+            let includeInReport =
+                false;
+            let vaultAddition =
+                0;
+
+            let lastPayment = parseFloat(x.last_payment_amount) || 0;
+
+            if (type === 'daily') {
+                if (createdDateStr === todayStr) {
+                    includeInReport = true;
+                    vaultAddition = totalPaid; 
+                } else if (updatedDateStr === todayStr || deliveredDateStr === todayStr) {
+                    includeInReport = true;
+                    vaultAddition = lastPayment > 0 ? lastPayment : (updatedDateStr === createdDateStr ? totalPaid : 0);
+                }
+            } else if (type === 'monthly') {
+                let invYear = getEgyptYear(createdDate);
+                let invMonth = getEgyptMonth(createdDate);
+                let updYear = updatedDate ? getEgyptYear(updatedDate) : null;
+                let updMonth = updatedDate ? getEgyptMonth(updatedDate) : null;
+
+                if ((invYear === currentYear && invMonth === currentMonth) || (updYear === currentYear && updMonth === currentMonth)) {
+                    includeInReport = true;
+                    vaultAddition = totalPaid;
+                }
+            } else if (type === 'yearly') {
+                let invYear = getEgyptYear(createdDate);
+                let updYear = updatedDate ? getEgyptYear(updatedDate) : null;
+
+                if (invYear === currentYear || updYear === currentYear) {
+                    includeInReport = true;
+                    vaultAddition = totalPaid;
                 }
             }
-        } else if (type === 'monthly') {
-            let invYear = getEgyptYear(createdDate);
-            let invMonth = getEgyptMonth(createdDate);
-            if (invYear === currentYear && invMonth === currentMonth) {
-                includeInReport = true;
-                dailyVaultAddition = totalPaid;
-            }
-        } else if (type === 'yearly') {
-            let invYear = getEgyptYear(createdDate);
-            if (invYear === currentYear) {
-                includeInReport = true;
-                dailyVaultAddition = totalPaid;
-            }
-        }
 
-        if (includeInReport) {
-            let uniqueKey = x.id;
-            if (!processedDailyOrders.has(uniqueKey)) {
-                processedDailyOrders.add(uniqueKey);
+            if (includeInReport) {
+                let uniqueKey = x.id;
 
-                if (type === 'daily') {
-                    if (createdDateStr === todayStr) {
-                        totalOverallAll += price;
-                        totalVaultAll += dailyVaultAddition;
-                    } else {
-                        totalVaultAll += dailyVaultAddition;
-                    }
-                    totalRemainingAll += rem;
-                } else {
-                    totalVaultAll += dailyVaultAddition;
-                    totalRemainingAll += rem;
+                if (!processedOrders.has(uniqueKey)) {
+                    processedOrders.add(uniqueKey);
+
                     totalOverallAll += price;
-                }
+                    totalRemainingAll += rem;
+                    
+                    if (type === 'daily') {
+                        totalVaultAll += vaultAddition;
+                    } else {
+                        totalVaultAll = totalPaid;
+                    }
 
-                if (previousPaid > 0 && paidOnDelivery > 0) {
-                    reportLines += 'أوردر (' + x.daily_number + '/' + getEgyptDay(createdDate) + ') - ' + x.customer_name + ' | الإجمالي: ' + price + ' ج | المدفوع سابقاً: ' + previousPaid + ' ج | المدفوع عند الاستلام: ' + paidOnDelivery + ' ج | الباقي: ' + rem + ' ج\n';
-                } else {
-                    reportLines += 'أوردر (' + x.daily_number + '/' + getEgyptDay(createdDate) + ') - ' + x.customer_name + ' | الإجمالي: ' + price + ' ج | المدفوع: ' + totalPaid + ' ج | الباقي: ' + rem + ' ج\n';
+                    let dayNum = getEgyptDay(createdDate);
+                    
+                    if (lastPayment > 0 && updatedDateStr === todayStr && createdDateStr !== todayStr) {
+                        reportLines +=
+                            'أوردر (' + x.daily_number + '/' + dayNum + ') - ' + x.customer_name + 
+                            ' | الإجمالي: ' + price + ' ج | المدفوع سابقاً: ' + (totalPaid - lastPayment) + 
+                            ' ج | المدفوع اليوم: ' + lastPayment + ' ج | الباقي: ' + rem + ' ج\n';
+                    } else {
+                        reportLines +=
+                            'أوردر (' + x.daily_number + '/' + dayNum + ') - ' + x.customer_name + 
+                            ' | الإجمالي: ' + price + ' ج | المدفوع: ' + totalPaid + ' ج | الباقي: ' + rem + ' ج\n';
+                    }
                 }
             }
         }
-    });
+    );
 
-    let txt = 'تقرير الإسكافي شوز (' + type.toUpperCase() + ')\n====================\n\n' + reportLines + '\n====================\n';
-    txt += "إجمالي الحساب الكلي: " + totalOverallAll + ' ج\n';
-    txt += "إجمالي الخزنة (المدفوع): " + totalVaultAll + ' ج\n';
-    txt += "إجمالي المبلغ المتبقي: " + totalRemainingAll + ' ج';
+    if (type !== 'daily') {
+        totalVaultAll = 0;
+        processedOrders.forEach(id => {
+            let inv = list.find(i => i.id === id);
+            if (inv) totalVaultAll += (parseFloat(inv.paid) || 0);
+        });
+    }
 
-    var b = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8" });
-    var lnk = document.createElement('a');
-    lnk.href = URL.createObjectURL(b);
-    lnk.download = "Report_" + type + ".txt";
+    let txt =
+        'تقرير الإسكافي شوز (' +
+        type.toUpperCase() +
+        ')\n' +
+        '====================\n\n';
+
+    txt +=
+        reportLines;
+
+    txt +=
+        "\n====================\n";
+
+    txt +=
+        "إجمالي الحساب الكلي: " +
+        totalOverallAll +
+        ' ج\n';
+
+    txt +=
+        "إجمالي الخزنة (المدفوع): " +
+        totalVaultAll +
+        ' ج\n';
+
+    txt +=
+        "إجمالي المبلغ المتبقي: " +
+        totalRemainingAll +
+        ' ج';
+
+    var b =
+        new Blob(
+            [
+                "\uFEFF" +
+                txt
+            ],
+            {
+                type:
+                    "text/plain;charset=utf-8"
+            }
+        );
+
+    var lnk =
+        document.createElement(
+            'a'
+        );
+
+    lnk.href =
+        URL.createObjectURL(
+            b
+        );
+
+    lnk.download =
+        "Report_" +
+        type +
+        ".txt";
+
     lnk.click();
 }
 
-async function loadDeliveredInvoices(filterType) {
-    const resBox = document.getElementById('deliveryResults');
-    resBox.style.display = 'block';
-    resBox.innerHTML = 'جاري التحميل...';
+async function loadDeliveredInvoices(
+    filterType
+) {
+    const resBox =
+        document.getElementById(
+            'deliveryResults'
+        );
 
-    let query = supabaseClient
-        .from('invoices')
-        .select('*')
-        .eq('status', 'تم التسليم')
-        .order('daily_number', { ascending: true });
+    resBox.style.display =
+        'block';
 
-    const { data, error } = await query;
-    if (error || !data || data.length === 0) {
-        resBox.innerHTML = '<div style="color:#38bdf8;text-align:center;padding:10px;">لا توجد أوردرات مسلمة مسجلة حالياً!</div>';
+    resBox.innerHTML =
+        'جاري التحميل...';
+
+    let query =
+        supabaseClient
+            .from('invoices')
+            .select('*')
+            .eq(
+                'status',
+                'تم التسليم'
+            )
+            .order(
+                'daily_number',
+                {
+                    ascending: true
+                }
+            );
+
+    const {
+        data,
+        error
+    } =
+        await query;
+
+    if (
+        error ||
+        !data ||
+        data.length === 0
+    ) {
+
+        resBox.innerHTML =
+            '<div style="color:#38bdf8;text-align:center;padding:10px;">لا توجد أوردرات مسلمة مسجلة حالياً!</div>';
+
         return;
     }
 
-    let filteredData = data;
-    if (filterType === 'today') {
-        const nowEgypt = await getAccurateEgyptNow();
-        const todayStr = getEgyptDateString(nowEgypt);
-        filteredData = data.filter(function(inv) {
-            return inv.delivered_at && getEgyptDateString(new Date(inv.delivered_at)) === todayStr;
-        });
+    let filteredData =
+        data;
 
-        if (filteredData.length === 0) {
-            resBox.innerHTML = '<div style="color:#38bdf8;text-align:center;padding:10px;">لم يتم تسليم أي أوردرات اليوم حتى الآن!</div>';
+    if (
+        filterType === 'today'
+    ) {
+
+        const nowEgypt =
+            await getAccurateEgyptNow();
+
+        const todayStr =
+            getEgyptDateString(
+                nowEgypt
+            );
+
+        filteredData =
+            data.filter(
+                function(inv) {
+
+                    const deliveredToday =
+                        inv.delivered_at &&
+                        getEgyptDateString(
+                            new Date(
+                                inv.delivered_at
+                            )
+                        ) === todayStr;
+
+                    return deliveredToday;
+                }
+            );
+
+        if (
+            filteredData.length === 0
+        ) {
+
+            resBox.innerHTML =
+                '<div style="color:#38bdf8;text-align:center;padding:10px;">لم يتم تسليم أي أوردرات اليوم حتى الآن!</div>';
+
             return;
         }
     }
 
-    renderSearchResults(filteredData, null, resBox, false);
+    renderSearchResults(
+        filteredData,
+        null,
+        resBox,
+        false
+    );
 }
 
 async function searchByFractionNumber() {
-    const numVal = document.getElementById('searchNumerator').value.trim();
-    const denVal = document.getElementById('searchDenominator').value.trim();
-    const dateInput = document.getElementById('searchDate').value;
-    const resBox = document.getElementById('workerSearchResults');
+    const numVal =
+        document
+            .getElementById(
+                'searchNumerator'
+            )
+            .value
+            .trim();
 
-    if (!numVal && !denVal && !dateInput) {
-        alert('الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث');
+    const denVal =
+        document
+            .getElementById(
+                'searchDenominator'
+            )
+            .value
+            .trim();
+
+    const dateInput =
+        document
+            .getElementById(
+                'searchDate'
+            )
+            .value;
+
+    const resBox =
+        document
+            .getElementById(
+                'workerSearchResults'
+            );
+
+    if (
+        !numVal &&
+        !denVal &&
+        !dateInput
+    ) {
+
+        alert(
+            'الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث'
+        );
+
         return;
     }
 
-    resBox.style.display = 'block';
-    resBox.innerHTML = 'جاري التحميل...';
+    resBox.style.display =
+        'block';
 
-    let query = supabaseClient.from('invoices').select('*').order('daily_number', { ascending: true });
+    resBox.innerHTML =
+        'جاري التحميل...';
+
+    let query =
+        supabaseClient
+            .from('invoices')
+            .select('*')
+            .order(
+                'daily_number',
+                {
+                    ascending: true
+                }
+            );
 
     if (numVal) {
-        query = query.eq('daily_number', parseInt(numVal));
+        query =
+            query.eq(
+                'daily_number',
+                parseInt(
+                    numVal
+                )
+            );
     }
 
     if (dateInput) {
-        const range = getDateRangeISO(dateInput);
-        query = query.gte('created_at', range.start).lte('created_at', range.end);
+        const range =
+            getDateRangeISO(
+                dateInput
+            );
+
+        query =
+            query
+                .gte(
+                    'created_at',
+                    range.start
+                )
+                .lte(
+                    'created_at',
+                    range.end
+                );
     }
 
-    const { data, error } = await query;
-    let finalData = data;
+    const {
+        data,
+        error
+    } =
+        await query;
 
-    if (!dateInput && denVal && data) {
-        const dNum = parseInt(denVal);
-        finalData = data.filter(inv => getEgyptDay(inv.created_at) === dNum);
+    let finalData =
+        data;
+
+    if (
+        !dateInput &&
+        denVal &&
+        data
+    ) {
+
+        const dNum =
+            parseInt(
+                denVal
+            );
+
+        finalData =
+            data.filter(
+                inv =>
+                    getEgyptDay(
+                        inv.created_at
+                    ) === dNum
+            );
     }
 
-    renderSearchResults(finalData, error, resBox, false);
+    renderSearchResults(
+        finalData,
+        error,
+        resBox,
+        false
+    );
 }
 
 async function adminSearchByFractionNumber() {
-    const numVal = document.getElementById('adminSearchNumerator').value.trim();
-    const denVal = document.getElementById('adminSearchDenominator').value.trim();
-    const dateInput = document.getElementById('adminSearchDate').value;
-    const resBox = document.getElementById('searchResults');
+    const numVal =
+        document
+            .getElementById(
+                'adminSearchNumerator'
+            )
+            .value
+            .trim();
 
-    if (!numVal && !denVal && !dateInput) {
-        alert('الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث');
+    const denVal =
+        document
+            .getElementById(
+                'adminSearchDenominator'
+            )
+            .value
+            .trim();
+
+    const dateInput =
+        document
+            .getElementById(
+                'adminSearchDate'
+            )
+            .value;
+
+    const resBox =
+        document
+            .getElementById(
+                'searchResults'
+            );
+
+    if (
+        !numVal &&
+        !denVal &&
+        !dateInput
+    ) {
+
+        alert(
+            'الرجاء إدخال رقم الأوردر أو اختيار التاريخ للبحث'
+        );
+
         return;
     }
 
-    resBox.style.display = 'block';
-    resBox.innerHTML = 'جاري التحميل...';
+    resBox.style.display =
+        'block';
 
-    let query = supabaseClient.from('invoices').select('*').order('daily_number', { ascending: true });
+    resBox.innerHTML =
+        'جاري التحميل...';
+
+    let query =
+        supabaseClient
+            .from('invoices')
+            .select('*')
+            .order(
+                'daily_number',
+                {
+                    ascending: true
+                }
+            );
 
     if (numVal) {
-        query = query.eq('daily_number', parseInt(numVal));
+        query =
+            query.eq(
+                'daily_number',
+                parseInt(
+                    numVal
+                )
+            );
     }
 
     if (dateInput) {
-        const range = getDateRangeISO(dateInput);
-        query = query.gte('created_at', range.start).lte('created_at', range.end);
+        const range =
+            getDateRangeISO(
+                dateInput
+            );
+
+        query =
+            query
+                .gte(
+                    'created_at',
+                    range.start
+                )
+                .lte(
+                    'created_at',
+                    range.end
+                );
     }
 
-    const { data, error } = await query;
-    let finalData = data;
+    const {
+        data,
+        error
+    } =
+        await query;
 
-    if (!dateInput && denVal && data) {
-        const dNum = parseInt(denVal);
-        finalData = data.filter(inv => getEgyptDay(inv.created_at) === dNum);
+    let finalData =
+        data;
+
+    if (
+        !dateInput &&
+        denVal &&
+        data
+    ) {
+
+        const dNum =
+            parseInt(
+                denVal
+            );
+
+        finalData =
+            data.filter(
+                inv =>
+                    getEgyptDay(
+                        inv.created_at
+                    ) === dNum
+            );
     }
 
-    renderSearchResults(finalData, error, resBox, true);
+    renderSearchResults(
+        finalData,
+        error,
+        resBox,
+        true
+    );
 }
 
 async function searchInvoices() {
-    const query = document.getElementById('searchInput').value.trim();
-    const resBox = document.getElementById('searchResults');
+    const query =
+        document
+            .getElementById(
+                'searchInput'
+            )
+            .value
+            .trim();
+
+    const resBox =
+        document
+            .getElementById(
+                'searchResults'
+            );
 
     if (!query) {
-        alert('أدخل اسم العميل أو رقم الموبايل');
-        return;
-    }
-
-    resBox.style.display = 'block';
-    resBox.innerHTML = 'جاري التحميل...';
-
-    const { data, error } = await supabaseClient
-        .from('invoices')
-        .select('*')
-        .or('customer_name.ilike.%' + query + '%,phone.ilike.%' + query + '%')
-        .order('daily_number', { ascending: true });
-
-    renderSearchResults(data, error, resBox, true);
-}
-
-function renderSearchResults(data, error, resBox, showAdminControls) {
-    if (error || !data || data.length === 0) {
-        resBox.innerHTML = '<div style="color:#ef4444;text-align:center;">لا توجد فواتير مطابقة لهذا البحث!</div>';
-        return;
-    }
-
-    resBox.innerHTML = data.map(function(inv) {
-        const isDone = inv.status === 'تم الانتهاء من الصيانة';
-        const isDelivered = inv.status === 'تم التسليم';
-        const statusClass = isDelivered ? 'bg-delivered' : (isDone ? 'bg-done' : 'bg-pending');
-
-        const price = inv.price || 0;
-        const paid = inv.paid || 0;
-        const rem = price - paid;
-
-        let invDate = new Date(inv.created_at || Date.now());
-        let numTop = inv.daily_number || '#';
-        let numBottom = getEgyptDay(invDate);
-
-        let fractionHtml = '<span class="fraction" style="font-size:14px;"><span class="numerator">' + numTop + '</span><span class="denominator">' + numBottom + '</span></span>';
-
-        let rawDetails = inv.details || '-';
-        let serviceText = rawDetails;
-        let shelfText = '';
-
-        if (rawDetails.includes('|')) {
-            let parts = rawDetails.split('|').map(p => p.trim());
-            let shelfPart = parts.find(p => p.startsWith('الرف'));
-            let cleanParts = parts.filter(p => !p.startsWith('الرف') && p !== '. : .');
-            serviceText = cleanParts.join(' - ') || 'بدون خدمة';
-            if (shelfPart) {
-                shelfText = shelfPart;
-            }
-        } else if (rawDetails.startsWith('الرف')) {
-            shelfText = rawDetails;
-            serviceText = 'بدون خدمة';
-        } else if (rawDetails === '. : .') {
-            serviceText = 'بدون خدمة';
-        }
-
-        let imageGalleryHtml = '';
-        if (inv.image_url) {
-            const imageUrls = String(inv.image_url).split(/\r?\n/).map(u => u.trim()).filter(u => u.length > 1);
-            if (imageUrls.length > 0) {
-                imageGalleryHtml = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">' +
-                    imageUrls.map(url => '<a href="' + url + '" target="_blank"><img src="' + url + '" class="worker-thumb"></a>').join('') +
-                    '</div>';
-            }
-        }
-
-        let adminControlsHtml = '';
-        let currentShelfValue = shelfText || 'الرف : أ';
-
-        if (showAdminControls) {
-            adminControlsHtml =
-                '<div style="margin-top:10px;padding:10px;background:#1a1500;border:1px solid #bf953f;border-radius:8px;">' +
-                    '<div style="font-size:13px;color:#f3e5ab;margin-bottom:6px;font-weight:bold;">حالة الدفع: ' +
-                        (rem > 0 ? '<span style="color:#ef4444;">متبقي (' + rem + ' ج)</span>' : '<span style="color:#16a34a;">تم السداد</span>') +
-                    '</div>' +
-                    '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
-                        '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ',0)">تم سداد المبلغ</button>' +
-                        '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updatePaymentStatus(' + inv.id + ', ' + price + ',' + (rem > 0 ? rem : price) + ')">لم يتم السداد</button>' +
-                    '</div>' +
-                    '<div style="margin-top:8px;">' +
-                        '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">إضافة صور جديدة لهذا الأوردر:</label>' +
-                        '<input type="file" id="extra_images_' + inv.id + '" accept="image/*" multiple style="display:none;" onchange="uploadExtraImagesForInvoice(' + inv.id + ')">' +
-                        '<button type="button" class="btn-sm" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;width:100%;padding:8px;" onclick="document.getElementById(\'extra_images_' + inv.id + '\').click();">اختر صور وأضفها فوراً</button>' +
-                    '</div>' +
-                    '<div style="margin-top:10px;">' +
-                        '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">تعديل مكان التخزين (الرف):</label>' +
-                        '<div style="display:flex;gap:5px;">' +
-                            '<select id="shelf_edit_' + inv.id + '" style="padding:6px;font-size:12px;margin-top:0;">' +
-                                '<option value="الرف : أ" ' + (currentShelfValue === 'الرف : أ' ? 'selected' : '') + '>الرف : أ</option>' +
-                                '<option value="الرف : ب" ' + (currentShelfValue === 'الرف : ب' ? 'selected' : '') + '>الرف : ب</option>' +
-                                '<option value="الرف : ج" ' + (currentShelfValue === 'الرف : ج' ? 'selected' : '') + '>الرف : ج</option>' +
-                                '<option value="الرف : د" ' + (currentShelfValue === 'الرف : د' ? 'selected' : '') + '>الرف : د</option>' +
-                                '<option value="الرف : هـ" ' + (currentShelfValue === 'الرف : هـ' ? 'selected' : '') + '>الرف : هـ</option>' +
-                                '<option value="الرف : و" ' + (currentShelfValue === 'الرف : و' ? 'selected' : '') + '>الرف : و</option>' +
-                            '</select>' +
-                            '<button type="button" class="btn-sm" style="background:#bf953f;color:#000;padding:6px 12px;margin-top:0;" onclick="updateShelfLocation(' + inv.id + ')">تحديث الرف</button>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>' +
-                '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
-                    '<button type="button" class="btn-sm" style="background:#0284c7;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تم التسليم\')">تم التسليم</button>' +
-                    '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick=\'completeOrderAndNotify(' + inv.id + ', ' + JSON.stringify(inv.customer_name) + ', ' + JSON.stringify(inv.phone) + ', ' + numTop + ', ' + numBottom + ')\'>تم الانتهاء</button>' +
-                    '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تحت الصيانة\')">تحت الصيانة</button>' +
-                '</div>';
-        }
-
-        return (
-            '<div style="border-bottom:1px dashed #33270a;padding-bottom:12px;margin-bottom:12px;">' +
-                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
-                    '<strong style="color:#f3e5ab;font-size:15px;">' + inv.customer_name + '</strong>' +
-                    '<span class="status-badge ' + statusClass + '">' + (inv.status || 'تحت الصيانة') + '</span>' +
-                '</div>' +
-                '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">التاريخ: ' + getEgyptDateString(inv.created_at || Date.now()) + '</div>' +
-                '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;"><b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
-                '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">الموبايل: ' + (inv.phone || '-') + '</div>' +
-                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
-                '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الخدمة:</b> ' + serviceText + '</div>' +
-                (shelfText ? '<div style="font-size:13px;color:#f3e5ab;margin-bottom:3px;"><b>مكان التخزين:</b> ' + shelfText + '</div>' : '') +
-                '<div style="font-size:13px;margin-bottom:4px;">الحساب: ' + price + ' ج | المدفوع: ' + paid + ' ج | المتبقي: <span style="color:#ef4444;font-weight:bold;">' + rem + ' ج</span></div>' +
-                imageGalleryHtml +
-                adminControlsHtml +
-            '</div>'
+        alert(
+            'أدخل اسم العميل أو رقم الموبايل'
         );
-    }).join('');
-}
 
-async function completeOrderAndNotify(id, customerName, phoneNum, numTop, numBottom) {
-    const egyptNow = await getAccurateEgyptNow();
-    const statusUpdatedAt = egyptNow.toISOString();
-
-    const { error } = await supabaseClient
-        .from('invoices')
-        .update({ status: 'تم الانتهاء من الصيانة', delivered_at: statusUpdatedAt })
-        .eq('id', id);
-
-    if (error) {
-        alert('حدث خطأ أثناء تحديث الحالة:\n' + error.message);
         return;
     }
 
-    if (phoneNum) {
-        var cleanPh = phoneNum.replace(/\D/g, '');
-        if (cleanPh.startsWith("0")) {
-            cleanPh = "2" + cleanPh;
-        }
+    resBox.style.display =
+        'block';
 
-        var orderCodeStr = numTop + '/' + numBottom;
-        var msg = `عزيزي العميل ${customerName}، تم الانتهاء من صيانة طلبك برقم (${orderCodeStr}) وهو جاهز الآن للاستلام من محل الاسكافي شوز. نتشرف بزيارتك!`;
+    resBox.innerHTML =
+        'جاري التحميل...';
 
-        var whatsappAppUrl = "whatsapp://send?phone=" + cleanPh + "&text=" + encodeURIComponent(msg);
-        location.href = whatsappAppUrl;
-        
-        setTimeout(() => {
-            adminSearchByFractionNumber();
-        }, 1000);
-    } else {
-        alert('تم تغيير الحالة بنجاح (رقم هاتف العميل غير متوفر لإرسال رسالة واتساب)');
-        adminSearchByFractionNumber();
-    }
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from('invoices')
+            .select('*')
+            .or(
+                'customer_name.ilike.%' +
+                query +
+                '%,phone.ilike.%' +
+                query +
+                '%'
+            )
+            .order(
+                'daily_number',
+                {
+                    ascending: true
+                }
+            );
+
+    renderSearchResults(
+        data,
+        error,
+        resBox,
+        true
+    );
 }
 
-async function uploadExtraImagesForInvoice(invoiceId) {
-    const fileInput = document.getElementById('extra_images_' + invoiceId);
-    if (!fileInput.files || fileInput.files.length === 0) {
+async function notifyCustomerFinished(customerPhone, customerName, orderCode) {
+    if (!customerPhone) {
+        alert("رقم واتساب العميل غير متوفر لهذا الأوردر!");
         return;
     }
 
-    alert("جاري رفع الصور الجديدة للأوردر، انتظر لحظة...");
+    let cleanPh = customerPhone.replace(/\D/g, '');
+    if (cleanPh.startsWith("0")) {
+        cleanPh = "2" + cleanPh;
+    }
+
+    let msg = 'عزيزي العميل ' + (customerName || '') + '، تم الانتهاء من صيانة طلبك برقم (' + orderCode + ') وهو جاهز الآن للاستلام من محل الاسكافي شوز. نتشرف بزيارتك!';
+
+    let whatsappAppUrl = "whatsapp://send?phone=" + cleanPh + "&text=" + encodeURIComponent(msg);
+    location.href = whatsappAppUrl;
+}
+
+function renderSearchResults(
+    data,
+    error,
+    resBox,
+    showAdminControls
+) {
+    if (
+        error ||
+        !data ||
+        data.length === 0
+    ) {
+
+        resBox.innerHTML =
+            '<div style="color:#ef4444;text-align:center;">لا توجد فواتير مطابقة لهذا البحث!</div>';
+
+        return;
+    }
+
+    resBox.innerHTML =
+        data
+            .map(
+                function(inv) {
+
+                    const isDone =
+                        inv.status ===
+                        'تم الانتهاء من الصيانة';
+
+                    const isDelivered =
+                        inv.status ===
+                        'تم التسليم';
+
+                    const statusClass =
+                        isDelivered
+                            ? 'bg-delivered'
+                            : (
+                                isDone
+                                    ? 'bg-done'
+                                    : 'bg-pending'
+                            );
+
+                    const price =
+                        inv.price ||
+                        0;
+
+                    const paid =
+                        inv.paid ||
+                        0;
+
+                    const rem =
+                        price -
+                        paid;
+
+                    let invDate =
+                        new Date(
+                            inv.created_at ||
+                            Date.now()
+                        );
+
+                    let numTop =
+                        inv.daily_number ||
+                        '#';
+
+                    let numBottom =
+                        getEgyptDay(
+                            invDate
+                        );
+
+                    let orderCodeStr = numTop + '/' + numBottom;
+
+                    let fractionHtml =
+                        '<span class="fraction" style="font-size:14px;">' +
+                            '<span class="numerator">' +
+                                numTop +
+                            '</span>' +
+                            '<span class="denominator">' +
+                                numBottom +
+                            '</span>' +
+                        '</span>';
+
+                    let serviceText = '-';
+                    let shelfDisplay = '';
+                    let shelfRawText = 'غير محدد';
+
+                    if (inv.details) {
+                        let parts = inv.details.split('|').map(p => p.trim());
+                        let srvPart = parts.find(p => !p.startsWith('رف ') && p !== 'اختر الرف');
+                        let shelfPart = parts.find(p => p.startsWith('رف ') || (p.length === 1 && ['أ','ب','ج','د','هـ','و'].includes(p)));
+
+                        if (srvPart) serviceText = srvPart;
+                        if (shelfPart) {
+                            shelfRawText = shelfPart.startsWith('رف ') ? shelfPart : 'رف ' + shelfPart;
+                            let cleanLetter = shelfPart.replace('رف', '').trim();
+                            shelfDisplay = '<div style="font-size:13px;color:#f3e5ab;margin-bottom:3px;"><b>الرف:</b> ' + cleanLetter + '</div>';
+                        }
+                    }
+
+                    let imageGalleryHtml =
+                        '';
+
+                    if (inv.image_url) {
+
+                        const imageUrls =
+                            String(
+                                inv.image_url
+                            )
+                            .split(/\r?\n/)
+                            .map(
+                                u =>
+                                    u.trim()
+                            )
+                            .filter(
+                                u =>
+                                    u.length > 1
+                            );
+
+                        if (
+                            imageUrls.length > 0
+                        ) {
+
+                            imageGalleryHtml =
+                                '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">' +
+
+                                imageUrls
+                                    .map(
+                                        url =>
+
+                                            '<a href="' +
+                                            url +
+                                            '" target="_blank">' +
+
+                                                '<img src="' +
+                                                url +
+                                                '" class="worker-thumb">' +
+
+                                            '</a>'
+                                    )
+                                    .join('') +
+
+                                '</div>';
+                        }
+                    }
+
+                    let adminControlsHtml =
+                        '';
+
+                    if (
+                        showAdminControls
+                    ) {
+
+                        let currentShelfVal = "اختر الرف";
+                        if (shelfRawText !== 'غير محدد') {
+                            currentShelfVal = shelfRawText;
+                        }
+
+                        adminControlsHtml =
+
+                            '<div style="margin-top:10px;padding:10px;background:#1a1500;border:1px solid #bf953f;border-radius:8px;">' +
+
+                                '<div style="font-size:13px;color:#f3e5ab;margin-bottom:6px;font-weight:bold;">حالة الدفع: ' +
+
+                                    (
+                                        rem > 0
+
+                                            ? '<span style="color:#ef4444;">متبقي (' +
+                                              rem +
+                                              ' ج)</span>'
+
+                                            : '<span style="color:#16a34a;">تم السداد</span>'
+                                    ) +
+
+                                '</div>' +
+
+                                '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
+
+                                    '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updatePaymentStatus(' +
+                                    inv.id +
+                                    ', ' +
+                                    price +
+                                    ',0)">تم سداد المبلغ</button>' +
+
+                                    '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updatePaymentStatus(' +
+                                    inv.id +
+                                    ', ' +
+                                    price +
+                                    ',' +
+                                    (
+                                        rem > 0
+                                            ? rem
+                                            : price
+                                    ) +
+                                    ')">لم يتم السداد</button>' +
+
+                                '</div>' +
+
+                                '<div style="margin-top:8px;">' +
+
+                                    '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">إضافة صور جديدة لهذا الأوردر:</label>' +
+
+                                    '<input type="file" id="extra_images_' +
+                                    inv.id +
+                                    '" accept="image/*" multiple style="display:none;" onchange="uploadExtraImagesForInvoice(' +
+                                    inv.id +
+                                    ')">' +
+
+                                    '<button type="button" class="btn-sm" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;width:100%;padding:8px;" onclick="document.getElementById(\'extra_images_' +
+                                    inv.id +
+                                    '\').click();">اختر صور وأضفها فوراً</button>' +
+
+                                '</div>' +
+
+                                '<div style="margin-top:10px;">' +
+
+                                    '<label style="font-size:11px;color:#d4af37;margin-bottom:2px;">تعديل أو اختيار الرف:</label>' +
+
+                                    '<div style="display:flex;gap:5px;">' +
+
+                                        '<select id="shelf_edit_' +
+                                        inv.id +
+                                        '" style="padding:6px;font-size:12px;margin-top:0;">' +
+
+                                            '<option value="اختر الرف" ' + (currentShelfVal === 'اختر الرف' ? 'selected' : '') + '>-- اختر الرف --</option>' +
+                                            '<option value="أ" ' + (currentShelfVal === ' أ' ? 'selected' : '') + '>أ</option>' +
+                                            '<option value=" ب" ' + (currentShelfVal === ' ب' ? 'selected' : '') + '> ب</option>' +
+                                            '<option value=" ج" ' + (currentShelfVal === ' ج' ? 'selected' : '') + '> ج</option>' +
+                                            '<option value=" د" ' + (currentShelfVal === ' د' ? 'selected' : '') + '> د</option>' +
+                                            '<option value=" هـ" ' + (currentShelfVal === ' هـ' ? 'selected' : '') + '> هـ</option>' +
+                                            '<option value="و" ' + (currentShelfVal === 'و' ? 'selected' : '') + '> و</option>' +
+
+                                        '</select>' +
+
+                                        '<button type="button" class="btn-sm" style="background:#bf953f;color:#000;padding:6px 12px;margin-top:0;" onclick="updateShelfLocation(' +
+                                        inv.id +
+                                        ')">تحديث الرف</button>' +
+
+                                    '</div>' +
+
+                                '</div>' +
+
+                            '</div>' +
+
+                            '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
+
+                                '<button type="button" class="btn-sm" style="background:#0284c7;color:#fff;flex:1;" onclick="updateStatus(' +
+                                inv.id +
+                                ', \'تم التسليم\')">تم التسليم</button>' +
+
+                                '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick="updateStatusAndNotify(\'' + inv.id + '\', \'تم الانتهاء من الصيانة\', \'' + (inv.phone || '') + '\', \'' + (inv.customer_name || '') + '\', \'' + orderCodeStr + '\')">تم الانتهاء</button>' +
+
+                                '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updateStatus(' +
+                                inv.id +
+                                ', \'تحت الصيانة\')">تحت الصيانة</button>' +
+
+                            '</div>';
+                    }
+
+                    return (
+
+                        '<div style="border-bottom:1px dashed #33270a;padding-bottom:12px;margin-bottom:12px;">' +
+
+                            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">' +
+
+                                '<strong style="color:#f3e5ab;font-size:15px;">' +
+                                inv.customer_name +
+                                '</strong>' +
+
+                                '<span class="status-badge ' +
+                                statusClass +
+                                '">' +
+
+                                (
+                                    inv.status ||
+                                    'تحت الصيانة'
+                                ) +
+
+                                '</span>' +
+
+                            '</div>' +
+
+                            '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">التاريخ: ' +
+
+                            getEgyptDateString(
+                                inv.created_at ||
+                                Date.now()
+                            ) +
+
+                            '</div>' +
+
+                            '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;"><b>رقم الأوردر:</b> ' +
+
+                            fractionHtml +
+
+                            '</div>' +
+
+                            '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">الموبايل: ' +
+
+                            (
+                                inv.phone ||
+                                '-'
+                            ) +
+
+                            '</div>' +
+
+                            '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الأصناف:</b> ' +
+
+                            (
+                                inv.item_type ||
+                                '-'
+                            ) +
+
+                            '</div>' +
+
+                            '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الخدمة:</b> ' +
+                            serviceText +
+                            '</div>' +
+
+                            shelfDisplay +
+
+                            '<div style="font-size:13px;margin-bottom:4px;">الحساب: ' +
+
+                            price +
+
+                            ' ج | المدفوع: ' +
+
+                            paid +
+
+                            ' ج | المتبقي: <span style="color:#ef4444;font-weight:bold;">' +
+
+                            rem +
+
+                            ' ج</span></div>' +
+
+                            imageGalleryHtml +
+
+                            adminControlsHtml +
+
+                        '</div>'
+                    );
+                }
+            )
+            .join('');
+}
+
+async function updateStatusAndNotify(id, newStatus, phone, customerName, orderCode) {
+    await updateStatus(id, newStatus);
+    if (phone) {
+        notifyCustomerFinished(phone, customerName, orderCode);
+    }
+}
+
+async function uploadExtraImagesForInvoice(
+    invoiceId
+) {
+    const fileInput =
+        document.getElementById(
+            'extra_images_' +
+            invoiceId
+        );
+
+    if (
+        !fileInput.files ||
+        fileInput.files.length === 0
+    ) {
+        return;
+    }
+
+    alert(
+        "جاري رفع الصور الجديدة للأوردر، انتظر لحظة..."
+    );
 
     try {
-        let newUrls = [];
-        for (let i = 0; i < fileInput.files.length; i++) {
-            const file = fileInput.files[i];
-            const fileName = 'inv_extra_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2,7) + '.jpg';
 
-            const { error: uploadError } = await supabaseClient.storage
-                .from('images')
-                .upload(fileName, file, { cacheControl: '3600', upsert: true });
+        let newUrls = [];
+
+        for (
+            let i = 0;
+            i < fileInput.files.length;
+            i++
+        ) {
+
+            const file =
+                fileInput.files[i];
+
+            const fileName =
+                'inv_extra_' +
+                Date.now() +
+                '_' +
+                i +
+                '_' +
+                Math.random()
+                    .toString(36)
+                    .substring(2,7) +
+                '.jpg';
+
+            const {
+                error: uploadError
+            } =
+                await supabaseClient.storage
+                    .from('images')
+                    .upload(
+                        fileName,
+                        file,
+                        {
+                            cacheControl: '3600',
+                            upsert: true
+                        }
+                    );
 
             if (uploadError) {
-                throw new Error(uploadError.message);
+                throw new Error(
+                    uploadError.message
+                );
             }
 
-            const { data: publicUrlData } = supabaseClient.storage
-                .from('images')
-                .getPublicUrl(fileName);
+            const {
+                data:
+                    publicUrlData
+            } =
+                supabaseClient.storage
+                    .from('images')
+                    .getPublicUrl(
+                        fileName
+                    );
 
-            newUrls.push(publicUrlData.publicUrl);
+            newUrls.push(
+                publicUrlData.publicUrl
+            );
         }
 
-        const { data: invData, error: fetchErr } = await supabaseClient
-            .from('invoices')
-            .select('image_url')
-            .eq('id', invoiceId)
-            .single();
+        const {
+            data: invData,
+            error: fetchErr
+        } =
+            await supabaseClient
+                .from('invoices')
+                .select('image_url')
+                .eq(
+                    'id',
+                    invoiceId
+                )
+                .single();
 
         if (fetchErr) {
-            throw new Error(fetchErr.message);
+            throw new Error(
+                fetchErr.message
+            );
         }
 
-        let existingUrls = invData.image_url ? String(invData.image_url).split(/\r?\n/).map(u => u.trim()).filter(u => u.length > 1) : [];
-        let combinedUrls = existingUrls.concat(newUrls).join('\n');
+        let existingUrls =
+            invData.image_url
+                ? String(
+                    invData.image_url
+                )
+                    .split(/\r?\n/)
+                    .map(
+                        u =>
+                            u.trim()
+                    )
+                    .filter(
+                        u =>
+                            u.length > 1
+                    )
+                : [];
 
-        const { error: updateErr } = await supabaseClient
-            .from('invoices')
-            .update({ image_url: combinedUrls })
-            .eq('id', invoiceId);
+        let combinedUrls =
+            existingUrls
+                .concat(
+                    newUrls
+                )
+                .join('\n');
+
+        const {
+            error: updateErr
+        } =
+            await supabaseClient
+                .from('invoices')
+                .update({
+                    image_url:
+                        combinedUrls
+                })
+                .eq(
+                    'id',
+                    invoiceId
+                );
 
         if (updateErr) {
-            throw new Error(updateErr.message);
+            throw new Error(
+                updateErr.message
+            );
         }
 
-        alert("تم رفع وإضافة الصور بنجاح للأوردر");
+        alert(
+            "تم رفع وإضافة الصور بنجاح للأوردر"
+        );
+
         adminSearchByFractionNumber();
+
     } catch (err) {
-        alert("خطأ أثناء رفع الصور الإضافية:\n" + err.message);
+        alert(
+            "خطأ أثناء رفع الصور الإضافية:\n" +
+            err.message
+        );
     }
 }
 
-async function updatePaymentStatus(invoiceId, totalPrice, targetRem) {
-    const { data: currentInvoice, error: fetchError } = await supabaseClient
-        .from('invoices')
-        .select('price, paid, last_payment_amount')
-        .eq('id', invoiceId)
-        .single();
+async function updateShelfLocation(
+    id
+) {
+    const newShelf =
+        document
+            .getElementById(
+                'shelf_edit_' +
+                id
+            )
+            .value;
+
+    const {
+        data: invData
+    } =
+        await supabaseClient
+            .from('invoices')
+            .select('details')
+            .eq(
+                'id',
+                id
+            )
+            .single();
+
+    if (invData) {
+        let currentDetails =
+            invData.details ||
+            '';
+
+        let parts =
+            currentDetails
+                .split('|')
+                .map(
+                    p =>
+                        p.trim()
+                );
+
+        let cleanDetails =
+            parts
+                .filter(
+                    p =>
+                        !p.startsWith('رف ') &&
+                        p !== 'اختر الرف' &&
+                        !['أ','ب','ج','د','هـ','و'].includes(p)
+                )
+                .join(
+                    ' | '
+                );
+
+        let updatedDetails =
+            cleanDetails && newShelf !== 'اختر الرف'
+                ? (
+                    cleanDetails +
+                    ' | ' +
+                    newShelf
+                )
+                : (newShelf !== 'اختر الرف' ? newShelf : cleanDetails);
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from('invoices')
+                .update({
+                    details:
+                        updatedDetails
+                })
+                .eq(
+                    'id',
+                    id
+                );
+
+        if (!error) {
+            alert(
+                'تم تحديث الرف بنجاح إلى (' +
+                newShelf +
+                ')'
+            );
+
+            adminSearchByFractionNumber();
+
+        } else {
+            alert(
+                'حدث خطأ أثناء تحديث الرف!'
+            );
+        }
+    }
+}
+
+async function updatePaymentStatus(
+    invoiceId,
+    totalPrice,
+    targetRem
+) {
+    const {
+        data: currentInvoice,
+        error: fetchError
+    } =
+        await supabaseClient
+            .from('invoices')
+            .select(
+                'price, paid, last_payment_amount'
+            )
+            .eq(
+                'id',
+                invoiceId
+            )
+            .single();
 
     if (fetchError) {
-        alert("حدث خطأ أثناء قراءة الفاتورة:\n" + fetchError.message);
+        alert(
+            "حدث خطأ أثناء قراءة الفاتورة:\n" +
+            fetchError.message
+        );
+
         return;
     }
 
-    const currentTotal = parseFloat(currentInvoice.price) || parseFloat(totalPrice) || 0;
-    const currentPaid = parseFloat(currentInvoice.paid) || 0;
-    let newPaid = currentPaid;
-    let newPaymentAmount = 0;
+    const currentTotal =
+        parseFloat(
+            currentInvoice.price
+        ) || parseFloat(
+            totalPrice
+        ) || 0;
 
-    if (targetRem === 0) {
-        const currentRemaining = Math.max(currentTotal - currentPaid, 0);
-        newPaymentAmount = currentRemaining;
-        newPaid = Math.min(currentPaid + newPaymentAmount, currentTotal);
+    const currentPaid =
+        parseFloat(
+            currentInvoice.paid
+        ) || 0;
+
+    let newPaid =
+        currentPaid;
+
+    let newPaymentAmount =
+        0;
+
+    if (
+        targetRem === 0
+    ) {
+
+        const currentRemaining =
+            Math.max(
+                currentTotal -
+                currentPaid,
+                0
+            );
+
+        newPaymentAmount =
+            currentRemaining;
+
+        newPaid =
+            Math.min(
+                currentPaid +
+                newPaymentAmount,
+                currentTotal
+            );
+
     } else {
-        newPaid = Math.max(currentTotal - parseFloat(targetRem), 0);
-        newPaymentAmount = 0;
+
+        newPaid =
+            Math.max(
+                currentTotal -
+                parseFloat(
+                    targetRem
+                ),
+                0
+            );
+
+        newPaymentAmount =
+            0;
     }
 
-    let updateData = { paid: newPaid };
-    if (newPaymentAmount > 0) {
-        const egyptNow = await getAccurateEgyptNow();
-        updateData.last_payment_amount = newPaymentAmount;
-        updateData.updated_at = egyptNow.toISOString();
+    let updateData = {
+        paid:
+            newPaid
+    };
+
+    if (
+        newPaymentAmount > 0
+    ) {
+
+        const egyptNow =
+            await getAccurateEgyptNow();
+
+        const paymentUpdatedAt =
+            egyptNow.toISOString();
+
+        updateData.last_payment_amount =
+            newPaymentAmount;
+
+        updateData.updated_at =
+            paymentUpdatedAt;
     }
 
-    const { error } = await supabaseClient
-        .from('invoices')
-        .update(updateData)
-        .eq('id', invoiceId);
-
-    if (!error) {
-        alert("تم تحديث حالة السداد بنجاح");
-        adminSearchByFractionNumber();
-    } else {
-        alert("حدث خطأ أثناء تحديث حالة السداد:\n" + error.message);
-    }
-}
-
-async function updateShelfLocation(id) {
-    const newShelf = document.getElementById('shelf_edit_' + id).value;
-    const { data: invData } = await supabaseClient.from('invoices').select('details').eq('id', id).single();
-
-    if (invData) {
-        let currentDetails = invData.details || '';
-        let parts = currentDetails.split('|').map(p => p.trim());
-        let cleanDetails = parts.filter(p => !p.startsWith('الرف') && p !== '. : .').join(' | ');
-        let updatedDetails = cleanDetails ? (cleanDetails + ' | ' + newShelf) : newShelf;
-
-        const { error } = await supabaseClient
+    const {
+        error
+    } =
+        await supabaseClient
             .from('invoices')
-            .update({ details: updatedDetails })
-            .eq('id', id);
+            .update(
+                updateData
+            )
+            .eq(
+                'id',
+                invoiceId
+            );
 
-        if (!error) {
-            alert('تم تحديث الرف بنجاح إلى (' + newShelf + ')');
-            adminSearchByFractionNumber();
-        } else {
-            alert('حدث خطأ أثناء تحديث الرف!');
-        }
+    if (!error) {
+        alert(
+            "تم تحديث حالة السداد بنجاح"
+        );
+
+        adminSearchByFractionNumber();
+
+    } else {
+        alert(
+            "حدث خطأ أثناء تحديث حالة السداد:\n" +
+            error.message
+        );
     }
 }
 
-async function updateStatus(id, newStatus) {
-    const egyptNow = await getAccurateEgyptNow();
-    const statusUpdatedAt = egyptNow.toISOString();
-    let updateData = { status: newStatus };
+async function updateStatus(
+    id,
+    newStatus
+) {
+    const egyptNow =
+        await getAccurateEgyptNow();
 
-    if (newStatus === 'تم التسليم') {
-        updateData.delivered_at = statusUpdatedAt;
+    const statusUpdatedAt =
+        egyptNow.toISOString();
+
+    let updateData = {
+        status:
+            newStatus
+    };
+
+    if (
+        newStatus === 'تم التسليم'
+    ) {
+        updateData.delivered_at =
+            statusUpdatedAt;
     }
 
-    const { error } = await supabaseClient
-        .from('invoices')
-        .update(updateData)
-        .eq('id', id);
+    const {
+        error
+    } =
+        await supabaseClient
+            .from('invoices')
+            .update(
+                updateData
+            )
+            .eq(
+                'id',
+                id
+            );
 
     if (!error) {
-        alert('تم تغيير الحالة بنجاح');
+        alert("تم تحديث الحالة بنجاح إلى: " + newStatus);
         adminSearchByFractionNumber();
     } else {
-        alert('حدث خطأ أثناء تحديث الحالة:\n' + error.message);
+        alert(
+            'حدث خطأ أثناء تحديث الحالة:\n' +
+            error.message
+        );
     }
 }
 
