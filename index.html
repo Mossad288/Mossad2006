@@ -1168,7 +1168,38 @@ function parseDbDate(dateVal) {
     return isNaN(fallback.getTime()) ? new Date() : fallback;
 }
 
+async function getSupabaseServerTime() {
+    try {
+        const res = await fetch(
+            SUPABASE_URL + '/rest/v1/invoices?select=id&limit=1',
+            {
+                method: 'HEAD',
+                cache: 'no-store',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY
+                }
+            }
+        );
+        const dateHeader = res.headers.get('date');
+        if (dateHeader) {
+            const parsedMs = new Date(dateHeader).getTime();
+            if (!isNaN(parsedMs)) {
+                return new Date(parsedMs);
+            }
+        }
+    } catch (e) {}
+    return null;
+}
+
 async function getAccurateEgyptNow() {
+
+    const sbTime = await getSupabaseServerTime();
+    if (sbTime) {
+        trustedEgyptTimeMs = sbTime.getTime();
+        trustedPerformanceMs = performance.now();
+        return sbTime;
+    }
 
     const endpoints = [
         'https://worldtimeapi.org/api/timezone/Africa/Cairo?cb=' + Math.random(),
@@ -2041,12 +2072,15 @@ async function fetchNextInvoiceNum() {
 
         const { data, error } = await supabaseClient
             .from('invoices')
-            .select('daily_number')
+            .select('daily_number, created_at')
             .gte('created_at', range.start)
             .lte('created_at', range.end);
 
         if (!error && data && data.length > 0) {
-            const numbers = data
+            const todayInvoices = data.filter(inv =>
+                getEgyptDateString(parseDbDate(inv.created_at)) === todayStr
+            );
+            const numbers = todayInvoices
                 .map(inv => parseInt(inv.daily_number))
                 .filter(n => !isNaN(n));
 
