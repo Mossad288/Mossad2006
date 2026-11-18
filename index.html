@@ -2571,7 +2571,7 @@ async function sendTo(m) {
 }
 
 /* =========================================================
-   التقرير (النسخة النهائية الصحيحة)
+   التقرير (النسخة المعدلة والمضبوطة لحساب اليوم)
    ========================================================= */
 
 async function rep(type) {
@@ -2680,8 +2680,7 @@ async function rep(type) {
                 ) || 0;
 
             let rem =
-                price -
-                totalPaid;
+                Math.max(price - totalPaid, 0);
 
             let includeInReport =
                 false;
@@ -2691,12 +2690,13 @@ async function rep(type) {
             let lastPayment = parseFloat(x.last_payment_amount) || 0;
 
             if (type === 'daily') {
-                if (createdDateStr === todayStr) {
+                if (createdDateStr === todayStr || updatedDateStr === todayStr || deliveredDateStr === todayStr) {
                     includeInReport = true;
-                    vaultAddition = totalPaid; 
-                } else if (updatedDateStr === todayStr || deliveredDateStr === todayStr) {
-                    includeInReport = true;
-                    vaultAddition = lastPayment > 0 ? lastPayment : (updatedDateStr === createdDateStr ? totalPaid : 0);
+                    if (createdDateStr === todayStr) {
+                        vaultAddition = totalPaid;
+                    } else {
+                        vaultAddition = lastPayment > 0 ? lastPayment : totalPaid;
+                    }
                 }
             } else if (type === 'monthly') {
                 let invYear = getEgyptYear(createdDate);
@@ -2729,22 +2729,13 @@ async function rep(type) {
                     
                     if (type === 'daily') {
                         totalVaultAll += vaultAddition;
-                    } else {
-                        totalVaultAll = totalPaid;
                     }
 
                     let dayNum = getEgyptDay(createdDate);
                     
-                    if (lastPayment > 0 && updatedDateStr === todayStr && createdDateStr !== todayStr) {
-                        reportLines +=
-                            'أوردر (' + x.daily_number + '/' + dayNum + ') - ' + x.customer_name + 
-                            ' | الإجمالي: ' + price + ' ج | المدفوع سابقاً: ' + (totalPaid - lastPayment) + 
-                            ' ج | المدفوع اليوم: ' + lastPayment + ' ج | الباقي: ' + rem + ' ج\n';
-                    } else {
-                        reportLines +=
-                            'أوردر (' + x.daily_number + '/' + dayNum + ') - ' + x.customer_name + 
-                            ' | الإجمالي: ' + price + ' ج | المدفوع: ' + totalPaid + ' ج | الباقي: ' + rem + ' ج\n';
-                    }
+                    reportLines +=
+                        'أوردر (' + x.daily_number + '/' + dayNum + ') - ' + (x.customer_name || 'بدون اسم') + 
+                        ' | الإجمالي: ' + price + ' ج | المدفوع: ' + totalPaid + ' ج | الباقي: ' + rem + ' ج | الحالة: ' + (x.status || 'تحت الصيانة') + '\n';
                 }
             }
         }
@@ -3974,7 +3965,9 @@ async function updateStatus(
 
     let updateData = {
         status:
-            newStatus
+            newStatus,
+        updated_at:
+            statusUpdatedAt
     };
 
     if (
