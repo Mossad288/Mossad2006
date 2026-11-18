@@ -1154,6 +1154,20 @@ var trustedPerformanceMs = null;
 var midnightTimer = null;
 var timeSyncTimer = null;
 
+function parseDbDate(dateVal) {
+    if (!dateVal) return new Date();
+    if (typeof dateVal === 'string') {
+        let normalized = dateVal.trim().replace(' ', 'T');
+        if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(normalized)) {
+            normalized += 'Z';
+        }
+        const parsed = new Date(normalized);
+        if (!isNaN(parsed.getTime())) return parsed;
+    }
+    const fallback = new Date(dateVal);
+    return isNaN(fallback.getTime()) ? new Date() : fallback;
+}
+
 async function getAccurateEgyptNow() {
 
     const endpoints = [
@@ -1334,7 +1348,7 @@ function getEgyptParts(
                 hourCycle: 'h23'
             }
         ).formatToParts(
-            new Date(dateValue)
+            parseDbDate(dateValue)
         );
 
     const result = {};
@@ -1421,7 +1435,7 @@ function getEgyptOffset(
                 timeZoneName: 'longOffset'
             }
         ).formatToParts(
-            new Date(dateValue)
+            parseDbDate(dateValue)
         );
 
     const zone =
@@ -1436,7 +1450,7 @@ function getEgyptOffset(
         !zone.value
     ) {
 
-        return '+03:00';
+        return '+02:00';
     }
 
     const match =
@@ -1445,7 +1459,7 @@ function getEgyptOffset(
         );
 
     if (!match) {
-        return '+03:00';
+        return '+02:00';
     }
 
     const sign =
@@ -1898,7 +1912,7 @@ function selectCustomerFromList(inv) {
         suggestionsBox.innerHTML = '';
     }
 
-    const lastInvDate = inv.created_at ? getEgyptDateString(new Date(inv.created_at)) : 'غير محدد';
+    const lastInvDate = inv.created_at ? getEgyptDateString(parseDbDate(inv.created_at)) : 'غير محدد';
     const lastInvNum = inv.daily_number || '#';
     
     const historyNotice = document.getElementById('customerHistoryNotice');
@@ -2269,14 +2283,38 @@ async function rep(type) {
     const currentYear = getEgyptYear(egyptNow);
     const currentMonth = getEgyptMonth(egyptNow);
     const todayStr = getEgyptDateString(egyptNow);
-    const last24HoursMs = 24 * 60 * 60 * 1000;
 
-    const { data: list, error } = await supabaseClient
-        .from('invoices')
-        .select('*')
-        .order('created_at', { ascending: true });
+    // جلب كل الفواتير على صفحات لتجاوز حد 1000 فاتورة
+    let list = [];
+    const pageSize = 1000;
+    let from = 0;
 
-    if (error || !list || list.length === 0) {
+    while (true) {
+        const { data, error } = await supabaseClient
+            .from('invoices')
+            .select('*')
+            .order('created_at', { ascending: true })
+            .range(from, from + pageSize - 1);
+
+        if (error) {
+            alert("حدث خطأ أثناء تحميل الفواتير:\n" + error.message);
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            break;
+        }
+
+        list = list.concat(data);
+
+        if (data.length < pageSize) {
+            break;
+        }
+
+        from += pageSize;
+    }
+
+    if (list.length === 0) {
         alert("لا توجد فواتير مسجلة!");
         return;
     }
@@ -2285,89 +2323,172 @@ async function rep(type) {
     let totalRemainingAll = 0;
     let totalOverallAll = 0;
     let reportLines = '';
-    let processedDailyOrders = new Set();
+    let processedOrders = new Set();
 
     list.forEach(function(x) {
-        let createdDate = new Date(x.created_at || Date.now());
-        let createdDateStr = getEgyptDateString(createdDate);
-        let updatedDate = x.updated_at ? new Date(x.updated_at) : null;
-        let updatedDateStr = updatedDate ? getEgyptDateString(updatedDate) : null;
+        const createdDate = parseDbDate(x.created_at);
+        const createdDateStr = getEgyptDateString(createdDate);
 
-        let isCreatedRecently =
-            createdDateStr === todayStr ||
-            (egyptNow.getTime() - createdDate.getTime() <= last24HoursMs && egyptNow.getTime() >= createdDate.getTime());
+        const updatedDate = x.updated_at
+            ? parseDbDate(x.updated_at)
+            : null;
 
-        let isUpdatedRecently =
+        const updatedDateStr = updatedDate
+            ? getEgyptDateString(updatedDate)
+            : null;
+
+        const isCreatedToday =
+            createdDateStr === todayStr;
+
+        const isUpdatedToday =
             updatedDate &&
-            updatedDateStr !== createdDateStr &&
-            (updatedDateStr === todayStr || (egyptNow.getTime() - updatedDate.getTime() <= last24HoursMs && egyptNow.getTime() >= updatedDate.getTime()));
+            updatedDateStr === todayStr &&
+            updatedDateStr !== createdDateStr;
 
-        let price = parseFloat(x.price) || 0;
-        let totalPaid = parseFloat(x.paid) || 0;
-        let rem = price - totalPaid;
+        const price = parseFloat(x.price) || 0;
+        const totalPaid = parseFloat(x.paid) || 0;
+        const remaining = Math.max(price - totalPaid, 0);
 
         let includeInReport = false;
-        let dailyVaultAddition = 0;
+        let collectedToday = 0;
 
         if (type === 'daily') {
-            if (isCreatedRecently) {
+
+            if (isCreatedToday) {
+                // الفاتورة الجديدة: نحسب المقدم الذي دفعه اليوم
                 includeInReport = true;
-                dailyVaultAddition = totalPaid;
-            } else if (isUpdatedRecently) {
+                collectedToday = totalPaid;
+
+            } else if (isUpdatedToday) {
+                // الفاتورة القديمة: نحسب الدفعة الجديدة فقط
                 includeInReport = true;
-                const savedLastPayment = parseFloat(x.last_payment_amount);
-                dailyVaultAddition = !isNaN(savedLastPayment) ? savedLastPayment : 0;
+
+                const lastPayment =
+                    parseFloat(x.last_payment_amount);
+
+                collectedToday =
+                    !isNaN(lastPayment) && lastPayment > 0
+                        ? lastPayment
+                        : 0;
             }
+
         } else if (type === 'monthly') {
-            let invYear = getEgyptYear(createdDate);
-            let invMonth = getEgyptMonth(createdDate);
-            if (invYear === currentYear && invMonth === currentMonth) {
+
+            const invYear = getEgyptYear(createdDate);
+            const invMonth = getEgyptMonth(createdDate);
+
+            if (
+                invYear === currentYear &&
+                invMonth === currentMonth
+            ) {
                 includeInReport = true;
-                dailyVaultAddition = totalPaid;
+                collectedToday = totalPaid;
             }
+
         } else if (type === 'yearly') {
-            let invYear = getEgyptYear(createdDate);
+
+            const invYear = getEgyptYear(createdDate);
+
             if (invYear === currentYear) {
                 includeInReport = true;
-                dailyVaultAddition = totalPaid;
+                collectedToday = totalPaid;
             }
         }
 
-        if (includeInReport) {
-            let uniqueKey = x.id;
-            if (!processedDailyOrders.has(uniqueKey)) {
-                processedDailyOrders.add(uniqueKey);
+        if (!includeInReport) {
+            return;
+        }
 
-                if (type === 'daily') {
-                    if (isCreatedRecently) {
-                        totalOverallAll += price;
-                        totalVaultAll += dailyVaultAddition;
-                    } else {
-                        totalVaultAll += dailyVaultAddition;
-                    }
-                    totalRemainingAll += rem;
-                } else {
-                    totalVaultAll += dailyVaultAddition;
-                    totalRemainingAll += rem;
-                    totalOverallAll += price;
-                }
+        const uniqueKey = String(x.id);
 
-                reportLines += 'أوردر (' + x.daily_number + '/' + getEgyptDay(createdDate) + ') - ' + x.customer_name + ' | الإجمالي: ' + price + ' ج | المدفوع: ' + totalPaid + ' ج | الباقي: ' + rem + ' ج\n';
+        if (processedOrders.has(uniqueKey)) {
+            return;
+        }
+
+        processedOrders.add(uniqueKey);
+
+        totalVaultAll += collectedToday;
+        totalRemainingAll += remaining;
+
+        if (type === 'daily') {
+
+            // إجمالي الحساب الكلي يشمل أوردرات اليوم فقط
+            if (isCreatedToday) {
+                totalOverallAll += price;
             }
+
+        } else {
+            totalOverallAll += price;
+        }
+
+        const orderDay = getEgyptDay(createdDate);
+        const orderNumber = x.daily_number || '#';
+        const customerName = x.customer_name || 'بدون اسم';
+
+        if (type === 'daily') {
+
+            reportLines +=
+                'أوردر (' + orderNumber + '/' + orderDay + ')' +
+                ' - ' + customerName +
+                ' | الإجمالي: ' + price + ' ج' +
+                ' | المدفوع: ' + totalPaid + ' ج' +
+                ' | الباقي: ' + remaining + ' ج\n';
+
+        } else {
+
+            reportLines +=
+                'أوردر (' + orderNumber + '/' + orderDay + ')' +
+                ' - ' + customerName +
+                ' | الإجمالي: ' + price + ' ج' +
+                ' | المدفوع: ' + totalPaid + ' ج' +
+                ' | الباقي: ' + remaining + ' ج\n';
         }
     });
 
-    let modeLabel = type === 'daily' ? 'DAILY' : type.toUpperCase();
-    let txt = 'تقرير الإسكافي شوز (' + modeLabel + ')\n====================\n\n' + reportLines + '\n====================\n';
-    txt += "إجمالي الحساب الكلي: " + totalOverallAll + ' ج\n';
-    txt += "إجمالي الخزنة (المدفوع): " + totalVaultAll + ' ج\n';
-    txt += "إجمالي المبلغ المتبقي: " + totalRemainingAll + ' ج';
+    if (!reportLines) {
+        alert("لا توجد فواتير أو دفعات مسجلة في الفترة المطلوبة!");
+        return;
+    }
 
-    var b = new Blob(["\uFEFF" + txt], { type: "text/plain;charset=utf-8" });
-    var lnk = document.createElement('a');
-    lnk.href = URL.createObjectURL(b);
-    lnk.download = "Report_" + type + ".txt";
-    lnk.click();
+    const modeLabel =
+        type === 'daily' ? 'DAILY' : type.toUpperCase();
+
+    let txt =
+        'تقرير الإسكافي شوز (' + modeLabel + ')\n' +
+        '====================\n\n' +
+        reportLines +
+        '\n====================\n';
+
+    txt +=
+        "إجمالي الحساب الكلي: " +
+        totalOverallAll + ' ج\n';
+
+    txt +=
+        "إجمالي الخزنة (المدفوع): " +
+        totalVaultAll + ' ج\n';
+
+    txt +=
+        "إجمالي المبلغ المتبقي: " +
+        totalRemainingAll + ' ج';
+
+    const blob = new Blob(
+        ["\uFEFF" + txt],
+        { type: "text/plain;charset=utf-8" }
+    );
+
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
+    link.download = "Report_" + type + "_" + todayStr + ".txt";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setTimeout(function() {
+        URL.revokeObjectURL(url);
+    }, 1000);
 }
 
 async function loadDeliveredInvoices(filterType) {
@@ -2392,7 +2513,7 @@ async function loadDeliveredInvoices(filterType) {
         const nowEgypt = await getAccurateEgyptNow();
         const todayStr = getEgyptDateString(nowEgypt);
         filteredData = data.filter(function(inv) {
-            return inv.delivered_at && getEgyptDateString(new Date(inv.delivered_at)) === todayStr;
+            return inv.delivered_at && getEgyptDateString(parseDbDate(inv.delivered_at)) === todayStr;
         });
 
         if (filteredData.length === 0) {
@@ -2512,7 +2633,7 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
         const paid = inv.paid || 0;
         const rem = price - paid;
 
-        let invDate = new Date(inv.created_at || Date.now());
+        let invDate = parseDbDate(inv.created_at);
         let numTop = inv.daily_number || '#';
         let numBottom = getEgyptDay(invDate);
 
@@ -2593,7 +2714,7 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
                     '<strong style="color:#f3e5ab;font-size:15px;">' + inv.customer_name + '</strong>' +
                     '<span class="status-badge ' + statusClass + '">' + (inv.status || 'تحت الصيانة') + '</span>' +
                 '</div>' +
-                '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">التاريخ: ' + getEgyptDateString(inv.created_at || Date.now()) + '</div>' +
+                '<div style="font-size:12px;color:#94a3b8;margin-bottom:3px;">التاريخ: ' + getEgyptDateString(invDate) + '</div>' +
                 '<div style="font-size:13px;color:#38bdf8;margin-bottom:3px;"><b>رقم الأوردر:</b> ' + fractionHtml + '</div>' +
                 '<div style="font-size:13px;color:#cbd5e1;margin-bottom:3px;">الموبايل: ' + (inv.phone || '-') + '</div>' +
                 '<div style="font-size:13px;color:#e2e8f0;margin-bottom:3px;"><b>الأصناف:</b> ' + (inv.item_type || '-') + '</div>' +
