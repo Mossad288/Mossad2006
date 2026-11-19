@@ -1830,7 +1830,7 @@ function resetFormInputs() {
     document.getElementById('snd').value = '';
     document.getElementById('sng').value = '';
     document.getElementById('bags').value = '';
-    
+
     if(document.getElementById('boot')) document.getElementById('boot').value = '';
     if(document.getElementById('belt')) document.getElementById('belt').value = '';
     if(document.getElementById('jacket')) document.getElementById('jacket').value = '';
@@ -1844,7 +1844,7 @@ function resetFormInputs() {
     document.getElementById('tot').value = '';
     document.getElementById('paid').value = '';
     document.getElementById('rem').value = '';
-    
+
     const historyNotice = document.getElementById('customerHistoryNotice');
     if(historyNotice) {
         historyNotice.style.display = 'none';
@@ -1860,8 +1860,8 @@ function resetFormInputs() {
     uploadedImageUrls = [];
     selectedFilesList = [];
     isCurrentInvoiceSaved = false;
-    isCustomerSelected = false; 
-    
+    isCustomerSelected = false;
+
     document.getElementById('clientSendBtn').disabled = false;
     document.getElementById('ownerSendBtn').disabled = false;
 }
@@ -1945,7 +1945,7 @@ function selectCustomerFromList(inv) {
 
     const lastInvDate = inv.created_at ? getEgyptDateString(parseDbDate(inv.created_at)) : 'غير محدد';
     const lastInvNum = inv.daily_number || '#';
-    
+
     const historyNotice = document.getElementById('customerHistoryNotice');
     if (historyNotice) {
         historyNotice.innerHTML = `تم اختيار العميل بنجاح - آخر أوردر برقم: <b>${lastInvNum}</b> | بتاريخ: <b>${lastInvDate}</b>`;
@@ -2010,7 +2010,7 @@ function selectCustomerFromList(inv) {
 
     if (inv.price !== undefined) document.getElementById('tot').value = inv.price;
     if (inv.paid !== undefined) document.getElementById('paid').value = inv.paid;
-    
+
     calc();
 }
 
@@ -2236,6 +2236,10 @@ async function sendTo(m) {
     var p = document.getElementById('paid').value || '0';
     var rm = document.getElementById('rem').value || '0';
 
+    const nowEgypt = await getAccurateEgyptNow();
+    currentDayNum = getEgyptDay(nowEgypt);
+    formattedOrderCode = currentDailyNum + '/' + currentDayNum;
+
     if (!isCurrentInvoiceSaved) {
         var imgUrls = await uploadAllImages();
         var imagesForDatabase = imgUrls.join('\n');
@@ -2253,7 +2257,8 @@ async function sendTo(m) {
                     last_payment_amount: parseFloat(p) || 0,
                     image_url: imagesForDatabase,
                     status: 'تحت الصيانة',
-                    daily_number: currentDailyNum
+                    daily_number: currentDailyNum,
+                    created_at: nowEgypt.toISOString()
                 }
             ]);
 
@@ -2459,24 +2464,12 @@ async function rep(type) {
         const orderNumber = x.daily_number || '#';
         const customerName = x.customer_name || 'بدون اسم';
 
-        if (type === 'daily') {
-
-            reportLines +=
-                'أوردر (' + orderNumber + '/' + orderDay + ')' +
-                ' - ' + customerName +
-                ' | الإجمالي: ' + price + ' ج' +
-                ' | المدفوع: ' + totalPaid + ' ج' +
-                ' | الباقي: ' + remaining + ' ج\n';
-
-        } else {
-
-            reportLines +=
-                'أوردر (' + orderNumber + '/' + orderDay + ')' +
-                ' - ' + customerName +
-                ' | الإجمالي: ' + price + ' ج' +
-                ' | المدفوع: ' + totalPaid + ' ج' +
-                ' | الباقي: ' + remaining + ' ج\n';
-        }
+        reportLines +=
+            'أوردر (' + orderNumber + '/' + orderDay + ')' +
+            ' - ' + customerName +
+            ' | الإجمالي: ' + price + ' ج' +
+            ' | المدفوع: ' + totalPaid + ' ج' +
+            ' | الباقي: ' + remaining + ' ج\n';
     });
 
     if (!reportLines) {
@@ -2947,3 +2940,4 @@ async function updateStatus(id, newStatus) {
 
 </body>
 </html>
+
