@@ -2362,114 +2362,114 @@ async function rep(type) {
     let totalRemainingAll = 0;
     let totalOverallAll = 0;
     let reportLines = '';
-    let processedOrders = new Set();
+    let processedDailyOrders = new Set();
 
     list.forEach(function(x) {
-        const createdDate = parseDbDate(x.created_at);
-        const createdDateStr = getEgyptDateString(createdDate);
+        let createdDate = parseDbDate(x.created_at || Date.now());
+        let createdDateStr = getEgyptDateString(createdDate);
 
-        const updatedDate = x.updated_at
-            ? parseDbDate(x.updated_at)
-            : null;
+        let updatedDate = x.updated_at ? parseDbDate(x.updated_at) : null;
+        let updatedDateStr = updatedDate ? getEgyptDateString(updatedDate) : null;
 
-        const updatedDateStr = updatedDate
-            ? getEgyptDateString(updatedDate)
-            : null;
-
-        const isCreatedToday =
-            createdDateStr === todayStr;
-
-        const isUpdatedToday =
-            updatedDate &&
-            updatedDateStr === todayStr &&
-            updatedDateStr !== createdDateStr;
-
-        const price = parseFloat(x.price) || 0;
-        const totalPaid = parseFloat(x.paid) || 0;
-        const remaining = Math.max(price - totalPaid, 0);
+        let price = parseFloat(x.price) || 0;
+        let totalPaid = parseFloat(x.paid) || 0;
+        let rem = price - totalPaid;
 
         let includeInReport = false;
-        let collectedToday = 0;
+        let dailyVaultAddition = 0;
+
+        let lastPaymentVal = parseFloat(x.last_payment_amount) || 0;
+        let previousPaid = 0;
+        let paidOnDelivery = 0;
+
+        if (updatedDateStr === todayStr && updatedDateStr !== createdDateStr) {
+            previousPaid = Math.max(totalPaid - lastPaymentVal, 0);
+            paidOnDelivery = lastPaymentVal;
+        } else if (createdDateStr === todayStr) {
+            previousPaid = 0;
+            paidOnDelivery = totalPaid;
+        }
 
         if (type === 'daily') {
-
-            if (isCreatedToday) {
-                // الفاتورة الجديدة: نحسب المقدم الذي دفعه اليوم
+            if (createdDateStr === todayStr) {
                 includeInReport = true;
-                collectedToday = totalPaid;
-
-            } else if (isUpdatedToday) {
-                // الفاتورة القديمة: نحسب الدفعة الجديدة فقط
+                dailyVaultAddition = totalPaid;
+            } else if (updatedDateStr === todayStr && updatedDateStr !== createdDateStr) {
                 includeInReport = true;
-
-                const lastPayment =
-                    parseFloat(x.last_payment_amount);
-
-                collectedToday =
-                    !isNaN(lastPayment) && lastPayment > 0
-                        ? lastPayment
-                        : 0;
+                dailyVaultAddition = !isNaN(lastPaymentVal) ? lastPaymentVal : 0;
             }
-
         } else if (type === 'monthly') {
+            let invYear = getEgyptYear(createdDate);
+            let invMonth = getEgyptMonth(createdDate);
 
-            const invYear = getEgyptYear(createdDate);
-            const invMonth = getEgyptMonth(createdDate);
-
-            if (
-                invYear === currentYear &&
-                invMonth === currentMonth
-            ) {
+            if (invYear === currentYear && invMonth === currentMonth) {
                 includeInReport = true;
-                collectedToday = totalPaid;
+                dailyVaultAddition = totalPaid;
             }
-
         } else if (type === 'yearly') {
-
-            const invYear = getEgyptYear(createdDate);
+            let invYear = getEgyptYear(createdDate);
 
             if (invYear === currentYear) {
                 includeInReport = true;
-                collectedToday = totalPaid;
+                dailyVaultAddition = totalPaid;
             }
         }
 
-        if (!includeInReport) {
-            return;
-        }
+        if (includeInReport) {
+            let uniqueKey = x.id;
 
-        const uniqueKey = String(x.id);
+            if (!processedDailyOrders.has(uniqueKey)) {
+                processedDailyOrders.add(uniqueKey);
 
-        if (processedOrders.has(uniqueKey)) {
-            return;
-        }
+                if (type === 'daily') {
+                    if (createdDateStr === todayStr) {
+                        totalOverallAll += price;
+                        totalVaultAll += dailyVaultAddition;
+                    } else {
+                        totalVaultAll += dailyVaultAddition;
+                    }
+                    totalRemainingAll += rem;
+                } else {
+                    totalVaultAll += dailyVaultAddition;
+                    totalRemainingAll += rem;
+                    totalOverallAll += price;
+                }
 
-        processedOrders.add(uniqueKey);
-
-        totalVaultAll += collectedToday;
-        totalRemainingAll += remaining;
-
-        if (type === 'daily') {
-
-            // إجمالي الحساب الكلي يشمل أوردرات اليوم فقط
-            if (isCreatedToday) {
-                totalOverallAll += price;
+                if (previousPaid > 0 && paidOnDelivery > 0) {
+                    reportLines +=
+                        'أوردر (' +
+                        x.daily_number +
+                        '/' +
+                        getEgyptDay(createdDate) +
+                        ') - ' +
+                        x.customer_name +
+                        ' | الإجمالي: ' +
+                        price +
+                        ' ج | المدفوع سابقاً: ' +
+                        previousPaid +
+                        ' ج | المدفوع عند الاستلام: ' +
+                        paidOnDelivery +
+                        ' ج | الباقي: ' +
+                        rem +
+                        ' ج\n';
+                } else {
+                    reportLines +=
+                        'أوردر (' +
+                        x.daily_number +
+                        '/' +
+                        getEgyptDay(createdDate) +
+                        ') - ' +
+                        x.customer_name +
+                        ' | الإجمالي: ' +
+                        price +
+                        ' ج | المدفوع: ' +
+                        totalPaid +
+                        ' ج | الباقي: ' +
+                        rem +
+                        ' ج\n';
+                }
             }
-
-        } else {
-            totalOverallAll += price;
         }
-
-        const orderDay = getEgyptDay(createdDate);
-        const orderNumber = x.daily_number || '#';
-        const customerName = x.customer_name || 'بدون اسم';
-
-        reportLines +=
-            'أوردر (' + orderNumber + '/' + orderDay + ')' +
-            ' - ' + customerName +
-            ' | الإجمالي: ' + price + ' ج' +
-            ' | المدفوع: ' + totalPaid + ' ج' +
-            ' | الباقي: ' + remaining + ' ج\n';
     });
 
     if (!reportLines) {
@@ -2477,41 +2477,45 @@ async function rep(type) {
         return;
     }
 
-    const modeLabel =
-        type === 'daily' ? 'DAILY' : type.toUpperCase();
-
     let txt =
-        'تقرير الإسكافي شوز (' + modeLabel + ')\n' +
-        '====================\n\n' +
-        reportLines +
-        '\n====================\n';
+        'تقرير الإسكافي شوز (' +
+        type.toUpperCase() +
+        ')\n' +
+        '====================\n\n';
+
+    txt += reportLines;
+
+    txt += "\n====================\n";
 
     txt +=
         "إجمالي الحساب الكلي: " +
-        totalOverallAll + ' ج\n';
+        totalOverallAll +
+        ' ج\n';
 
     txt +=
         "إجمالي الخزنة (المدفوع): " +
-        totalVaultAll + ' ج\n';
+        totalVaultAll +
+        ' ج\n';
 
     txt +=
         "إجمالي المبلغ المتبقي: " +
-        totalRemainingAll + ' ج';
+        totalRemainingAll +
+        ' ج';
 
-    const blob = new Blob(
+    var b = new Blob(
         ["\uFEFF" + txt],
         { type: "text/plain;charset=utf-8" }
     );
 
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
+    var lnk = document.createElement('a');
+    var url = URL.createObjectURL(b);
 
-    link.href = url;
-    link.download = "Report_" + type + "_" + todayStr + ".txt";
+    lnk.href = url;
+    lnk.download = "Report_" + type + ".txt";
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    document.body.appendChild(lnk);
+    lnk.click();
+    document.body.removeChild(lnk);
 
     setTimeout(function() {
         URL.revokeObjectURL(url);
@@ -2951,3 +2955,7 @@ async function updateStatus(id, newStatus) {
 
 </body>
 </html>
+
+
+
+
