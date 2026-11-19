@@ -2730,7 +2730,7 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
                 '</div>' +
                 '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
                     '<button type="button" class="btn-sm" style="background:#0284c7;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تم التسليم\')">تم التسليم</button>' +
-                    '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick=\'completeOrderAndNotify(' + inv.id + ', ' + JSON.stringify(inv.customer_name) + ', ' + JSON.stringify(inv.phone) + ', ' + numTop + ', ' + numBottom + ')\'>تم الانتهاء</button>' +
+                    '<button type="button" class="btn-sm" style="background:#16a34a;color:#fff;flex:1;" onclick=\'completeOrderAndNotify(this, ' + inv.id + ', ' + JSON.stringify(inv.customer_name) + ', ' + JSON.stringify(inv.phone) + ', ' + numTop + ', ' + numBottom + ')\'>تم الانتهاء</button>' +
                     '<button type="button" class="btn-sm" style="background:#d97706;color:#fff;flex:1;" onclick="updateStatus(' + inv.id + ', \'تحت الصيانة\')">تحت الصيانة</button>' +
                 '</div>';
         }
@@ -2755,7 +2755,7 @@ function renderSearchResults(data, error, resBox, showAdminControls) {
     }).join('');
 }
 
-async function completeOrderAndNotify(id, customerName, phoneNum, numTop, numBottom) {
+async function completeOrderAndNotify(btnEl, id, customerName, phoneNum, numTop, numBottom) {
     const egyptNow = await getAccurateEgyptNow();
     const statusUpdatedAt = egyptNow.toISOString();
 
@@ -2769,6 +2769,15 @@ async function completeOrderAndNotify(id, customerName, phoneNum, numTop, numBot
         return;
     }
 
+    const cardEl = btnEl ? btnEl.closest('div[style*="border-bottom:1px dashed"]') : null;
+    if (cardEl) {
+        const badgeEl = cardEl.querySelector('.status-badge');
+        if (badgeEl) {
+            badgeEl.textContent = 'تم الانتهاء من الصيانة';
+            badgeEl.className = 'status-badge bg-done';
+        }
+    }
+
     if (phoneNum) {
         var cleanPh = phoneNum.replace(/\D/g, '');
         if (cleanPh.startsWith("0")) {
@@ -2779,10 +2788,12 @@ async function completeOrderAndNotify(id, customerName, phoneNum, numTop, numBot
         var msg = `عزيزي العميل ${customerName}، تم الانتهاء من صيانة طلبك برقم (${orderCodeStr}) وهو جاهز الآن للاستلام من محل الاسكافي شوز. نتشرف بزيارتك!`;
 
         var whatsappAppUrl = "whatsapp://send?phone=" + cleanPh + "&text=" + encodeURIComponent(msg);
-        location.href = whatsappAppUrl;
+        var openedWin = window.open(whatsappAppUrl, "_blank");
+        if (!openedWin) {
+            location.href = whatsappAppUrl;
+        }
     } else {
         alert('تم تغيير الحالة بنجاح (رقم هاتف العميل غير متوفر لإرسال رسالة واتساب)');
-        adminSearchByFractionNumber();
     }
 }
 
@@ -2940,4 +2951,3 @@ async function updateStatus(id, newStatus) {
 
 </body>
 </html>
-
