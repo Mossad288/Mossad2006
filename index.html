@@ -1154,6 +1154,28 @@ var trustedPerformanceMs = null;
 var midnightTimer = null;
 var timeSyncTimer = null;
 
+function openWhatsAppClean(url, preferNewTab) {
+    if (preferNewTab) {
+        var win = window.open(url, "_blank");
+        if (win) {
+            setTimeout(function() {
+                try {
+                    if (!win.closed && (win.location.href === "about:blank" || win.location.href === "")) {
+                        win.close();
+                    }
+                } catch (e) {}
+            }, 1500);
+            return;
+        }
+    }
+    var tempLink = document.createElement("a");
+    tempLink.href = url;
+    tempLink.style.display = "none";
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    document.body.removeChild(tempLink);
+}
+
 function parseDbDate(dateVal) {
     if (!dateVal) return new Date();
     if (typeof dateVal === 'string') {
@@ -2301,7 +2323,7 @@ async function sendTo(m) {
             'نرحب بكم دائمًا في الاسكافي شوز';
 
         var whatsappAppUrl = "whatsapp://send?phone=" + cleanPh + "&text=" + encodeURIComponent(msg);
-        location.href = whatsappAppUrl;
+        openWhatsAppClean(whatsappAppUrl, false);
         return;
     }
 
@@ -2312,7 +2334,7 @@ async function sendTo(m) {
             baseTxt;
 
         var ownerWhatsappAppUrl = "whatsapp://send?phone=" + OWNER_PHONE + "&text=" + encodeURIComponent(oMsg);
-        location.href = ownerWhatsappAppUrl;
+        openWhatsAppClean(ownerWhatsappAppUrl, false);
         return;
     }
 }
@@ -2792,10 +2814,7 @@ async function completeOrderAndNotify(btnEl, id, customerName, phoneNum, numTop,
         var msg = `عزيزي العميل ${customerName}، تم الانتهاء من صيانة طلبك برقم (${orderCodeStr}) وهو جاهز الآن للاستلام من محل الاسكافي شوز. نتشرف بزيارتك!`;
 
         var whatsappAppUrl = "whatsapp://send?phone=" + cleanPh + "&text=" + encodeURIComponent(msg);
-        var openedWin = window.open(whatsappAppUrl, "_blank");
-        if (!openedWin) {
-            location.href = whatsappAppUrl;
-        }
+        openWhatsAppClean(whatsappAppUrl, true);
     } else {
         alert('تم تغيير الحالة بنجاح (رقم هاتف العميل غير متوفر لإرسال رسالة واتساب)');
     }
@@ -2955,7 +2974,3 @@ async function updateStatus(id, newStatus) {
 
 </body>
 </html>
-
-
-
-
