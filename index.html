@@ -1154,26 +1154,18 @@ var trustedPerformanceMs = null;
 var midnightTimer = null;
 var timeSyncTimer = null;
 
-function openWhatsAppClean(url, preferNewTab) {
-    if (preferNewTab) {
-        var win = window.open(url, "_blank");
-        if (win) {
-            setTimeout(function() {
-                try {
-                    if (!win.closed && (win.location.href === "about:blank" || win.location.href === "")) {
-                        win.close();
-                    }
-                } catch (e) {}
-            }, 1500);
-            return;
-        }
+function openWhatsAppClean(phone, text) {
+    var webUrl = "https://api.whatsapp.com/send?phone=" + encodeURIComponent(phone) + "&text=" + encodeURIComponent(text);
+    var opened = window.open(webUrl, "_blank", "noopener,noreferrer");
+    if (!opened) {
+        var a = document.createElement("a");
+        a.href = webUrl;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
-    var tempLink = document.createElement("a");
-    tempLink.href = url;
-    tempLink.style.display = "none";
-    document.body.appendChild(tempLink);
-    tempLink.click();
-    document.body.removeChild(tempLink);
 }
 
 function parseDbDate(dateVal) {
@@ -2322,8 +2314,7 @@ async function sendTo(m) {
             'تنبيه: المحل غير مسؤول عن أي شيء بعد 15 يوم من ميعاد التسليم.\n\n' +
             'نرحب بكم دائمًا في الاسكافي شوز';
 
-        var whatsappAppUrl = "whatsapp://send?phone=" + cleanPh + "&text=" + encodeURIComponent(msg);
-        openWhatsAppClean(whatsappAppUrl, false);
+        openWhatsAppClean(cleanPh, msg);
         return;
     }
 
@@ -2333,8 +2324,7 @@ async function sendTo(m) {
             'أرشيف أوردر رقم (' + formattedOrderCode + ')\n\n' +
             baseTxt;
 
-        var ownerWhatsappAppUrl = "whatsapp://send?phone=" + OWNER_PHONE + "&text=" + encodeURIComponent(oMsg);
-        openWhatsAppClean(ownerWhatsappAppUrl, false);
+        openWhatsAppClean(OWNER_PHONE, oMsg);
         return;
     }
 }
@@ -2813,8 +2803,7 @@ async function completeOrderAndNotify(btnEl, id, customerName, phoneNum, numTop,
         var orderCodeStr = numTop + '/' + numBottom;
         var msg = `عزيزي العميل ${customerName}، تم الانتهاء من صيانة طلبك برقم (${orderCodeStr}) وهو جاهز الآن للاستلام من محل الاسكافي شوز. نتشرف بزيارتك!`;
 
-        var whatsappAppUrl = "whatsapp://send?phone=" + cleanPh + "&text=" + encodeURIComponent(msg);
-        openWhatsAppClean(whatsappAppUrl, true);
+        openWhatsAppClean(cleanPh, msg);
     } else {
         alert('تم تغيير الحالة بنجاح (رقم هاتف العميل غير متوفر لإرسال رسالة واتساب)');
     }
