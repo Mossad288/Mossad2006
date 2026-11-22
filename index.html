@@ -1155,17 +1155,19 @@ var midnightTimer = null;
 var timeSyncTimer = null;
 
 function openWhatsAppClean(phone, text) {
-    var webUrl = "https://api.whatsapp.com/send?phone=" + encodeURIComponent(phone) + "&text=" + encodeURIComponent(text);
-    var opened = window.open(webUrl, "_blank", "noopener,noreferrer");
-    if (!opened) {
-        var a = document.createElement("a");
-        a.href = webUrl;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
+    var cleanPhone = String(phone || "").replace(/\D/g, "");
+    var appUrl = "whatsapp://send?phone=" + cleanPhone + "&text=" + encodeURIComponent(text || "");
+
+    var frame = document.createElement("iframe");
+    frame.style.display = "none";
+    frame.src = appUrl;
+    document.body.appendChild(frame);
+
+    setTimeout(function() {
+        if (frame && frame.parentNode) {
+            frame.parentNode.removeChild(frame);
+        }
+    }, 1500);
 }
 
 function parseDbDate(dateVal) {
