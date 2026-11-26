@@ -1144,6 +1144,7 @@ var selectedFilesList = [];
 
 var currentDailyNum = 1;
 var currentDayNum = 1;
+var currentTrackedDateStr = "";
 
 var formattedOrderCode = "";
 var isCurrentInvoiceSaved = false;
@@ -2086,6 +2087,11 @@ async function fetchNextInvoiceNum() {
         currentDayNum = getEgyptDay(nowEgypt);
         const range = getDateRangeISO(todayStr);
 
+        if (currentTrackedDateStr && currentTrackedDateStr !== todayStr) {
+            currentDailyNum = 1;
+        }
+        currentTrackedDateStr = todayStr;
+
         const { data, error } = await supabaseClient
             .from('invoices')
             .select('daily_number, created_at')
@@ -2100,12 +2106,13 @@ async function fetchNextInvoiceNum() {
                 .map(inv => parseInt(inv.daily_number))
                 .filter(n => !isNaN(n));
 
-            currentDailyNum = numbers.length > 0 ? Math.max(...numbers) + 1 : 1;
+            const nextFromDb = numbers.length > 0 ? Math.max(...numbers) + 1 : 1;
+            currentDailyNum = Math.max(nextFromDb, currentDailyNum);
         } else {
-            currentDailyNum = 1;
+            currentDailyNum = Math.max(1, currentDailyNum);
         }
     } catch (e) {
-        currentDailyNum = 1;
+        currentDailyNum = Math.max(1, currentDailyNum);
     }
 
     formattedOrderCode = currentDailyNum + '/' + currentDayNum;
@@ -2252,6 +2259,8 @@ async function sendTo(m) {
     var p = document.getElementById('paid').value || '0';
     var rm = document.getElementById('rem').value || '0';
 
+    await fetchNextInvoiceNum();
+
     const nowEgypt = await getAccurateEgyptNow();
     currentDayNum = getEgyptDay(nowEgypt);
     formattedOrderCode = currentDailyNum + '/' + currentDayNum;
@@ -2286,6 +2295,7 @@ async function sendTo(m) {
         }
 
         isCurrentInvoiceSaved = true;
+        currentDailyNum = currentDailyNum + 1;
     }
 
     var baseTxt =
